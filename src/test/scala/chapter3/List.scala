@@ -22,12 +22,22 @@ object List {
   }
 
   def tail[A](xs: List[A]): List[A] = xs match {
-    case Nil => Nil//Choose to return Nil instead of throw an exception
+    case Nil => Nil //Choose to return Nil instead of throw an exception
     case Cons(x, xs) => xs
   }
 
   def setHead[A](newHead: A, xs: List[A]): List[A] = xs match {
     case Nil => Cons(newHead, Nil)
     case Cons(x, xs) => Cons(newHead, xs)
+  }
+
+  @annotation.tailrec
+  def drop[A](l: List[A], n: Int): List[A] = {
+    if (n <= 0) l
+    else
+      l match {
+        case Nil => Nil
+        case Cons(_, t) => drop(t, n - 1)
+      }
   }
 }

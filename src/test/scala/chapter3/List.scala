@@ -46,4 +46,10 @@ object List {
     case Cons(x, xs) if (f(x))  => dropWhile(xs)(f)
     case _ => l
   }
+
+  @annotation.tailrec
+  def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
+    case Cons(x, xs)  => foldLeft(xs, f(z, x))(f)
+    case _ => z
+  }
 }

@@ -41,15 +41,24 @@ object List {
       }
   }
 
+  //Repeately removes from the head of the list as long as the head matches the predicate.
   @annotation.tailrec
   def dropWhile[A](l: List[A])(f: A => Boolean): List[A] = l match {
-    case Cons(x, xs) if (f(x))  => dropWhile(xs)(f)
+    case Cons(x, xs) if (f(x)) => dropWhile(xs)(f)
     case _ => l
   }
 
   @annotation.tailrec
   def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
-    case Cons(x, xs)  => foldLeft(xs, f(z, x))(f)
+    case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
     case _ => z
   }
+
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+  }
+
+  def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil: List[A])((z, x) => Cons(x, z))
+
 }

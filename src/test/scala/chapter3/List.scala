@@ -59,6 +59,19 @@ object List {
     case Cons(x, xs) => f(x, foldRight(xs, z)(f))
   }
 
+
   def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil: List[A])((z, x) => Cons(x, z))
+
+
+  def curry2[A, B, C](f: (A, B) => C): A => (B => C) = a => b => f(a, b)
+
+  def partial12[A, B, C](a: A, f: (A, B) => C): B => C = (b: B) => f(a, b)
+
+  def uncurry2[A, B, C](f: A => B => C): (A, B) => C = (a: A, b: B) => f(a)(b)
+
+  def foldRightTailRec[A, B](as: List[A], z: B)(f: (A, B) => B): B = {
+    val reversed = reverse(as)
+    foldLeft(reversed, z)((b,a) => f(a,b))
+  }
 
 }

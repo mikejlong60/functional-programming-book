@@ -80,15 +80,6 @@ object List {
 
   def append[A](l1: List[A], l2: List[A]): List[A] = foldRightTailRec(l1, l2)(Cons(_, _))
 
-//  def flatten[A](l: List[List[A]]): List[A] = {
-//    foldRightTailRec(l.head)
-//  }
-  //    
-  //    l match {
-  //    case Cons(x, xs) => {
-  //      val ggg = append(x, xs)
-  //    }
-  //    case _ => l
-  //  } // //foldRightTailRec(l1, l2)(Cons(_, _))
+  def flatten[A](l: List[List[A]]): List[A] = foldRight(l, Nil:List[A])((a, b) => append(a, b))//Can be foldRightTailRec
 
 }

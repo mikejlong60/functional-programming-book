@@ -28,26 +28,5 @@ class SumProductLengthTest extends PropSpec with PropertyChecks with Matchers {
       actual should be(expected)
     }
   }
-
-  property("Understand appended Conses") {
-    forAll { (xs1: Array[Int], xs2: Array[Int], xs3: Array[Int], xs4: Array[Int]) =>
-      val list1 = List(xs1: _*)
-      val list2 = List(xs2: _*)
-      val list3 = List(xs3: _*)
-      val list4 = List(xs4: _*)
-      val app1 = List(list1, list2)
-      val app2 = List(list3, list4)
-      println("================")
-      println(list1)
-      println(list2)
-      println(list3)
-      println(list4)
-      println(app1)
-      val app3 = List(app1, app2)
-      println(app3)
-
-      //val app2 = List(list3, list4)
-    }
-  }
 }
 

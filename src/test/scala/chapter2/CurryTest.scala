@@ -18,8 +18,6 @@ class CurryTest extends PropSpec with PropertyChecks with Matchers {
       val curried = curry(cat)
       val uncurried = uncurry(curried)
       val res = uncurried(n, o)
-      println("curried:" + curried(n)(o))
-      println("uncurried:" +uncurried(n, o))
       (curried(n)(o)) should be(uncurried(n, o))
     }
   }
@@ -29,8 +27,6 @@ class CurryTest extends PropSpec with PropertyChecks with Matchers {
       val cat: (Array[Short], Array[Long]) => String = (x: Array[Short], y: Array[Long]) => s"${x.mkString(",")} : ${y.mkString(",")}"
       val curried = curry(cat)
       val uncurried = uncurry(curried)
-      println("curried:" + curried(n)(o))
-      println("uncurried:" +uncurried(n, o))
       (curried(n)(o)) should be(uncurried(n, o))
     }
   }

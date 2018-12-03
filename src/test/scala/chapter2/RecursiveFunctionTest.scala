@@ -23,7 +23,6 @@ class RecursiveFunctionTest extends PropSpec with PropertyChecks with Matchers {
 
     forAll { n: Short =>
       whenever(n >= 0) {
-        println(s"COMPUTING fib($n) == ${fib(n)})}")
         fib(0) should be(0)
         fib(1) should be(1)
         fib(2) should be(1)

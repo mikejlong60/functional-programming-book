@@ -19,7 +19,6 @@ class PolymorphicFunctionTest extends PropSpec with PropertyChecks with Matchers
   }
 
   def assertSorting[A](n: Array[A])(isOrdered: (A, A) => Boolean) = {
-    println(s"COMPUTING isSorted(${n.mkString(",")}) == ${isSorted(n)(isOrdered)})}")
     val sorted = n.sortWith(isOrdered) //This uses an internal Scala library function
     val wasAlreadySorted = isSorted(n)(isOrdered) //This uses my polymorphic, tail-recursive function above.
     if (wasAlreadySorted) sorted shouldBe (n)

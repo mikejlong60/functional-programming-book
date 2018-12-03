@@ -26,6 +26,12 @@ object List {
     case Cons(x, xs) => xs
   }
 
+  def head[A](l: List[A]): A =
+    l match {
+      case Nil => throw new Exception("head of empty list")
+      case Cons(h, t) => h
+    }
+
   def setHead[A](newHead: A, xs: List[A]): List[A] = xs match {
     case Nil => Cons(newHead, Nil)
     case Cons(x, xs) => Cons(newHead, xs)
@@ -59,9 +65,7 @@ object List {
     case Cons(x, xs) => f(x, foldRight(xs, z)(f))
   }
 
-
   def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil: List[A])((z, x) => Cons(x, z))
-
 
   def curry2[A, B, C](f: (A, B) => C): A => (B => C) = a => b => f(a, b)
 
@@ -71,7 +75,20 @@ object List {
 
   def foldRightTailRec[A, B](as: List[A], z: B)(f: (A, B) => B): B = {
     val reversed = reverse(as)
-    foldLeft(reversed, z)((b,a) => f(a,b))
+    foldLeft(reversed, z)((b, a) => f(a, b))
   }
+
+  def append[A](l1: List[A], l2: List[A]): List[A] = foldRightTailRec(l1, l2)(Cons(_, _))
+
+//  def flatten[A](l: List[List[A]]): List[A] = {
+//    foldRightTailRec(l.head)
+//  }
+  //    
+  //    l match {
+  //    case Cons(x, xs) => {
+  //      val ggg = append(x, xs)
+  //    }
+  //    case _ => l
+  //  } // //foldRightTailRec(l1, l2)(Cons(_, _))
 
 }

@@ -47,7 +47,7 @@ object List {
       }
   }
 
-  //Repeately removes from the head of the list as long as the head matches the predicate.
+  //Repeately removes from the head of the list as long as the head matches the predicate.  But stops once it has reached a false predicate
   @annotation.tailrec
   def dropWhile[A](l: List[A])(f: A => Boolean): List[A] = l match {
     case Cons(x, xs) if (f(x)) => dropWhile(xs)(f)
@@ -60,6 +60,7 @@ object List {
     case _ => z
   }
 
+  //Will blow stack for large lists. See foldRightTailRec for stack-safe version
   def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
     case Nil => z
     case Cons(x, xs) => f(x, foldRight(xs, z)(f))
@@ -67,13 +68,16 @@ object List {
 
   def reverse[A](as: List[A]): List[A] = foldLeft(as, Nil: List[A])((z, x) => Cons(x, z))
 
-  def foldRightTailRec[A, B](as: List[A], z: B)(f: (A, B) => B): B = {
+  def foldRightTailRec[A, B](as: List[A], z: B)(f: (A, B) => B): B = { //Is isomorphic to foldRight
     val reversed = reverse(as)
     foldLeft(reversed, z)((b, a) => f(a, b))
   }
 
   def append[A](l1: List[A], l2: List[A]): List[A] = foldRightTailRec(l1, l2)(Cons(_, _))
 
-  def flatten[A](l: List[List[A]]): List[A] = foldRight(l, Nil:List[A])((a, b) => append(a, b))//Can be foldRightTailRec
+  def flatten[A](l: List[List[A]]): List[A] = foldRight(l, Nil: List[A])((a, b) => append(a, b)) //Can be foldRightTailRec
 
+  def map[A, B](as: List[A])(f: A => B): List[B] = foldRight(as, Nil: List[B])((x, z) => Cons(f(x), z))
+
+  def filter[A](as: List[A])(f: A => Boolean): List[A] = foldRight(as, Nil: List[A])((x, z) => if (f(x)) Cons(x, z) else z)
 }

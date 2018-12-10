@@ -85,4 +85,12 @@ object List {
 
   def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = concat(map(as)(f))
 
+  def zipFold[A, B, C](l1: List[A], l2: List[B], accum: List[C])(f: (A, B) => C): List[C] = {
+     (l1, l2) match {
+       case (Cons(x, xs), Cons(y, ys)) => zipFold(xs, ys, Cons(f(x, y), accum))(f)
+       case _ => reverse(accum)
+     }
+  }
+
+  def zipWith[A, B, C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] = zipFold(l1, l2, Nil: List[C])(f)
 }

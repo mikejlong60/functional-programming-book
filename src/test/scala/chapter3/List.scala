@@ -1,5 +1,7 @@
 package chapter3
 
+import scala.annotation.tailrec
+
 sealed trait List[+A]
 case object Nil extends List[Nothing]
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
@@ -93,4 +95,20 @@ object List {
   }
 
   def zipWith[A, B, C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] = zipFold(l1, l2, Nil: List[C])(f)
+
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+
+    @tailrec
+    def internal(sup: List[A], sub: List[A]): (List[A], List[A]) = (sup, sub) match {
+      case (Cons(x, xs), Cons(y, ys))  if (x == y) => internal(xs, ys)
+      case (Cons(x, xs), Cons(y, ys))  if (x != y) => internal(xs, sub)
+      case (xs @ _, ys @ _) => (xs, ys)
+    }
+
+    internal(sup, sub) match {
+      case (Cons(x, xs), Nil) => true
+      case (Nil, Cons(y, ys)) => false
+      case _ => true
+    }
+  }
 }

@@ -50,7 +50,7 @@ class TreeTest extends PropSpec with PropertyChecks with Matchers {
      actual should be (14)
    }
 
-  //  property("Test fold with Tree of 2 leaves of Ints") {
+////  property("Test fold with Tree of 2 leaves of Ints") {
 //    val t = Branch(Leaf(1), Leaf(2))
 //    val actual = Tree.fold(t, 0)((x, a) => a + 1)
 //    actual should be (2)

@@ -5,11 +5,75 @@ import org.scalatest.{Matchers, PropSpec}
 
 class TreeTest extends PropSpec with PropertyChecks with Matchers {
 
+
+  //Max tests
+  property("Test max with Tree of 2 leaves of Ints") {
+    val t = Branch(Leaf(1), Leaf(2))
+    val actual = Tree.max(t)
+    actual should be (2)
+  }
+
+
+  property("Test max with Tree of right 1 leaf") {
+    val t = Branch(Leaf(1), null)
+    val actual = Tree.max(t)
+    actual should be (1)
+  }
+
+  property("Test max with Tree of left 1 leaf and null") {
+    val t = Branch(null, Leaf(2))
+    val actual = Tree.max(t)
+    actual should be (2)
+  }
+
+  property("Test max with Tree of 2 Branches woth 2 leaves on each one") {
+    val t = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Leaf(4)))
+    val actual = Tree.max(t)
+    actual should be (4)
+  }
+
+  property("Test max on left leaning tree with Branch at top only on left") {
+    val t = Branch(Branch(Leaf(1), Leaf(2)), null)
+    val actual = Tree.max(t)
+    actual should be (2)
+  }
+
+  property("Test max with Tree of 2 nulls") {
+    val t = Branch(null, null)
+    val actual = Tree.max(t)
+    actual should be (Int.MinValue)
+  }
+
+  property("Test max with Tree of 3 even layers") {
+    val l3ll = Branch(Leaf(1), Leaf(2))
+    val l3lr = Branch(Leaf(3), Leaf(4))
+    val r3ll = Branch(Leaf(1), Leaf(2))
+    val r3lr = Branch(Leaf(3), Leaf(4))
+    val t = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+    val actual = Tree.max(t)
+    actual should be (4)
+  }
+
+  property("Test max big Tree") {
+    val l3ll = Branch(Leaf(1), Leaf(2))
+    val l3lr = Branch(Leaf(3), Leaf(4))
+    val r3ll = Branch(Leaf(1), Leaf(2))
+    val r3lr = Branch(Leaf(3), Leaf(4))
+    val l = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+    val r = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+    val t = Branch(Branch(l, r), Branch(l, r))
+    val actual = Tree.max(t)
+    actual should be (4)
+  }
+
+
+  //Size tests
   property("Test size with Tree of 2 leaves of Ints") {
     val t = Branch(Leaf(1), Leaf(2))
     val actual = Tree.size(t)
     actual should be (2)
   }
+
 
    property("Test size with Tree of right 1 leaf") {
      val t = Branch(Leaf(1), null)
@@ -29,7 +93,7 @@ class TreeTest extends PropSpec with PropertyChecks with Matchers {
      actual should be (6)
    }
 
-   property("Test left leaning tree with Branch at top only on left") {
+   property("Test size on left leaning tree with Branch at top only on left") {
      val t = Branch(Branch(Leaf(1), Leaf(2)), null)
      val actual = Tree.size(t)
      actual should be (3)
@@ -40,7 +104,8 @@ class TreeTest extends PropSpec with PropertyChecks with Matchers {
      val actual = Tree.size(t)
      actual should be (0)
    }
-   property("Test size with Tree of 3 even layers") {
+
+  property("Test size with Tree of 3 even layers") {
      val l3ll = Branch(Leaf(1), Leaf(2))
      val l3lr = Branch(Leaf(3), Leaf(4))
      val r3ll = Branch(Leaf(1), Leaf(2))
@@ -48,6 +113,18 @@ class TreeTest extends PropSpec with PropertyChecks with Matchers {
      val t = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
      val actual = Tree.size(t)
      actual should be (14)
+   }
+
+  property("Test size big Tree") {
+     val l3ll = Branch(Leaf(1), Leaf(2))
+     val l3lr = Branch(Leaf(3), Leaf(4))
+     val r3ll = Branch(Leaf(1), Leaf(2))
+     val r3lr = Branch(Leaf(3), Leaf(4))
+     val l = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+     val r = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+     val t = Branch(Branch(l, r), Branch(l, r))
+     val actual = Tree.size(t)
+     actual should be (62)
    }
 
 ////  property("Test fold with Tree of 2 leaves of Ints") {

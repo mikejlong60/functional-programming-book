@@ -5,42 +5,107 @@ import org.scalatest.{Matchers, PropSpec}
 
 class TreeTest extends PropSpec with PropertyChecks with Matchers {
 
+  //Map tests --- Cannot compare directly because I have no equals method on my Tree
+  property("Test map with Tree of 2 leaves of Ints") {
+    val t = Branch(Leaf(1), Leaf(2))
+    val actual = Tree.map(t)(x => x * 12)
+    Tree.size(actual) should be  (2)
+    Tree.maximum(actual) should be (24)
+  }
+
+  property("Test map with Tree of right 1 leaf") {
+    val t = Branch(Leaf(1), null)
+    val actual = Tree.map(t)(x => x * 12)
+    Tree.size(actual) should be  (1)
+    Tree.maximum(actual) should be (12)
+  }
+
+  property("Test map with Tree of left 1 leaf and null") {
+    val t = Branch(null, Leaf(2))
+    val actual = Tree.map(t)(x => x * 12)
+    Tree.size(actual) should be  (1)
+    Tree.maximum(actual) should be (24)
+  }
+
+  property("Test map with Tree of 2 Branches with 2 leaves on each one") {
+    val t = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Leaf(4)))
+    val actual = Tree.map(t)(x => x * 12)
+    Tree.size(actual) should be  (6)
+    Tree.maximum(actual) should be (48)
+  }
+
+  property("Test map on left leaning tree with Branch at top only on left") {
+    val t = Branch(Branch(Leaf(1), Leaf(2)), null)
+    val actual = Tree.map(t)(x => x * 12)
+    Tree.size(actual) should be  (3)
+    Tree.maximum(actual) should be (24)
+  }
+
+  property("Test map with Tree of 2 nulls") {
+    val t: Tree[Int] = Branch(null, null)
+    val actual = Tree.map(t)(null)
+    println(actual)
+  }
+
+  property("Test map with Tree of 3 even layers") {
+    val l3ll = Branch(Leaf(1), Leaf(2))
+    val l3lr = Branch(Leaf(3), Leaf(4))
+    val r3ll = Branch(Leaf(1), Leaf(2))
+    val r3lr = Branch(Leaf(3), Leaf(4))
+    val t = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+    val actual = Tree.map(t)(x => x * 12)
+    Tree.size(actual) should be  (14)
+    Tree.maximum(actual) should be (48)
+  }
+
+  property("Test map big Tree") {
+    val l3ll = Branch(Leaf(1), Leaf(2))
+    val l3lr = Branch(Leaf(3), Leaf(4))
+    val r3ll = Branch(Leaf(1), Leaf(2))
+    val r3lr = Branch(Leaf(3), Leaf(4))
+    val l = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+    val r = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
+    val t = Branch(Branch(l, r), Branch(l, r))
+    val actual = Tree.map(t)(x => x.toFloat / 2)
+    Tree.size(actual) should be  (62)
+  }
+
 
   //Max tests
   property("Test max with Tree of 2 leaves of Ints") {
     val t = Branch(Leaf(1), Leaf(2))
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (2)
   }
 
 
   property("Test max with Tree of right 1 leaf") {
     val t = Branch(Leaf(1), null)
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (1)
   }
 
   property("Test max with Tree of left 1 leaf and null") {
     val t = Branch(null, Leaf(2))
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (2)
   }
 
   property("Test max with Tree of 2 Branches woth 2 leaves on each one") {
     val t = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Leaf(4)))
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (4)
   }
 
   property("Test max on left leaning tree with Branch at top only on left") {
     val t = Branch(Branch(Leaf(1), Leaf(2)), null)
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (2)
   }
 
   property("Test max with Tree of 2 nulls") {
     val t = Branch(null, null)
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (Int.MinValue)
   }
 
@@ -50,7 +115,7 @@ class TreeTest extends PropSpec with PropertyChecks with Matchers {
     val r3ll = Branch(Leaf(1), Leaf(2))
     val r3lr = Branch(Leaf(3), Leaf(4))
     val t = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (4)
   }
 
@@ -62,7 +127,7 @@ class TreeTest extends PropSpec with PropertyChecks with Matchers {
     val l = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
     val r = Branch(Branch(l3ll, l3lr), Branch(r3ll, r3lr))
     val t = Branch(Branch(l, r), Branch(l, r))
-    val actual = Tree.max(t)
+    val actual = Tree.maximum(t)
     actual should be (4)
   }
 

@@ -33,6 +33,18 @@ object Tree {
      case _ => Int.MinValue
    }
 
+  def depth(tree: Tree[Int]): Int = tree match {
+    case Branch(l: Branch[Int], r: Branch[Int])  => 1 + math.max(depth(l),depth(r))
+    case Branch(null, r: Branch[Int]) => 1 + depth(r)
+    case Branch(l: Branch[Int], null) => 1 + depth(l)
+    case Branch( l: Branch[Int],  r: Leaf[Int]) => 1 + depth(l)
+    case Branch( l: Leaf[Int],  r: Branch[Int]) => 1 + depth(r)
+    case Branch(l: Leaf[Int], r: Leaf[Int]) => 1
+    case Branch(null, r: Leaf[Int]) => 1
+    case Branch(l: Leaf[Int], null) => 1
+    case _ => 0
+  }
+
   def size[A](tree: Tree[A]): Int = tree match {
     case Branch(l: Branch[A], r: Branch[A])  => 2 + size(l) + size(r)
     case Branch(null, r: Branch[A]) => 1 + size(r)
@@ -45,15 +57,15 @@ object Tree {
     case _ => 0
   }
 
-  def fold[A, B](tree: Tree[A], z: B)(f: (A, B) => B): B = tree match {
-    case Branch(left, right) if left != null => left match {
-      case Leaf(l) => fold(Branch(null, right), f(l, z))(f)
-      case Branch(l, r) => fold(Branch(l, r),z)(f)
-    }
-    case Branch(left, right) if right != null => right match {
-      case Leaf(r) => fold(Branch(left, null), f(r,z))(f)
-      case Branch(l, r) => fold(Branch(l, r), z)(f)
-    }
+  def fold(tree: Tree[Int], z: Int)(g: (Int, Int) => Int): Int = tree match {
+    case Branch(l: Branch[Int], r: Branch[Int])  => g(fold(l, z)(g), fold(r, z)(g))
+    case Branch(null, r: Branch[Int]) => g(z, fold(r, z)(g))
+    case Branch(l: Branch[Int], null) => g(z, fold(l, z)(g))
+    case Branch( l: Branch[Int],  r: Leaf[Int]) => g(fold(l, z)(g), r.value)
+    case Branch( l: Leaf[Int],  r: Branch[Int]) => g(fold(r, z)(g), l.value)
+    case Branch(l: Leaf[Int], r: Leaf[Int]) => g(l.value, r.value)
+    case Branch(null, r: Leaf[Int]) => g(r.value, z)
+    case Branch(l: Leaf[Int], null) => g(l.value, z)
     case _ => z
   }
 }

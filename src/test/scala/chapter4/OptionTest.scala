@@ -93,5 +93,18 @@ class OptionTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+//  property("test variance") {
+//      val succ = (x: Int) => x + 1
+//      val anonfun1 = new Function1[Int, Int] {
+//        def apply(x: Int): Int = x + 1
+//      //}
+
+ //   val anonfun2 = new Function1[Long, Short] {
+ //     def apply(x: Long): Short = x + 1
+ //   }
+
+  //    assert(succ(0) == anonfun1(0))
+  //  }
+
 }
 

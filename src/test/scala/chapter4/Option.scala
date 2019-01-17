@@ -13,7 +13,7 @@ sealed trait Option[+A] { // +A means that A is covariant or positive.  If I lef
 
   def flatMap[B](f: A => Option[B]): Option[B] = map(f) getOrElse (None)
 
-  def getOrElse[B >: A](default: => B): B = this match { //B must be equal to or a supertype of A.  I don't understand this. Seems the opposite must be true.
+  def getOrElse[B >: A](default: => B): B = this match {
     case Some(a) => a
     case _ => default
   }
@@ -25,7 +25,7 @@ sealed trait Option[+A] { // +A means that A is covariant or positive.  If I lef
       case _ => ob
     }
 
-  def ccc[B >: A](x:B ): Option[B] =  Some(x): Option[B]  
+  def ccc[B >: A](x:B ): Option[B] =  Some(x): Option[B]  //B >: A is the notation for an f-bounded type.
   def orElse32[B >: A](ob: => Option[B]): Option[B] = map(x => Some(x):Option[B]) getOrElse ob
   def orElse[B >: A](ob: => Option[B]): Option[B] = map(ccc)  getOrElse ob
 
@@ -37,7 +37,6 @@ sealed trait Option[+A] { // +A means that A is covariant or positive.  If I lef
     }
     case _ => None
   }
-
 
   def filter(f: A => Boolean): Option[A] = {
     def g: (A => Option[A]) = (a: A) => {

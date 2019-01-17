@@ -25,12 +25,9 @@ sealed trait Option[+A] { // +A means that A is covariant or positive.  If I lef
       case _ => ob
     }
 
-  //TODO this way does not work yet. orElse2 does but no pattern matching allowed
-  def orElse[B >: A](ob: => Option[B]): Option[B] = {
-    val t: Option[A] = map(x => x)
-    val r = Some(t).getOrElse(ob)
-    r
-  }
+  def ccc[B >: A](x:B ): Option[B] =  Some(x): Option[B]  
+  def orElse32[B >: A](ob: => Option[B]): Option[B] = map(x => Some(x):Option[B]) getOrElse ob
+  def orElse[B >: A](ob: => Option[B]): Option[B] = map(ccc)  getOrElse ob
 
   //Book says no pattern matching
   def filter2(f: A => Boolean): Option[A] = this match {

@@ -35,7 +35,7 @@ class FlatMapTest extends PropSpec with PropertyChecks with Matchers {
     forAll { xs: Array[Int] =>
       val expected = xs.flatMap(x => Array(x ,x))
       val actual = List.flatMap(List.flatMap(List(xs: _*))(x => List(x, x)))(x => (List(x,x,x)))
-      println(actual)
+      //println(actual)
       //actual should be (empty)//be(List(expected: _*))
     }
 

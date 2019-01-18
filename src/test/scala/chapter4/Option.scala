@@ -1,6 +1,9 @@
 package chapter4
 
-import scala.{Option => _, Either => _, _}
+import scala.{List => _, Option => _, Either => _, _}
+import chapter3.List
+import chapter3.Cons
+import chapter3.Nil
 
 case object None extends Option[Nothing]
 case class Some[+A](get: A) extends Option[A]
@@ -45,5 +48,20 @@ sealed trait Option[+A] { // +A means that A is covariant or positive.  If I lef
     }
 
     flatMap(g)
+  }
+}
+
+object Option {
+  def lift[A, B](f: A => B): Option[A]  => Option[B]  ={
+    //Implicitely the _ gets converted to my Option type.  The compiler derives this information from the closest resolution to the function that follows, which in this case is map.
+    _  map(f)
+  }
+
+  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C) : Option[C] = a.flatMap(aa => b.map(bb => f(aa, bb)))
+
+  def sequence[A](a: List[Option[A]]): Option[List[A]] = a match {
+    case Cons(maybeX, Nil) => maybeX.map(x => Cons(x, Nil))
+    case Cons(maybeX,  xs) => maybeX.flatMap(x => sequence(xs).map(xxs => Cons(x, xxs)))
+    case Nil => None
   }
 }

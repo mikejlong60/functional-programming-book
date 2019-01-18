@@ -2,7 +2,10 @@ package chapter4
 
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
-import scala.{Option => _, None => _, Some => _,  Either => _, _}
+import scala.{List => _, Option => _, None => _, Some => _,  Either => _, _}
+import chapter3.List
+import chapter3.Cons
+import chapter3.Nil
 
 
 class OptionTest extends PropSpec with PropertyChecks with Matchers {
@@ -93,18 +96,47 @@ class OptionTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-//  property("test variance") {
-//      val succ = (x: Int) => x + 1
-//      val anonfun1 = new Function1[Int, Int] {
-//        def apply(x: Int): Int = x + 1
-//      //}
+  property("Test lift") {
+    forAll {x: Int =>
+       val f = Option.lift(math.abs)
+      val actual = f(Some(x))
+      val g = (x:Int => Int) => x
+      val expected = Some(math.abs(x))
+      actual should be (expected)
+    }
+  }
 
- //   val anonfun2 = new Function1[Long, Short] {
- //     def apply(x: Long): Short = x + 1
- //   }
+  property("Test map2") {
+    forAll {(x: Int, y: Int) =>
+      val f = (x: Int, y: Int) => math.abs(x) + math.abs(y)
+      val a = Some(x)
+      val b = Some(y)
+      val what = Some(12)
+      val actual =  Option.map2(a, b)(f)
+      val expected = Some(f(x, y))
+      actual should be (expected)
+    }
+  }
 
-  //    assert(succ(0) == anonfun1(0))
-  //  }
+  property("Test sequence over non-empty list") {
+    val xs = Cons(Some(12), Cons(Some(13), Nil))
+    val expected = Some(Cons(12, Cons(13, Nil)))
+    val actual = Option.sequence(xs)
+    actual should be (expected)
+  }
 
+  property("Test sequence over empty list") {
+    val xs = Nil
+    val expected = None
+    val actual = Option.sequence(xs)
+    actual should be (expected)
+  }
+
+  property("Test sequence over list of one element") {
+    val xs = Cons(Some(12), Nil)
+    val expected = Some(Cons(12, Nil))
+    val actual = Option.sequence(xs)
+    actual should be (expected)
+  }
 }
 

@@ -138,5 +138,33 @@ class OptionTest extends PropSpec with PropertyChecks with Matchers {
     val actual = Option.sequence(xs)
     actual should be (expected)
   }
+
+  val f: String => Option[Int] = (x: String) => 
+  try {
+    Some(x.toInt)
+  } catch {
+    case e: Exception => None
+  }
+  
+  property("Test traverse over unparseable number") {
+    val xs = Cons("12", Cons("13a", Nil))
+    val expected = None
+    val actual = Option.traverse(xs)(f)
+    actual should be (expected)
+  }
+
+  property("Test traverse over empty list") {
+    val xs = Nil
+    val expected = Some(Nil)
+    val actual = Option.traverse(xs)(f)
+    actual should be (expected)
+  }
+
+  property("Test traverse over list of one element") {
+    val xs = Cons("12", Nil)
+    val expected = Some(Cons(12, Nil))
+    val actual = Option.traverse(xs)(f)
+    actual should be (expected)
+  }
 }
 

@@ -27,8 +27,12 @@ sealed trait Either[+E, +A] { // + means that the type is covariant or positive.
   
   def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C) : Either[EE, C] = this.flatMap(a => b.map(b => f(a, b)))
 
-  def Try[A](a: => A): Either[Exception, A] =
+}
+
+object Either {
+    def Try[A](a: => A): Either[Exception, A] =
     try Right(a)
     catch {case e: Exception => Left(e)}
+
 
 }

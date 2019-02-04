@@ -1,7 +1,32 @@
 package chapter5
 
 
-sealed trait Stream[+A] 
+sealed trait Stream[+A] {
+  @annotation.tailrec
+  final def drop(n: Int): Stream[A] = this match {
+    case Cons(_, t) if n > 0 => t(). drop(n - 1)
+    case  _ => this
+  }
+
+  final def toList:List[A] = this match {
+     case Cons(h, t) => h() +: t().toList
+      case _ => Nil
+  }
+
+  /*
+    Create a new Stream[A] from taking the n first elements from this. We can achieve that by recursively
+    calling take on the invoked tail of a cons cell. We make sure that the tail is not invoked unless
+    we need to, by handling the special case where n == 1 separately. If n == 0, we can avoid looking
+    at the stream at all.
+   */
+  final def take(n: Int): Stream[A] = this match {
+    case Cons(h, t) if n > 1 => Stream.cons(h(), t().take(n-1))
+    case Cons(h, _) if n == 1 => Stream.cons(h(), Stream.empty)
+    case _ => Stream.empty
+  }
+
+}
+
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, tl: () => Stream[A]) extends Stream[A]
 
@@ -18,18 +43,6 @@ object Stream {
   def empty[A]: Stream[A] = Empty
 
   def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
-
-
-  def drop[A](n: Int)(s: Stream[A]): Stream[A] = s match {
-    case Empty => Empty
-    case Cons(_, t) if n > 0 => drop(n - 1)(t())
-    case Cons(_, t) => s
-  }
-
-    def toList[A](s: Stream[A]): List[A] = s match {
-      case Cons(h, t) => h() +: toList(t())
-      case _ => Nil
-  }
 
 }
 

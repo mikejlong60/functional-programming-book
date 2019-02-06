@@ -25,6 +25,12 @@ sealed trait Stream[+A] {
     case _ => Stream.empty
   }
 
+  //This guy stops evaluation immediately after condition is not met and returns the resulting stream.  Note that
+  //its lazy.  The tail never gets evaluated after that so you can do it for an infinite list.
+  final def takeWhile(p : A => Boolean): Stream[A] = this match {
+    case Cons(h, t) if p(h()) => Stream.cons(h(), t().takeWhile(p))
+    case _ => Stream.empty
+  }
 }
 
 case object Empty extends Stream[Nothing]

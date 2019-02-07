@@ -34,9 +34,10 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  val p: Int => Boolean = x => x % 2 == 1
+
   property("Test takewhile for Stream of ints") {
     forAll { xs: Seq[Int] =>
-     val p: Int => Boolean = x => x % 2 == 1
      val actual = Stream.apply(xs:_*).takeWhile(p)
      actual.toList should be (xs.takeWhile(p))
     }
@@ -47,6 +48,20 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       val a = Stream.apply(xs:_*)
       val actual = a.toList
        actual should be (xs)
+    }
+  }
+
+  property("Test exists function for Stream of Ints") {
+    forAll { xs: Seq[Int] =>
+      val actual  = Stream.apply(xs:_*)
+       actual.exists(p) should be (xs.exists(p))
+    }
+  }
+
+    property("Test forAll function for Stream of Ints") {
+    forAll { xs: Seq[Int] =>
+      val actual  = Stream.apply(xs:_*)
+       actual.forAll(p) should be (xs.forall(p))
     }
   }
 

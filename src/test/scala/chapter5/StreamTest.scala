@@ -59,7 +59,7 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
   }
 
     property("Test forAll function for Stream of Ints") {
-    forAll { xs: Seq[Int] =>
+    forAll (minSuccessful(8000), maxDiscarded(300)){ xs: Seq[Int] =>
       val actual  = Stream.apply(xs:_*)
        actual.forAll(p) should be (xs.forall(p))
     }

@@ -27,19 +27,30 @@ sealed trait Stream[+A] {
 
   //This guy stops evaluation immediately after condition is not met and returns the resulting stream.  Note that
   //its lazy.  The tail never gets evaluated after that so you can do it for an infinite list.
-  final def takeWhile(p : A => Boolean): Stream[A] = this match {
+  final def takeWhile2(p : A => Boolean): Stream[A] = this match {
     case Cons(h, t) if p(h()) => Stream.cons(h(), t().takeWhile(p))
     case _ => Stream.empty
   }
 
-  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
+  final  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
     case Cons(h, t) => f(h(), t().foldRight(z)(f))
     case _ => z
   }
 
+  //Version based upon foldRight
+  final def takeWhile(p : A => Boolean): Stream[A] = foldRight(Stream.empty[A])((a, b) => 
+    if (p(a))  Stream.cons(a, b)
+    else Stream.empty
+  )
+
   def exists(p: A => Boolean): Boolean = foldRight(false)((a, b) => p(a) || b)
 
-  def forAll(p: A => Boolean): Boolean = !exists(p)
+  //This was busted because I needed to assert that p(a) was true AND b was true, not p(a) was true OR b was true.  So
+  //it busted sometimes and worked sometimes.
+  def forAll3(p: A => Boolean): Boolean = !exists(p)
+
+  def forAll(p: A => Boolean): Boolean = foldRight(true)((a, b) => p(a) && b)
+
 }
 
 case object Empty extends Stream[Nothing]

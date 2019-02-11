@@ -37,6 +37,8 @@ sealed trait Stream[+A] {
     case _ => z
   }
 
+  final def map[B](f: A => B): Stream[B] = foldRight(Stream.empty[B])((a, b) => Stream.cons(f(a), b))
+  
   //Version based upon foldRight
   final def takeWhile(p : A => Boolean): Stream[A] = foldRight(Stream.empty[A])((a, b) => 
     if (p(a))  Stream.cons(a, b)

@@ -38,7 +38,11 @@ sealed trait Stream[+A] {
   }
 
   final def map[B](f: A => B): Stream[B] = foldRight(Stream.empty[B])((a, b) => Stream.cons(f(a), b))
-  
+
+//  final def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(Stream.empty[B])((a, b) => f(a))
+
+  final def append[B >: A](l2: Stream[B]): Stream[B] = foldRight(l2)( (a, b) => Stream.cons(a, b))
+
   //Version based upon foldRight
   final def takeWhile(p : A => Boolean): Stream[A] = foldRight(Stream.empty[A])((a, b) => 
     if (p(a))  Stream.cons(a, b)

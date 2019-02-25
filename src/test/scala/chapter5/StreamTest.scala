@@ -65,7 +65,7 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  val f: Int => Int = _ *10
+  val f: Int => Int = x =>  x 
   property("Test map function for Stream of Ints") {
     forAll { xs: Seq[Int] =>
       val actual  = Stream.apply(xs:_*)
@@ -79,6 +79,20 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       val a2  = Stream.apply(ys:_*)
       val expected = xs ++ ys
        (a1.append(a2).toList) should be (expected)
+    }
+  }
+
+
+  val g: Int => Stream[Int] = x => Stream.cons(x, Stream.empty)
+
+  property("Test flatMap function for Stream of Ints") {
+    forAll { xs: Seq[Int] =>
+      val actual  = Stream.apply(xs:_*)
+      val mine = actual.flatMap(g).toList
+      println("mine:"+mine)
+      val theirs = xs.map(f).toList
+      println("theirs:"+theirs)
+      (mine) should be (theirs)
     }
   }
 

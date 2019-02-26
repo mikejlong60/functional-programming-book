@@ -61,7 +61,6 @@ sealed trait Stream[+A] {
   def forAll3(p: A => Boolean): Boolean = !exists(p)
 
   def forAll(p: A => Boolean): Boolean = foldRight(true)((a, b) => p(a) && b)
-
 }
 
 case object Empty extends Stream[Nothing]
@@ -81,6 +80,9 @@ object Stream {
 
   def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
+  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+
+  def from(n: Int): Stream[Int] = Stream.cons(n, from(n+1))
 }
 
 

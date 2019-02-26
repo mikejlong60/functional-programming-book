@@ -104,4 +104,22 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Test constant function for Int") {
+     forAll { x: Int =>
+       val actual  = Stream.constant(x).take(4).toList
+       val expected = List(x, x, x, x)
+      actual should be (expected)
+    }
+  }
+
+    property("Test from function for Int") {
+     forAll { x: Int =>
+       val actual  = Stream.from(x).take(4).toList
+       val expected = List(x, x+1, x+2, x+3)
+      actual should be (expected)
+    }
+  }
+
+
+
 }

@@ -89,9 +89,17 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     forAll { xs: Seq[Int] =>
       val actual  = Stream.apply(xs:_*)
       val mine = actual.flatMap(g).toList
-      println("mine:"+mine)
       val theirs = xs.map(f).toList
-      println("theirs:"+theirs)
+      (mine) should be (theirs)
+    }
+  }
+
+  property("Test filter function for Stream of Ints") {
+    val even: Int => Boolean = x => x % 2 == 0
+    forAll { xs: Seq[Int] =>
+      val actual  = Stream.apply(xs:_*)
+      val mine = actual.filter(even).toList
+      val theirs = xs.filter(even).toList
       (mine) should be (theirs)
     }
   }

@@ -51,6 +51,11 @@ sealed trait Stream[+A] {
 
   def exists(p: A => Boolean): Boolean = foldRight(false)((a, b) => p(a) || b)
 
+  def filter(p: A => Boolean): Stream[A] = foldRight(Stream.empty[A])((a, b) => 
+    if (p(a)) Stream.cons(a, b)
+    else b
+  )
+
   //This was busted because I needed to assert that p(a) was true AND b was true, not p(a) was true OR b was true.  So
   //it busted sometimes and worked sometimes.
   def forAll3(p: A => Boolean): Boolean = !exists(p)

@@ -80,9 +80,21 @@ object Stream {
 
   def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
-  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+  def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
-  def from(n: Int): Stream[Int] = Stream.cons(n, from(n+1))
+  def from(n: Int): Stream[Int] = cons(n, from(n+1))
+
+  //This also works but Paul's is better
+  def fibme(s: Stream[Int]): Stream[Int] = s match {
+    case Empty => cons(0, fibme(cons(0, s)))
+    case Cons(h, t) => t() match {
+       case Empty => fibme(cons(1, s))
+       case Cons(hh, tt) => cons(h(), fibme(cons(h() + hh(), s)))
+    }
+  }
+  val fib = {
+    def go(f0: Long, f1: Long): Stream[Long] = cons(f0, go(f1, f0+f1))
+    go(0, 1)
+  }
 }
-
 

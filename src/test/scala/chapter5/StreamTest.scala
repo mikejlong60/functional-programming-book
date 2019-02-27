@@ -120,6 +120,19 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Test fib function take 1") {
+     val actual = Stream.fib.take(1).toList
+     actual should be (List(0))
+  }
 
+  property("Test fib function take 5") {
+     val actual = Stream.fib.take(5).toList
+     actual should be (List(0, 1, 1, 2, 3))
+  }
+
+   property("Test fib function take 7") {
+     val actual = Stream.fib.take(7).toList
+     actual should be (List(0, 1, 1, 2, 3, 5, 8))
+  }
 
 }

@@ -135,4 +135,14 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
      actual should be (List(0, 1, 1, 2, 3, 5, 8))
   }
 
+  property("Test fibme function take 7") {//This is the beginning of unfold
+     val actual = Stream.fibme(Stream.empty[Int]).take(7).toList
+     actual should be (List(0, 1, 1, 2, 3, 5, 8))
+  }
+
+  property("Test fibme function take 1") { //This is the beginning of unfold
+     val actual = Stream.fibme(Stream.empty[Int]).take(1).toList
+     actual should be (List(0))
+  }
+
 }

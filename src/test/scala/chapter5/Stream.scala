@@ -84,7 +84,7 @@ object Stream {
 
   def from(n: Int): Stream[Int] = cons(n, from(n+1))
 
-  //This also works but Paul's is better
+  //This also works but Paul's is better.  But this will morph into unfold.
   def fibme(s: Stream[Int]): Stream[Int] = s match {
     case Empty => cons(0, fibme(cons(0, s)))
     case Cons(h, t) => t() match {

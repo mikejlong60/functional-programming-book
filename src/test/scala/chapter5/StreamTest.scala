@@ -190,4 +190,60 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
   val nextPositiveIntLT100: Int => Option[(Int, Int)] = s =>
      if (s < 100) Some(s, s + 1)
      else None 
+
+
+  val fib: ((Int, Int)) => Option[(Int, (Int,Int))] = s => s match {
+    case (0, 0) => Some(0, (1, 0))
+    case _ => Some(s._1 + s._2, (s._2, s._1 + s._2))
+  }
+
+  property("Use unfold with fib") {
+    val actual = Stream.unfold((0,0))(fib).take(7).toList
+     actual should be (List(0, 1, 1, 2, 3, 5, 8))
+  }
+
+  property("Get 43rd fib number using unfold") {
+     val fib43 =  433494437
+     val actual = Stream.unfold((0,0))(fib).take(44).toList(43)
+     actual should be (fib43)
+  }
+
+  property("Make a stream of constants  using unfold") {
+    forAll { x: Int =>
+      val constant: Int => Option[(Int, Int)] = s => Some(s, s)
+      val actual = Stream.unfold(x)(constant).take(44).toList(43)
+      actual should be (x)
+    }
+  }
+
+  property("Make a stream of ones using unfold") {
+    forAll {x: Int =>   // Start value does not matter
+      val ones: Int => Option[(Int, Int)] = _  => Some(1, 1)
+      val actual = Stream.unfold(x)(ones).take(44).toList(43)
+      actual should be (1)
+    }
+  }
+
+  property("Make a stream from some start using unfold") {
+    forAll {x: Int =>  
+      val from: Int => Option[(Int, Int)] = x  => Some(x, x + 1)
+      val actual = Stream.unfold(x)(from).take(4).toList
+      actual should be (List(x, x+1, x+2, x + 3))
+    }
+  }
+
+  def mapWunfold[A, B](xs: Stream[A])(f: A => B): Stream[B] = Stream.unfold(xs)(x => x match {
+    case  Cons(h, t) => Some(f(h()), t())
+    case _ => None
+    }
+  )
+
+  property("Write map using unfold") {
+    forAll {xs: Seq[Int] =>  
+      val st  = Stream.apply(xs:_*)
+  
+      val actual = mapWunfold(st)(f).toList
+      actual should be (xs.map(f))
+    }
+  }
 }

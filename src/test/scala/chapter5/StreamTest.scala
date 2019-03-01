@@ -171,8 +171,13 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     actual should be (List(99))
   }
 
-  property("Test unfold with computation that will stop the first time") {
+  property("Test unfold with computation that will stop when you take it too far") {
     val actual = Stream.unfold(100)(giveMePositiveIntsUpTo100).take(12).toList
+    actual should be (empty)
+  }
+
+  property("Test unfold with computation that will stop") {
+    val actual = Stream.unfold(100)(giveMePositiveIntsUpTo100).toList
     actual should be (empty)
   }
 

@@ -145,44 +145,49 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
      actual should be (List(0))
   }
 
-  val giveMeAOne: Stream[Int] => Option[(Int, Stream[Int])] = s => Some((1, Stream.cons(1,s)))
+  val giveMeAOnesForever: Stream[Int] => Option[(Int, Stream[Int])] = s => Some((1, Stream.cons(1,s)))
   property("Test unfold to produce a stream of ones and take 1") {
-    val actual = Stream.unfold(Stream.cons(1, Stream.empty))(giveMeAOne).take(1).toList
+    val actual = Stream.unfold(Stream.cons(1, Stream.empty))(giveMeAOnesForever).take(1).toList
     actual should be (List(1))
   }
 
   property("Test unfold to produce a stream of ones and take 12 starting from an empty stream") {
-    val actual = Stream.unfold(Stream.empty[Int])(giveMeAOne).take(12).toList
+    val actual = Stream.unfold(Stream.empty[Int])(giveMeAOnesForever).take(12).toList
     actual should be (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
   }
 
   property("Test unfold to produce a stream of ones and take 12 starting from a stream of 1") {
-    val actual = Stream.unfold(Stream.cons(1, Stream.empty))(giveMeAOne).take(12).toList
+    val actual = Stream.unfold(Stream.cons(1, Stream.empty))(giveMeAOnesForever).take(12).toList
     actual should be (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
   }
 
   property("Test unfold with computation that stops when A is > 100") {
-    val actual = Stream.unfold(0)(giveMePositiveIntsUpTo100).take(12).toList
+    val actual = Stream.unfold(0)(nextPositiveIntLT100).take(12).toList
     actual should be (List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
   }
 
   property("Test unfold with computation that stopping computation") {
-    val actual = Stream.unfold(99)(giveMePositiveIntsUpTo100).take(12).toList
+    val actual = Stream.unfold(99)(nextPositiveIntLT100).take(12).toList
     actual should be (List(99))
   }
 
   property("Test unfold with computation that will stop when you take it too far") {
-    val actual = Stream.unfold(100)(giveMePositiveIntsUpTo100).take(12).toList
+    val actual = Stream.unfold(100)(nextPositiveIntLT100).take(12).toList
     actual should be (empty)
   }
 
   property("Test unfold with computation that will stop") {
-    val actual = Stream.unfold(100)(giveMePositiveIntsUpTo100).toList
+    val actual = Stream.unfold(100)(nextPositiveIntLT100).toList
     actual should be (empty)
   }
 
+  property("Test unfold to get whole list based upon computation") {
+    val actual = Stream.unfold(0)(nextPositiveIntLT100).toList
+    actual should be (0 to 99)
+  }
 
-  val giveMePositiveIntsUpTo100: Int => Option[(Int, Int)] = s =>
+
+  val nextPositiveIntLT100: Int => Option[(Int, Int)] = s =>
      if (s < 100) Some(s, s + 1)
      else None 
 }

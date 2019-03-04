@@ -271,4 +271,17 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
        actual should be (expected)
      }
   }
+
+  def takeWhileWunfold[A](p: A => Boolean)(xs: Stream[A]): Stream[A] = Stream.unfold(xs)(xs => xs match {
+    case Cons(h, t) if p(h()) => Some(h(), t())
+    case _ => None
+  })
+
+  property("Write takewhile using unfold for Stream of ints") {
+    forAll { xs: Seq[Int] =>
+     val st = Stream.apply(xs:_*)
+     val actual = takeWhileWunfold(p)(st).toList
+     actual should be (xs.takeWhile(p))
+    }
+  }
 }

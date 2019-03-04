@@ -284,4 +284,19 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
      actual should be (xs.takeWhile(p))
     }
   }
+
+  def zipWithWunfold[A](xs: Stream[A])(ys: Stream[A])(f: (A, A)=> A):Stream[A] = Stream.unfold((xs, ys))(pr => pr match {
+    case (Cons(h1, t1), Cons(h2, t2)) => Some(f(h1(), h2()), (t1(), t2()))
+    case _ => None
+  })
+
+  property("Write zipwith using unfold for Stream of ints") {
+    forAll { (xs: Array[Int], ys: Array[Int]) =>
+      val expected = (xs, ys).zipped.toList.map(xy => xy._1 + xy._2)
+      val xxs = Stream.apply(xs:_*)
+      val xys = Stream.apply(ys:_*)
+      val actual = zipWithWunfold(xxs)(xys)((x,y) => x + y).toList
+      actual should be (expected)
+     }
+  }
 }

@@ -93,7 +93,7 @@ object Stream {
     }
   }
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z).map((tpl) => cons(tpl._1, unfold(tpl._2)(f))).getOrElse(empty)
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z).map(tpl => cons(tpl._1, unfold(tpl._2)(f))).getOrElse(empty)
  
   val fib = {
     def go(f0: Long, f1: Long): Stream[Long] = cons(f0, go(f1, f0+f1))

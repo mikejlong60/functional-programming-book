@@ -246,4 +246,29 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (xs.map(f))
     }
   }
+
+  def takeWunfold[A](n: Int) (xs: Stream[A]): Stream[A] =
+    Stream.unfold((n, xs))(nxs => nxs match {
+      case (n, Cons(h, t)) if (n > 0) => Some((h(), (n-1, t())))
+      case _ => None
+    }
+  )
+  
+
+  property("Write take using unfold fixed size") {
+      val xs = Seq(1,2,3,4,5)
+      val st = Stream.apply(xs:_*)
+      val actual = takeWunfold(2)(st).toList
+      val expected = xs.take(2)
+      actual should be (expected)
+  }
+
+  property("Write take using unfold") {
+     forAll {(xs: Seq[Int], x: Int) =>
+       val st = Stream.apply(xs:_*)
+       val actual = takeWunfold(x)(st).toList
+       val expected = xs.take(x)
+       actual should be (expected)
+     }
+  }
 }

@@ -299,4 +299,21 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (expected)
      }
   }
+
+  def zipAllWunfold[A, B](xs: Stream[A])(ys: Stream[B]):Stream[(Option[A], Option[B])] = Stream.unfold((xs, ys))(pr => pr match {
+    case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
+    case (Cons(h1, t1), empty) => Some((Some(h1()), None), (t1(), empty))
+    case (empty, Cons(h2, t2)) => Some((None, Some(h2())), (empty, t2()))
+    case _ => None
+  })
+
+  property("Write zipAll using unfold for Stream of ints") {
+    forAll { (xs: Seq[Int], ys: Seq[Int]) =>
+      val expected = xs.map(x => Some(x)).zipAll(ys.map(y => Some(y)), None, None)
+      val xxs = Stream.apply(xs:_*)
+      val xys = Stream.apply(ys:_*)
+      val actual = zipAllWunfold(xxs)(xys).toList
+      actual should be (expected)
+     }
+  }
 }

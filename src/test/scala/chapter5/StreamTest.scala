@@ -272,7 +272,7 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
      }
   }
 
-  def takeWhileWunfold[A](p: A => Boolean)(xs: Stream[A]): Stream[A] = Stream.unfold(xs)(xs => xs match {
+  def takeWhileWunfold[A](xs: Stream[A])(p: A => Boolean): Stream[A] = Stream.unfold(xs)(xs => xs match {
     case Cons(h, t) if p(h()) => Some(h(), t())
     case _ => None
   })
@@ -280,12 +280,12 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
   property("Write takewhile using unfold for Stream of ints") {
     forAll { xs: Seq[Int] =>
      val st = Stream.apply(xs:_*)
-     val actual = takeWhileWunfold(p)(st).toList
+     val actual = takeWhileWunfold(st)(p).toList
      actual should be (xs.takeWhile(p))
     }
   }
 
-  def zipWithWunfold[A](xs: Stream[A])(ys: Stream[A])(f: (A, A)=> A):Stream[A] = Stream.unfold((xs, ys))(pr => pr match {
+  def zipWunfold[A](xs: Stream[A])(ys: Stream[A])(f: (A, A)=> A):Stream[A] = Stream.unfold((xs, ys))(pr => pr match {
     case (Cons(h1, t1), Cons(h2, t2)) => Some(f(h1(), h2()), (t1(), t2()))
     case _ => None
   })
@@ -295,7 +295,7 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       val expected = (xs, ys).zipped.toList.map(xy => xy._1 + xy._2)
       val xxs = Stream.apply(xs:_*)
       val xys = Stream.apply(ys:_*)
-      val actual = zipWithWunfold(xxs)(xys)((x,y) => x + y).toList
+      val actual = zipWunfold(xxs)(xys)((x,y) => x + y).toList
       actual should be (expected)
      }
   }
@@ -316,4 +316,44 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (expected)
      }
   }
+
+  def hasSubsequence[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
+    case (Cons(h1, t1), Cons(h2, t2)) => {
+      if (takeWhileWunfold(zipAllWunfold(sup)(sub))(x  => !x._2.isEmpty).forAll(x2 => x2._1 == x2._2)) true
+      else hasSubsequence(t1())(sub)
+    }
+    case _ => false
+  }
+
+  property("Write hasSubsequence false for Stream of Strings") {
+    forAll { (xs1: Seq[String], xs2: Seq[String]) =>
+      whenever (xs2.size > xs1.size) {
+        val sup = Stream.apply(xs1:_*)
+        val sub = Stream.apply(xs2:_*)
+        (hasSubsequence(sup)(sub)) should be (false)
+      }
+    }
+  }
+
+  property("Write hasSubsequence true for Stream of ints") {
+    forAll { xs: Seq[Int] =>
+      whenever (xs.size >= 3) {
+        val sub = Stream.apply(xs.takeRight(3):_*)
+        val sup = Stream.apply(xs:_*)
+        (hasSubsequence(sup)(sub)) should be (true)
+      }
+    }
+  }
+
+  property("Write hasSubsequence true for Stream of Strings") {
+    forAll { xs: Seq[String] =>
+      whenever (xs.size >= 3) {
+        val sub = Stream.apply(xs.take(3):_*)
+        val sup = Stream.apply(xs:_*)
+        (hasSubsequence(sup)(sub)) should be (true)
+      }
+    }
+  }
+
+
 }

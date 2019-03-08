@@ -325,6 +325,50 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     case _ => false
   }
 
+  def startsWith[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
+    case (Cons(h1, t1), Cons(h2, t2)) => takeWhileWunfold(zipAllWunfold(sup)(sub))(x  => !x._2.isEmpty).forAll(x2 => x2._1 == x2._2)
+    case _ => false
+  }
+
+  def tails[A](xs: Stream[A]):Stream[Stream[A]] = Stream.unfold((xs, Stream.empty[A]))(pr => pr match {
+    case (s @ Cons(h, t), empty) => Some(s, (t(), t()))
+    //case (Cons(h, t), _) => Some(t(), (t(), t()))
+
+    case (empty, d @ Cons(h, t)) => Some(empty,( empty, empty)) //Some(empty, (t(),t()))
+    //case (empty, _) => Some(empty,( empty, empty)) //Some(empty, (t(),t()))
+    case _ => None
+  })
+
+  property("Write tails for Stream of Strings") {
+    //forAll { (xs: Seq[String]) =>
+      val xs = List("a","b","c")
+      val xss = Stream.apply(xs:_*)
+      println((tails(xss).map((x => x.toList)).toList).toList)
+      (tails(xss).map(x => x.toList).toList) should be (xs.tails.toList)
+    //}
+
+  }
+
+  property("Write startsWith false for Stream of Strings") {
+    forAll { (xs1: Seq[String], xs2: Seq[String]) =>
+      whenever (xs2.size > xs1.size) {
+        val sup = Stream.apply(xs1:_*)
+        val sub = Stream.apply(xs2:_*)
+        (startsWith(sup)(sub)) should be (false)
+      }
+    }
+  }
+
+  property("Write startsWith true for Stream of Strings") {
+    forAll { (xs: Seq[String]) =>
+      whenever (xs.size > 200) {
+        val sup = Stream.apply(xs:_*)
+        val sub = Stream.apply(xs.take(100):_*)
+        (startsWith(sup)(sub)) should be (true)
+      }
+    }
+  }
+
   property("Write hasSubsequence false for Stream of Strings") {
     forAll { (xs1: Seq[String], xs2: Seq[String]) =>
       whenever (xs2.size > xs1.size) {

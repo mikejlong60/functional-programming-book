@@ -99,27 +99,14 @@ object Stream {
   }
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z).map(tpl => cons(tpl._1, unfold(tpl._2)(f))).getOrElse(empty)
- 
-  def tails[A](xs: Stream[A]):Stream[Stream[A]] = Stream.unfold((xs, Stream.empty[A]))(pr => pr match {
-    case (s @ Cons(h, t),  Empty) => {
-     // val g = s.map(x => x.toList).toList
-      println("in 1" + s.toList)
-      Some(s, (t(), t()))
-    }
-    //case (Cons(h, t), _) => Some(t(), (t(), t()))
 
-//    case (empty, d @ Cons(h, t)) => {
-    case (s @ Cons(h1, t1), x @ Cons(h2, t2)) => {
-      println("in 2a:"+s.toList)
-      println("in 2b:"+x.toList)
-      Some(s, (t2(), t2()))//(Stream.empty, Stream.empty)) //Some(empty, (t(),t()))
-    }
-    //case (empty, _) => Some(empty,( empty, empty)) //Some(empty, (t(),t()))
-    //case (Stream.empty, Stream.empty) => Some(empty, (empty, empty))
-    case (_,  _) => {
-      println("in 3")
-      None
-    }
-  })
+  // I cheated on this and looked up the answer after trying to do it for 8 hours.  I forgot about being able to use append. I had
+  // it working except for the empty stream at the end.  I also forgot about drop to remove the head and was using pattern matching
+  // to extract the head and tail from xs.
+  def tails[A](xs: Stream[A]): Stream[Stream[A]] =
+    unfold(xs) {
+      case Empty => None
+      case s => Some((s, s drop 1))
+    } append Stream(empty)
 }
 

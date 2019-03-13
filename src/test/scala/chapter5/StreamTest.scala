@@ -331,14 +331,11 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("Write tails for Stream of Strings") {
-    //forAll { (xs: Seq[String]) =>
-      val xs = List("a","b","c")
-    val xss = Stream.apply(xs:_*)
-    val actual = Stream.tails(xss).map((x => x.toList)).toList
-      println(actual)
+    forAll { (xs: Seq[String]) =>
+      val xss = Stream.apply(xs:_*)
+      val actual = Stream.tails(xss).map((x => x.toList)).toList
       actual should be (xs.tails.toList)
-    //}
-
+    }
   }
 
   property("Write startsWith false for Stream of Strings") {

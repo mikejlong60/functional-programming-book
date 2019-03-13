@@ -6,30 +6,43 @@ In the Middle Ages architects built great cathedrals using ad hoc practices. Oft
 In this course the implementation language will be Scala.  Haskell would be better if I knew it well. But hardly anyone can earn a living doing Haskell and Scala is great.  But if you are better at Javascript you could do the exercises in that language. Rust might work too or untyped languages would probably work as well except I can’t be as helpful to you. Golang, beyond a remedial level will not work because there are not polymorphic functions and the type system does not make it convenient to define Abstract Data Types except with an empty interface and runtime type checking.  Many of the exercises in this course come from a book called _Functional Programming In Scala_ by Runar Bjarnason and Paul Chiusano. 
 
 ## Course Syllabus
+1. What are the benefits of functional programming?
+    1. Programs can be distributed without fear of side effects.  Distribution means across threads/channels and across processes and/or machines.
+	2. You achieve much greater reuse than you do in imperative programming. See examples from Chapter 5 exercises.
+	3. Applications are smaller.
+	4. Applications are cheaper to maintain.
+	5. Applications are easier to understand.
+	6. Its way more fun than imperative programming.  Its fun telling your boss "I took 2 weeks to do this thing that would have taken a very good imperative programmer 10 weeks and I only needed 50 lines of code".
+1. If all that it true then why isn't it more popular?
+    1. Because it's harder than imperative programming.
+	2. It takes a long time to learn.
+	3. It makes us feel stupid.
+	4. It looks weird.
+	5. Because Google doesn't use it.
 1. What is Functional Programming?
     1. Programming with pure functions
     2. Recursion
     3. The Closure property of cons
     4. Properties-based testing with Scalacheck
     5. Why types are better than tests
-2. What is a Functor?
+1. What is a Functor?
     1. Algebraic Data Types
     2. Examples from real life?
     3. How is it useful?
     4. The Functor laws
-3. What is an Applicative Functor
+1. What is an Applicative Functor
     1. How is it useful?
     2. Applicative Functor laws
     3. Why Applicative Functors are better than Monads
-4. Natural Transformations
+1. Natural Transformations
     1. What is a Natural Transformatrion -  A mapping between functors.
-5. Monoids
+1. Monoids
     1. Why are they useful?
     2. Monoid laws
-6. Monads
+1. Monads
     1. When are they useful?
     2. When are they bad?
     3. Monad laws.
-7. Lenses - This is the workshop I am presenting at the conference in two weeks.
+1. Lenses - This is the workshop I am presenting at the conference in two weeks.
 
 

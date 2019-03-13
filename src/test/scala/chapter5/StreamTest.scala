@@ -330,21 +330,13 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     case _ => false
   }
 
-  def tails[A](xs: Stream[A]):Stream[Stream[A]] = Stream.unfold((xs, Stream.empty[A]))(pr => pr match {
-    case (s @ Cons(h, t), empty) => Some(s, (t(), t()))
-    //case (Cons(h, t), _) => Some(t(), (t(), t()))
-
-    case (empty, d @ Cons(h, t)) => Some(empty,( empty, empty)) //Some(empty, (t(),t()))
-    //case (empty, _) => Some(empty,( empty, empty)) //Some(empty, (t(),t()))
-    case _ => None
-  })
-
   property("Write tails for Stream of Strings") {
     //forAll { (xs: Seq[String]) =>
       val xs = List("a","b","c")
-      val xss = Stream.apply(xs:_*)
-      println((tails(xss).map((x => x.toList)).toList).toList)
-      (tails(xss).map(x => x.toList).toList) should be (xs.tails.toList)
+    val xss = Stream.apply(xs:_*)
+    val actual = Stream.tails(xss).map((x => x.toList)).toList
+      println(actual)
+      actual should be (xs.tails.toList)
     //}
 
   }

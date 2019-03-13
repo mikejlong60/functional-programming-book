@@ -93,11 +93,33 @@ object Stream {
     }
   }
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z).map(tpl => cons(tpl._1, unfold(tpl._2)(f))).getOrElse(empty)
- 
   val fib = {
     def go(f0: Long, f1: Long): Stream[Long] = cons(f0, go(f1, f0+f1))
     go(0, 1)
   }
+
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z).map(tpl => cons(tpl._1, unfold(tpl._2)(f))).getOrElse(empty)
+ 
+  def tails[A](xs: Stream[A]):Stream[Stream[A]] = Stream.unfold((xs, Stream.empty[A]))(pr => pr match {
+    case (s @ Cons(h, t),  Empty) => {
+     // val g = s.map(x => x.toList).toList
+      println("in 1" + s.toList)
+      Some(s, (t(), t()))
+    }
+    //case (Cons(h, t), _) => Some(t(), (t(), t()))
+
+//    case (empty, d @ Cons(h, t)) => {
+    case (s @ Cons(h1, t1), x @ Cons(h2, t2)) => {
+      println("in 2a:"+s.toList)
+      println("in 2b:"+x.toList)
+      Some(s, (t2(), t2()))//(Stream.empty, Stream.empty)) //Some(empty, (t(),t()))
+    }
+    //case (empty, _) => Some(empty,( empty, empty)) //Some(empty, (t(),t()))
+    //case (Stream.empty, Stream.empty) => Some(empty, (empty, empty))
+    case (_,  _) => {
+      println("in 3")
+      None
+    }
+  })
 }
 

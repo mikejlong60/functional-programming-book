@@ -29,6 +29,8 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		1. Pattern matching
 		1. 1st-class functions
 		1. Immutable types
+		1. Laziness
+		1. Tail recursion
     1. Programming with pure functions
         1. What is a pure function?
 		1. What is referential transparency?

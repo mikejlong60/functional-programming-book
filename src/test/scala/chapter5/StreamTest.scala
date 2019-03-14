@@ -399,4 +399,14 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       }
     }
   }
+
+  property("Write scanRight for Stream of Ints") {
+    forAll { (xs: Seq[Int]) =>
+      val xss = Stream.apply(xs:_*)
+      val actual = Stream.scanRight(xss)(Stream.empty[String])((a, s) => Stream.cons(a.toString(), s)).toList
+      val expected = List(1,2,3).scanRight("0")((a, s) => a + s)
+      //expected should be (List("1230","230","30","0"))
+      actual should be (expected)
+    }
+  }
 }

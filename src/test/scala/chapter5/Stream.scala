@@ -108,5 +108,15 @@ object Stream {
       case Empty => None
       case s => Some((s, s drop 1))
     } append Stream(empty)
+
+  def scanRight2[A, S](xs: Stream[A])(z: S)(op: (A, S) => S): Stream[S] = ???
+
+//  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
+//    case Cons(h, t) => f(h(), t().foldRight(z)(f))
+//    case _ => z
+//  }
+
+  def scanRight[A, S](xs: Stream[A])(z: S)(op: (A, => S) => S): Stream[S] = ???//xs.foldRight(z: => B)(f: (A, => B) => B)
+
 }
 

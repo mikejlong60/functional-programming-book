@@ -49,6 +49,9 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		1. Recursion is closely related to the _Closure property of cons_.  A function has this property when applying a function to the members of some set produces an element that is again a member of this set.  The function ```f``` above has this property because it both takes and produces a B.  Functions that have this property can be composed to produce new functions.  And these functions have algebaric properties.  This is the big deal of FP because it allows us to reuse functions.  Its what I did to generalize the addition of Kafka logging for the suite of Notifications applications.
     1. Properties-based testing with Scalacheck
     1. Why types are better than tests. In many cases the type system tells you whether or not your function is correct. Often there is only one possible implementation.
+	1. What does the term `currying` mean?
+	1. What does the term `partial application of a function` mean?
+	1. What does the term `partial function` mean?
 1. Exercise 1:
     1. Write a fib that uses recursion.  Here is its signature: 
 	   ```

@@ -317,13 +317,17 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
      }
   }
 
-  def hasSubsequence[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
+  //This is the one I wrote before I read the directions fully. It passes the tests as well
+  def hasSubsequenceNotAsGood[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
     case (Cons(h1, t1), Cons(h2, t2)) => {
       if (takeWhileWunfold(zipAllWunfold(sup)(sub))(x  => !x._2.isEmpty).forAll(x2 => x2._1 == x2._2)) true
       else hasSubsequence(t1())(sub)
     }
     case _ => false
   }
+
+  //This is the one I wrote after following the directions and writing tails and startsWith
+  def hasSubsequence[A](sup: Stream[A])(sub: Stream[A]): Boolean = Stream.tails(sup) exists (s =>  startsWith(s)(sub)) 
 
   def startsWith[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
     case (Cons(h1, t1), Cons(h2, t2)) => takeWhileWunfold(zipAllWunfold(sup)(sub))(x  => !x._2.isEmpty).forAll(x2 => x2._1 == x2._2)
@@ -358,12 +362,20 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  import org.scalacheck.Gen
+
+  val ff = hasSubsequence _
+  val gg  = hasSubsequenceNotAsGood _ 
+  val hh = for {
+    i <- Gen.oneOf(ff, gg)
+  } yield (i)
+
   property("Write hasSubsequence false for Stream of Strings") {
     forAll { (xs1: Seq[String], xs2: Seq[String]) =>
       whenever (xs2.size > xs1.size) {
         val sup = Stream.apply(xs1:_*)
         val sub = Stream.apply(xs2:_*)
-        (hasSubsequence(sup)(sub)) should be (false)
+       (hh.sample.get(sup)(sub)) should be (false)
       }
     }
   }
@@ -373,7 +385,7 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       whenever (xs.size >= 3) {
         val sub = Stream.apply(xs.takeRight(3):_*)
         val sup = Stream.apply(xs:_*)
-        (hasSubsequence(sup)(sub)) should be (true)
+        (hh.sample.get(sup)(sub)) should be (true)
       }
     }
   }
@@ -383,10 +395,8 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       whenever (xs.size >= 3) {
         val sub = Stream.apply(xs.take(3):_*)
         val sup = Stream.apply(xs:_*)
-        (hasSubsequence(sup)(sub)) should be (true)
+        (hh.sample.get(sup)(sub)) should be (true)
       }
     }
   }
-
-
 }

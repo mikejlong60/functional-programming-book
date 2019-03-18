@@ -135,16 +135,12 @@ object Stream {
 
   //Uses foldright
   final def tails2[A](xs: Stream[A]): Stream[Stream[A]] = {
-    val r = xs.foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
+    xs.foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
       case (aa, Empty) => Stream.cons(Stream.cons(aa, Empty), b)
-      case (aa, s @ Cons(h, t)) => Stream.cons(Stream.cons(aa, h()), b)
+      case (aa, Cons(h, t)) => Stream.cons(Stream.cons(aa, h()), b)
       case _ => b append Stream.empty
-    })
-    r append Stream(Empty)
+    }) append Stream(empty)
   }
-
-
-  //  def scanRight2[A, S](xs: Stream[A])(z: S)(op: (A, S) => S): Stream[S] = ???
 
 //  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
 //    case Cons(h, t) => f(h(), t().foldRight(z)(f))

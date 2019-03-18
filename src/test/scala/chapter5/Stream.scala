@@ -43,6 +43,29 @@ sealed trait Stream[+A] {
 
   final def append[B >: A](l2: Stream[B]): Stream[B] = foldRight(l2)( (a, b) => Stream.cons(a, b))
 
+  final def tails2: Stream[Stream[A]] = {
+    val r = foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
+//    val r = foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
+      case (aa, Empty) => Stream.cons(Stream.cons(aa, Empty), b)
+      case (aa, s @ Cons(h, t)) => Stream.cons(Stream.cons(aa, h()), b)
+      case _ => b append Stream.empty
+    })
+    //println("crap++++++++:"+r.map(d => d.toList).toList)
+   // println("crap222++++++++:"+(Stream.cons(Stream.empty, r)).map(d => d.toList).toList)
+   //println("crap3++++++++:"+(r append Stream(Empty)).map(d => d.toList).toList)
+    r append Stream(Empty)// append r//(Stream.cons(r, Stream.empty))
+    //Stream.cons(Stream.empty, r)//r  append Stream.empty
+  }
+
+  // I cheated on this and looked up the answer after trying to do it for 8 hours.  I forgot about being able to use append. I had
+  // it working except for the empty stream at the end.  I also forgot about drop to remove the head and was using pattern matching
+  // to extract the head and tail from xs.
+  def tails: Stream[Stream[A]] =
+    Stream.unfold(this) {
+      case Empty => None
+      case s => Some((s, s drop 1))
+    } append Stream(Empty)
+
   //Version based upon foldRight
   final def takeWhile(p : A => Boolean): Stream[A] = foldRight(Stream.empty[A])((a, b) => 
     if (p(a))  Stream.cons(a, b)
@@ -109,7 +132,19 @@ object Stream {
       case s => Some((s, s drop 1))
     } append Stream(empty)
 
-  def scanRight2[A, S](xs: Stream[A])(z: S)(op: (A, S) => S): Stream[S] = ???
+
+  //Uses foldright
+  final def tails2[A](xs: Stream[A]): Stream[Stream[A]] = {
+    val r = xs.foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
+      case (aa, Empty) => Stream.cons(Stream.cons(aa, Empty), b)
+      case (aa, s @ Cons(h, t)) => Stream.cons(Stream.cons(aa, h()), b)
+      case _ => b append Stream.empty
+    })
+    r append Stream(Empty)
+  }
+
+
+  //  def scanRight2[A, S](xs: Stream[A])(z: S)(op: (A, S) => S): Stream[S] = ???
 
 //  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
 //    case Cons(h, t) => f(h(), t().foldRight(z)(f))

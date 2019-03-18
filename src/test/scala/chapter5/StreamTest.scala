@@ -2,6 +2,7 @@ package chapter5
 
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck.Gen
 
 class StreamTest extends PropSpec with PropertyChecks with Matchers {
 
@@ -326,6 +327,7 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     case _ => false
   }
 
+
   //This is the one I wrote after following the directions and writing tails and startsWith
   def hasSubsequence[A](sup: Stream[A])(sub: Stream[A]): Boolean = Stream.tails(sup) exists (s =>  startsWith(s)(sub)) 
 
@@ -336,8 +338,10 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Write tails for Stream of Strings") {
     forAll { (xs: Seq[String]) =>
+    //  val xs = List(3,2,1)
       val xss = Stream.apply(xs:_*)
-      val actual = Stream.tails(xss).map((x => x.toList)).toList
+      //val actual = Stream.tails(xss).map((x => x.toList)).toList
+      val actual = xss.tails2.map((x => x.toList)).toList
       actual should be (xs.tails.toList)
     }
   }
@@ -361,8 +365,6 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       }
     }
   }
-
-  import org.scalacheck.Gen
 
   val ff = hasSubsequence _
   val gg  = hasSubsequenceNotAsGood _ 

@@ -31,9 +31,34 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		1. Immutable types
 		1. Laziness
 		1. Tail recursion
+	1. Drilling deeper on these ideas:
+		1. What is a case class?  
+			1. Exercise 1:
+			1. Exercise 2:
+			1. Exercise 3:
+		1. What is pattern matching?  I will devise several exercises on pattern matching.
+			1. Exercise 1:
+			1. Exercise 2:
+			1. Exercise 3:
+		1. What does it mean for a function to be curried?  I will devise several exercises on this.
+			1. Exercise 1:
+			1. Exercise 2:
+			1. Exercise 3:
+		1. What does partial application mean?  Again several exercises.
+			1. Exercise 1:
+			1. Exercise 2:
+			1. Exercise 3:
+		1. Let’s practice recursion and I will make some exercises.
+			1. Exercise 1:
+			1. Exercise 2:
+			1. Exercise 3:
     1. Programming with pure functions
         1. What is a pure function?
-		1. What is referential transparency?
+			1. Exercise 1:
+			1. Exercise 2:
+			1. Exercise 3:
+
+		1. What is referential transparency?  Something is referentially transparent if it cannot be observed from the outside. Examples include local variables, writing to a hidden file(might cause a panic and crash with out od disk space but it's still transparent because no caller could observe this or affect the outcome).
 		1. What is the substitution model?	
     1. Recursion
 	    1. Why should you do it?

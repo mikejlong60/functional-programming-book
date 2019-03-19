@@ -45,16 +45,11 @@ sealed trait Stream[+A] {
 
   final def tails2: Stream[Stream[A]] = {
     val r = foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
-//    val r = foldRight(Stream.empty[Stream[A]])((a, b) => (a, b) match {
       case (aa, Empty) => Stream.cons(Stream.cons(aa, Empty), b)
       case (aa, s @ Cons(h, t)) => Stream.cons(Stream.cons(aa, h()), b)
       case _ => b append Stream.empty
     })
-    //println("crap++++++++:"+r.map(d => d.toList).toList)
-   // println("crap222++++++++:"+(Stream.cons(Stream.empty, r)).map(d => d.toList).toList)
-   //println("crap3++++++++:"+(r append Stream(Empty)).map(d => d.toList).toList)
-    r append Stream(Empty)// append r//(Stream.cons(r, Stream.empty))
-    //Stream.cons(Stream.empty, r)//r  append Stream.empty
+    r append Stream(Empty)
   }
 
   // I cheated on this and looked up the answer after trying to do it for 8 hours.  I forgot about being able to use append. I had
@@ -142,12 +137,9 @@ object Stream {
     }) append Stream(empty)
   }
 
-//  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
-//    case Cons(h, t) => f(h(), t().foldRight(z)(f))
-//    case _ => z
-//  }
-
-  def scanRight[A, S](xs: Stream[A])(z: S)(op: (A, => S) => S): Stream[S] = ???//xs.foldRight(z: => B)(f: (A, => B) => B)
-
+  def scanRight[A, S](xs: Stream[A])(z: S)(op: (A, => S) => S): Stream[S] = xs.foldRight((z, Stream(z)))((a, p0) => {
+    lazy val p1 =p0
+    val b2 = op(a, p1._1)
+    (b2, Stream.cons(b2, p1._2))
+   })._2
 }
-

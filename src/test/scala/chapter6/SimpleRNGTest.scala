@@ -2,8 +2,10 @@ package chapter6
 
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
-import org.scalacheck.Gen
-
+//import org.scalacheck.Gen
+//import org.scalacheck.Prop.{forAll, BooleanOperators}
+//import org.scalatest.Matchers._
+import org.scalactic.TypeCheckedTripleEquals._ 
 class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Generating two random numbers using the same generator produces the same number ") {
@@ -27,6 +29,22 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
       val rng = SimpleRNG(x)
       val actual = nonNegativeInt(rng: RNG)
       actual._1 should be >= (0)
+    }
+  }
+
+  def nonNegativeDoubleBetween0and1(rng: RNG): (Double, RNG) = {
+    val h = nonNegativeInt(rng)
+    (1.toDouble / h._1.toDouble, h._2)
+  }
+
+  property("Generate a non-negative double between 0 and 1") {
+    forAll {x: Int =>
+      whenever (x > 0) {
+        val rng = SimpleRNG(x)
+        val actual = nonNegativeDoubleBetween0and1(rng: RNG)
+        actual._2 should not be (rng)
+        actual._1.toInt should be  (0)
+      }
     }
   }
 }

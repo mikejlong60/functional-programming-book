@@ -20,44 +20,30 @@ In this course the implementation language will be Scala.  Haskell would be bett
 	5. Because Google doesn't use it.
 
 ## Course Syllabus
-1. Getting set up
+1. Week 0 - Getting set up and trying to convince you to stick it out.
     1. Make sure you have a modern JDK installed.
-	1. [Install SBT](https://www.scala-sbt.org/)
+	1. [Install SBT](https://www.scala-sbt.org/). For the initial weeks we will not need an editor at all. We will be using SBT and its repl for the exercises.
 1. What is Functional Programming?
-    1. What does a language need to support functional programming?
-	    1. Polymorphic functions
-		1. Pattern matching
-		1. 1st-class functions
+    1. Fundamental Characteristics of Functional Programming
 		1. Immutable types
+		1. Pattern matching
+		1. Learning to use recursion instead of loops.
+		1. Polymorphic functions
+		1. 1st-class functions
 		1. Laziness
 		1. Tail recursion
-	1. Drilling deeper on these ideas:
-		1. What is a case class?  
-			1. Exercise 1:
-			1. Exercise 2:
-			1. Exercise 3:
-		1. What is pattern matching?  I will devise several exercises on pattern matching.
-			1. Exercise 1:
-			1. Exercise 2:
-			1. Exercise 3:
-		1. What does it mean for a function to be curried?  I will devise several exercises on this.
-			1. Exercise 1:
-			1. Exercise 2:
-			1. Exercise 3:
-		1. What does partial application mean?  Again several exercises.
-			1. Exercise 1:
-			1. Exercise 2:
-			1. Exercise 3:
-		1. Let’s practice recursion and I will make some exercises.
-			1. Exercise 1:
-			1. Exercise 2:
-			1. Exercise 3:
-    1. Programming with pure functions
-        1. What is a pure function?
-			1. Exercise 1:
-			1. Exercise 2:
-			1. Exercise 3:
-
+	1. Laying a Foundation.  For at least the first few weeks you will work on gaining a fundamental understanding of the preceding ideas.  We will not need an editor or an IDE:
+		1. Week 1 - What is a case class? A constructor for an immutable type.  
+			1. Exercise 1: Make a case class
+			1. Exercise 2: Make a case class that references another case class
+			1. Exercise 3: Learning to compare case classes.  Make two instances of your case class above.  How can you compare it for equality.  
+		1. Week 2 - Pattern Matching
+		1. Week 3 - Recursion
+		1. Week 4 - Building an understanding of polymorphic functions
+		1. Week 5 - 1st class functions
+		1. Week 6 - laziness
+		1. Week 7 - tail recursion
+1. Stuff we will start talking about in a couple months.  
 		1. What is referential transparency?  Something is referentially transparent if it cannot be observed from the outside. Examples include local variables, writing to a hidden file(might cause a panic and crash with out od disk space but it's still transparent because no caller could observe this or affect the outcome).
 		1. What is the substitution model?	
     1. Recursion
@@ -77,34 +63,24 @@ In this course the implementation language will be Scala.  Haskell would be bett
 	1. What does the term `currying` mean?
 	1. What does the term `partial application of a function` mean?
 	1. What does the term `partial function` mean?
-1. Exercise 1:
-    1. Write a fib that uses recursion.  Here is its signature: 
-	   ```
-	   def fib(n: Long): Long
-	   ```
-1. Exercise 2:
-   1. Write a compose function.  Here is its signature:
-       ```
-       def compose[A, B, C](f: B => C, g: A => B): A => C
-       ```
-1. What is a Functor?
-    1. Algebraic Data Types
-    2. Examples from real life?
-    3. How is it useful?
-    4. The Functor laws
-1. What is an Applicative Functor
-    1. How is it useful?
-    2. Applicative Functor laws
-    3. Why Applicative Functors are better than Monads
-1. Natural Transformations
-    1. What is a Natural Transformatrion -  A mapping between functors.
-1. Monoids
-    1. Why are they useful?
-    2. Monoid laws
-1. Monads
-    1. When are they useful?
-    2. When are they bad?
-    3. Monad laws.
-1. Lenses - This is the workshop I am presenting at the conference in two weeks.
+	1. What is a Functor?
+		1. Algebraic Data Types
+		2. Examples from real life?
+		3. How is it useful?
+		4. The Functor laws
+	1. What is an Applicative Functor
+		1. How is it useful?
+		2. Applicative Functor laws
+		3. Why Applicative Functors are better than Monads
+	1. Natural Transformations
+		1. What is a Natural Transformatrion -  A mapping between functors.
+	1. Monoids
+		1. Why are they useful?
+		2. Monoid laws
+	1. Monads
+		1. When are they useful?
+		2. When are they bad?
+		3. Monad laws.
+	1. Lenses - This is the workshop I am presenting at the conference in two weeks.
 
 

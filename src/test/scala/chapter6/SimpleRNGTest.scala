@@ -2,10 +2,8 @@ package chapter6
 
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
-//import org.scalacheck.Gen
-//import org.scalacheck.Prop.{forAll, BooleanOperators}
-//import org.scalatest.Matchers._
 import org.scalactic.TypeCheckedTripleEquals._ 
+
 class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Generating two random numbers using the same generator produces the same number ") {
@@ -43,7 +41,7 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
         val rng = SimpleRNG(x)
         val actual = nonNegativeDoubleBetween0and1(rng: RNG)
         actual._2 should not be (rng)
-        actual._1.toInt should be  (0)
+        actual._1.toInt should be  (0)//Just truncate the Double. I am having trouble getting Scalacheck to deal with doubles.  Should instead use bigdecimal or a precise type for rational numbers.  But that would complicate too much.
       }
     }
   }

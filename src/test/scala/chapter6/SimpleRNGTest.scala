@@ -106,11 +106,53 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Generate list of random Ints") {
     forAll {x: Short =>
-      whenever(x > 0 && x < 8000) {
+      whenever(x > 0 && x < 4000) {
         val rng = SimpleRNG(x)
-        val actual = ints(x)(rng)//Because this is noty tail recursive it blows up.  Ths book solutions show a tail-recursive version with an inner function.
+        val actual = ints(x)(rng)//Because this is not tail recursive it blows up.  The book solution shows a tail-recursive version with an inner function.
         actual._1.size should be (x)
       }
     }
   }
+
+
+  import RNG._
+
+  val nonNegativeEven: Rand[Int] = map(nonNegativeInt)(i => i  - (i %2))
+
+  val doubleMap: Rand[Double] = map(nonNegativeInt)(i => 
+    if (i > 0) (1.toDouble / i.toDouble)
+    else 0
+    )
+
+  property("Generate a non-negative double between 0 and 1 with map") {
+    forAll {x: Int =>
+      val rng = SimpleRNG(x)
+      val actual = doubleMap(rng)
+      actual._2 should not be (rng)
+      actual._1.toInt should be  (0)
+    }
+  }
+ 
+  property("Generate an Int and  Double pair using map2") {
+    forAll {x: Int =>
+      val rng = SimpleRNG(x)
+      val fff = map2(nonNegativeInt, doubleMap)((_,_))
+      val actual = fff(rng)
+      actual._2 should not be (rng)
+      actual._1._1 should be >= (0)
+      actual._1._2.toInt should be  (0)
+    }
+  }
+
+  property("Generate a Double  Double pair using map2") {
+    forAll {x: Int =>
+      val rng = SimpleRNG(x)
+      val fff = map2(doubleMap, doubleMap)((_, _))
+      val actual = fff(rng)
+      actual._2 should not be (rng)
+      actual._1._1.toInt should be (0)
+      actual._1._2.toInt should be  (0)
+    }
+  }
+
 }

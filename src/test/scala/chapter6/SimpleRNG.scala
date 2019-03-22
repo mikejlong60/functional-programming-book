@@ -26,21 +26,19 @@ object RNG {
 
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
 
-  @annotation.tailrec
-  final def nonNegativeInt(rng: RNG): (Int, RNG) = {
+  def nonNegativeInt: Rand[Int] = { rng =>
     val r = rng.nextInt
     if (r._1 >= 0) r
     else nonNegativeInt(r._2)
   }
 
-  @annotation.tailrec
-  final def double(rng: RNG): (Double, RNG) = {
+  def double: Rand[Double] = { rng =>
     val h = nonNegativeInt(rng)
     if (h._1 > 0) (1.toDouble / h._1.toDouble, h._2)
     else double(h._2)
   }
 
-  def intDouble(rng: RNG): ((Int, Double), RNG) = {
+  def intDouble: Rand[(Int, Double)] = { rng =>
     val h = nonNegativeInt(rng)
     val i = double(h._2)
     ((h._1, i._1), i._2)

@@ -24,7 +24,15 @@ object RNG {
     (f(r1._1, r2._1), r2._2)
   }
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = { rng =>
+    //fs match  {
+      //case (h, t)  =>  {
+        val ggg = fs.map(f => f(rng)._1)
+        (ggg, rng)
+      //}
+     // case _ => (List.empty[A], rng)
+   // }
+  }
 
   def nonNegativeInt: Rand[Int] = { rng =>
     val r = rng.nextInt

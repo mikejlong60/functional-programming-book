@@ -108,13 +108,19 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Generate a sequence of random numbers") {
-    forAll{x: Int =>
-      whenever(x > 0 && x < 4000) {
-        val rng = SimpleRNG(x)
-        val actual = ints(x)(rng)
+  property("Generate a sequence of random doubles") {
+    forAll{(xs: List[Int], x: Int) =>
+      val rng = SimpleRNG(x)
+      val xxs = xs.map(x => doubleMap)
+      val fff = sequence(xxs)
+      val actual = fff(rng)
+      println(actual._1)
+      actual._1.size should be (xs.size)
+      //actual._2 should not be (rng)
+       // val rng = SimpleRNG(x)
+       // val actual = ints(x)(rng)
 
-      }
+      //}
 
     }
   }

@@ -48,14 +48,14 @@ object RNG {
 
 
 
-  def double3(rng: RNG): ((Double, Double, Double), RNG) = {
+  def double3: Rand[(Double, Double, Double)] = { rng =>
     val i = double(rng)
     val j = double(i._2)
     val k = double(j._2)
     ((i._1, j._1, k._1), k._2)
   }
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+  def ints(count: Int): Rand[List[Int]] = { rng =>
     if (count == 0) (List.empty[Int], rng)
     else {
       val l = nonNegativeInt(rng)
@@ -63,7 +63,7 @@ object RNG {
     }
   }
 
-  def doubleInt: Rand[(Double, Int)] =  { rng =>  //}((Double, Int), RNG) = {
+  def doubleInt: Rand[(Double, Int)] =  { rng => 
     val h = intDouble(rng)
     ((h._1._2, h._1._1), h._2)
   }

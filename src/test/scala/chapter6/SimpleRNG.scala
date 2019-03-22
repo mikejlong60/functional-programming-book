@@ -25,6 +25,57 @@ object RNG {
   }
 
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
+
+  @annotation.tailrec
+  final def nonNegativeInt(rng: RNG): (Int, RNG) = {
+    val r = rng.nextInt
+    if (r._1 >= 0) r
+    else nonNegativeInt(r._2)
+  }
+
+  @annotation.tailrec
+  final def double(rng: RNG): (Double, RNG) = {
+    val h = nonNegativeInt(rng)
+    if (h._1 > 0) (1.toDouble / h._1.toDouble, h._2)
+    else double(h._2)
+  }
+
+  def intDouble(rng: RNG): ((Int, Double), RNG) = {
+    val h = nonNegativeInt(rng)
+    val i = double(h._2)
+    ((h._1, i._1), i._2)
+  }
+
+
+
+  def double3(rng: RNG): ((Double, Double, Double), RNG) = {
+    val i = double(rng)
+    val j = double(i._2)
+    val k = double(j._2)
+    ((i._1, j._1, k._1), k._2)
+  }
+
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+    if (count == 0) (List.empty[Int], rng)
+    else {
+      val l = nonNegativeInt(rng)
+      (l._1 :: (ints(count - 1)(l._2))._1, l._2)
+    }
+  }
+
+  def doubleInt: Rand[(Double, Int)] =  { rng =>  //}((Double, Int), RNG) = {
+    val h = intDouble(rng)
+    ((h._1._2, h._1._1), h._2)
+  }
+
+  val nonNegativeEven: Rand[Int] = map(nonNegativeInt)(i => i  - (i %2))
+
+  val doubleMap: Rand[Double] = map(nonNegativeInt)(i => 
+    if (i > 0) (1.toDouble / i.toDouble)
+    else 0
+    )
+
+
 }
 
 case class SimpleRNG(seed: Long) extends RNG {

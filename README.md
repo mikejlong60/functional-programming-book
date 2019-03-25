@@ -36,6 +36,12 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		1. Week 0 - Getting set up and trying to convince you to stick it out.
 			1. Make sure you have a modern JDK installed.
 			1. [Install SBT](https://www.scala-sbt.org/). For the initial weeks we will not need an editor at all. We will be using SBT and its repl for the exercises.  You will have completed week 0 when you have done the following: Installed SBT with `brew install sbt`.  Cloned this repo someplace with: `git clone https://github.com/mikejlong60/functional-programming-book.git`.   Descend into the preceding project's directory in a shell and type `sbt`.  Then when in sbt  type: `test`.  A whole lot of stuff gets downloaded and you will see happy green tests.
+			1. SBT paste mode: 
+			```
+			scala> :paste
+			// Entering paste mode (ctrl-D to finish)
+
+			```
 		1. Week 1 - What is a case class? A constructor for an immutable type? Or is it a function? Tell me why?
 			1. Exercise 1: Make a case class
 			1. Exercise 2: Make a case class that references another case class

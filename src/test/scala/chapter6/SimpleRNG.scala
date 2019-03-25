@@ -24,7 +24,9 @@ object RNG {
     (f(r1._1, r2._1), r2._2)
   }
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = { rng =>
+  //This doeszn't quite work because it use the same RNG each time which makes the same number each time.  So you need to pass
+  //along the state with each calculation.
+  def sequence2[A](fs: List[Rand[A]]): Rand[List[A]] = { rng =>
     //fs match  {
       //case (h, t)  =>  {
         val ggg = fs.map(f => f(rng)._1)
@@ -34,6 +36,8 @@ object RNG {
    // }
   }
 
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)((a, b) => a :: b))
+  
   def nonNegativeInt: Rand[Int] = { rng =>
     val r = rng.nextInt
     if (r._1 >= 0) r

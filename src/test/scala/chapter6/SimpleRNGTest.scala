@@ -114,14 +114,7 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
       val xxs = xs.map(x => doubleMap)
       val fff = sequence(xxs)
       val actual = fff(rng)
-      println(actual._1)
       actual._1.size should be (xs.size)
-      //actual._2 should not be (rng)
-       // val rng = SimpleRNG(x)
-       // val actual = ints(x)(rng)
-
-      //}
-
     }
   }
 

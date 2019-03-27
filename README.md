@@ -47,7 +47,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 			1. Exercise 2: Make a case class that references another case class
 			1. Exercise 3: Learning to compare case classes.  Make two instances of your case class above.  How can you compare it for equality.  
 		1. Week 2 - Pattern Matching
-			1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial anf total functions:
+			1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
 				1. What is a total function?
 				1. What is a partial function?
 				1. How does this relate to pattern matching?

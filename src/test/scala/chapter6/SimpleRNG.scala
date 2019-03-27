@@ -12,11 +12,16 @@ object RNG {
 
   def unit[A](a: A): Rand[A] = rng => (a, rng)
 
-  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+  def mapOld[A, B](s: Rand[A])(f: A => B): Rand[B] =
     rng => {
       val (a, rng2) = s(rng)
       (f(a), rng2)
     }
+
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] = rng => {
+    val r = flatMap(s)(a => unit(f(a)))
+    r(rng)
+  }
 
   def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] =
     rng => {
@@ -25,13 +30,19 @@ object RNG {
       r
     }
 
-  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = { rng =>
+  def map2Old[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = { rng =>
     val r1 = ra(rng)
     val r2 = rb(r1._2)
     (f(r1._1, r2._1), r2._2)
   }
 
-  //This doesn't quite work because it use the same RNG each time which makes the same number each time.  So you need to pass
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = { rng =>
+    val r = flatMap(ra)(a => flatMap(rb)(b => unit(f(a, b))))
+    r(rng)
+  }
+
+
+  //This doesn't quite work because it use the same RNG each time which makes the same number each time.  So you need to pTass
   //along the state with each calculation.
   def sequence2[A](fs: List[Rand[A]]): Rand[List[A]] = { rng =>
         val ggg = fs.map(f => f(rng)._1)

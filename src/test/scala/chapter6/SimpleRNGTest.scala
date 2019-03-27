@@ -158,4 +158,23 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
      actual._1.size should be (xs.size)
     }
   }
+
+  property("Reveal bug in roll die. This should fail") {
+    def rollDie: Rand[Int] = nonNegativeLessThan(6)
+    forAll(minSuccessful(10000)){x: Int =>
+      val actual = rollDie(SimpleRNG(x))
+      actual._1 should be > (0)
+      actual._1 should be <= (6)
+    }
+  }
+
+    property("Fix bug in roll die") {
+    def rollDie: Rand[Int] = map(nonNegativeLessThan(6))(x => x + 1)
+    forAll(minSuccessful(10000)){x: Int =>
+      val actual = rollDie(SimpleRNG(x))
+      actual._1 should be > (0)
+      actual._1 should be <= (6)
+    }
+  }
+
 }

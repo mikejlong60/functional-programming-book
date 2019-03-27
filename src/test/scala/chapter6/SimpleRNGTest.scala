@@ -118,4 +118,44 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  def nonNegativeLessThan(n: Int): Rand[Int] = { rng =>
+    val (i, rng2) = nonNegativeInt(rng)
+    val mod = i % n
+    if (i + (n - 1) - mod >= 0) (mod, rng2)
+    else nonNegativeLessThan(n)(rng)
+  }
+
+  def nonNegativeLessThanFm(n: Int): Rand[Int] = {
+     flatMap(nonNegativeInt)(i => {
+       val mod = i % n
+       if (i  +  (n - 1) - mod >= 0) unit(mod) //rng =>  (mod, rng) 
+       else  nonNegativeLessThanFm(n)
+    })
+  }
+
+  property("Use flatMap for nonNegativeLessThan") {
+    forAll{x: Int =>
+      whenever(x > 0) {
+      val rng = SimpleRNG(x)
+      val result = nonNegativeLessThanFm(x)
+      val actual = result(rng)
+      actual._1 should be >= (0)
+      actual._1 should be < (x)
+      }
+    }
+  }
+
+  property("Use flatMap") {
+    forAll{(xs: List[Int], x: Int) =>
+     val rng = SimpleRNG(x)
+     val xxs = xs.map(x => {
+       val r = unit(x)
+       val res = flatMap(r)(d => unit(x))
+       res
+     })
+     val fff = sequence(xxs)
+     val actual = fff(rng)
+     actual._1.size should be (xs.size)
+    }
+  }
 }

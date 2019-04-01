@@ -57,9 +57,8 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				trait PartialFunction[-A, +B] extends (A) ⇒ B
 				``` 
 				Unlike a total function, a partial function might not apply for all possible values of its domain(its possible inputs). A case statement is similar to a partial function.  A value passed into a case statement may not have any matches. The compiler might warn you when this is the case(not in the console). And you will always get a runtime error if this is the case.  Partial functions have a fantastic property. They are composable.  And therein lies their power.  Everything always comes back to the composition of functions.  Such is the case with ```collect``` in the exercises.  You can apply a partial function just like any other function.  You can also ask it if your particular argument would apply using sDefinedAt.
-				1. How does this relate to pattern matching?  Because I don't want you to think about branching like an imperative programmer.  I want you to think in terms of functions. At the surface case and match seem like their imperative counterparts.  
-				1. Why is this much more powerful than simple branching like you see in Golang or Java(if/else and switch/case)?
-				1. Exercises: For these exercises use the console.  And add your functions to the PatternMatching object in the exercises package.  Or you can use the console directly.  To start out in the console:
+				1. Why does this relate to pattern matching?  Because I don't want you to think about branching like an imperative programmer.  I want you to think in terms of functions. At the surface case and match seem like their imperative counterparts but they are not that similar.  
+					1. Exercises: For these exercises use the console.  And add your functions to the PatternMatching object in the exercises package.  Or you can use the console directly.  To start out in the console:
 			    1. sbt
 					1. console
 					1. import exercises.PatternMatching._

@@ -46,20 +46,37 @@ In this course the implementation language will be Scala.  Haskell would be bett
 			1. Exercise 1: Make a case class
 			1. Exercise 2: Make a case class that references another case class
 			1. Exercise 3: Learning to compare case classes.  Make two instances of your case class above.  How can you compare it for equality.  
-		1. Week 2 - Pattern Matching
+		1. Week 2, 3 - Pattern Matching
 			1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
-				1. What is a total function?
-				1. What is a partial function?
-				1. How does this relate to pattern matching?
+				1. What is a total function? A total function is a function that is defined for all possible values of its input. That is, it always terminates and always returns a value. 
+				```
+				def sum(x: Int, y: Int):Int = x + y
+				```
+				1. What is a partial function? From https://www.scala-lang.org/api/current/scala/PartialFunction.html
+				```
+				trait PartialFunction[-A, +B] extends (A) ⇒ B
+				```
+Unlike a total function, a partial function might not apply for all possible values of its domain(its possible inputs). A case statement is similar to a partial function.  A value passed into a case statement may not have any matches. The compiler might warn you when this is the case(not in the console). And you will always get a runtime error if this is the case.  Partial functions have a fantastic property. They are composable.  And therein lies their power.  Everything always comes back to the composition of functions.  Such is the case with ```collect``` in the exercises.  You can apply a partial function just like any other function.  You can also ask it if your particular argument would apply using ```isDefinedAt```.
+				1. How does this relate to pattern matching?  Because I don't want you to think about branching like an imperative programmer.  I want you to think in terms of functions. At the surface case and match seem like their imperative counterparts.  
 				1. Why is this much more powerful than simple branching like you see in Golang or Java(if/else and switch/case)?
-				1. Exercises:
-					1. Understand pattern matching on strings.  Explore many nuances.
-					1. Write a partial function using pattern matching.  What happens when no pattern matches?
-					1. Write a total function using pattern matching.
-					1. Understand some uses of partial functions in the standard library for List.
-					1.  More to come over the next few days
-					.
-		1. Week 3 - Recursion
+				1. Exercises: For these exercises use the console.  And add your functions to the PatternMatching object in the exercises package.  Or you can use the console directly.  To start out in the console:
+					1. sbt
+					1. console
+					1. import exercises.PatternMatching._
+					1. I am going to take you on a tour of partial functions and pattern matching.
+						1. Use a partial function on a list of numbers to see which are even, are odd, or both
+						1. Show how partial functions are composable
+						1. Use isDefinedAt to see if you will get a match error at runtime. 
+						1. Make Scala throw a Match Error on a  partial function
+						1. Exercises:
+							1.Partial Functions -  Implement you.
+								1. Make it throw a Match Error
+								1. Compose it with me.
+								1. Use isDefinedAt to see if you will get a Match Error.
+								1. Use the Scala range statement to use collect.  See the example.
+								1. Understand pattern matching on strings.  Explore many nuances.
+								1. Understand some uses of partial functions in the standard library for List.
+					1. Week 3 - Recursion
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions
 		1. Week 6 - laziness

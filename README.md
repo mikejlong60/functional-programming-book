@@ -67,14 +67,13 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						1. Show how partial functions are composable
 						1. Use isDefinedAt to see if you will get a match error at runtime. 
 						1. Make Scala throw a Match Error on a  partial function
-						1. Exercises:
-							1.Partial Functions -  Implement you.
-								1. Make it throw a Match Error
-								1. Compose it with me.
-								1. Use isDefinedAt to see if you will get a Match Error.
-							1. Use the Scala range statement to use collect.  See the example.
-							1. Understand pattern matching on strings.  Explore many nuances.
-							1. Understand some more uses of partial functions in the standard library for List.
+						1. Partial Functions -  Implement you.
+						1. Make it throw a Match Error
+						1. Compose it with me.
+						1. Use isDefinedAt to see if you will get a Match Error.
+						1. Use the Scala range statement to use collect.  See the example.
+						1. Understand pattern matching on strings.  Explore many nuances.
+						1. Understand some more uses of partial functions in the standard library for List.
 					1. Week 3 - Recursion
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions

@@ -37,7 +37,7 @@ object PatternMatching {
 
   //val you: PartialFunction[String, String] = ???
   
-  def isItMe(whom: String): Boolean = whom match {
+  def isItMike(whom: String): Boolean = whom match {
     case "mike" => true
     case "Hiromi" => false
     case "Daniel" => false

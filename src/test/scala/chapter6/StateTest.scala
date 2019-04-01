@@ -28,7 +28,6 @@ class StateTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-
   property("Generate a non-negative double between 0 and 1") {
     forAll(minSuccessful(10000)) {x: Int =>
       val rng = SimpleRNG(x)
@@ -39,13 +38,39 @@ class StateTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Use map") {
+    forAll {x: Int =>
+      whenever (x < 4000000) {
+      val rng = SimpleRNG(x)
+      val (i, r) = rng.nextInt
+      val s = State(run = (s: RNG) => (i, r))
+      val (i2,r2) = s.map(x => x + 1200).run(rng)
+      i2 should be  (i + 1200)
+      }
+    }
+  }
 
-//  property("Fix bug in roll die") {
-    //def rollDie: Rand[Int] = map(nonNegativeLessInt)(x => x + 1)
-//    forAll(minSuccessful(10000)){x: Int =>
-  //    val actual = rollDie(SimpleRNG(x))
-  //    actual._1 should be > (0)
-  //    actual._1 should be <= (6)
-  //  }///
-//}
+  property("Use flatMap") {
+    forAll {x: Int =>
+      whenever (x < 4000000) {
+      val rng = SimpleRNG(x)
+      val (i, r) = rng.nextInt
+      val s = State(run = (s: RNG) => (i, r))
+      val (i2,r2) = s.flatMap(x => unit(x + 1200)).run(rng)
+      i2 should be  (i + 1200)
+      }
+    }
+  }
+
+  property("Chain map and FlatMap") {
+    forAll {x: Int =>
+      whenever (x < 4000000) {
+      val rng = SimpleRNG(x)
+      val (i, r) = rng.nextInt
+      val s = State(run = (s: RNG) => (i, r))
+      val (i2,r2) = s.map(x => x + 1200).flatMap(x => unit(x + 1200)).flatMap(x => unit(x + 10)).run(rng)
+      i2 should be  (i + 2400 + 10)
+      }
+    }
+  }
 }

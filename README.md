@@ -58,7 +58,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				``` 
 				Unlike a total function, a partial function might not apply for all possible values of its domain(its possible inputs). A case statement is similar to a partial function.  A value passed into a case statement may not have any matches. The compiler might warn you when this is the case(not in the console). And you will always get a runtime error if this is the case.  Partial functions have a fantastic property. They are composable.  And therein lies their power.  Everything always comes back to the composition of functions.  Such is the case with ```collect``` in the exercises.  You can apply a partial function just like any other function.  You can also ask it if your particular argument would apply using sDefinedAt.
 				1. Why does this relate to pattern matching?  Because I don't want you to think about branching like an imperative programmer.  I want you to think in terms of functions. At the surface case and match seem like their imperative counterparts but they are not that similar.  
-				1. Exercises: For these exercises use the console.  And add your functions to the PatternMatching object in the exercises package.  Or you can use the console directly.  To start out in the console:
+				1. For these exercises use the console.  And add your functions to the PatternMatching object in the exercises package.  Or you can use the console directly.  To start out in the console:
 			    1. sbt
 					1. console
 					1. import exercises.PatternMatching._
@@ -72,9 +72,9 @@ In this course the implementation language will be Scala.  Haskell would be bett
 								1. Make it throw a Match Error
 								1. Compose it with me.
 								1. Use isDefinedAt to see if you will get a Match Error.
-								1. Use the Scala range statement to use collect.  See the example.
-								1. Understand pattern matching on strings.  Explore many nuances.
-								1. Understand some uses of partial functions in the standard library for List.
+							1. Use the Scala range statement to use collect.  See the example.
+							1. Understand pattern matching on strings.  Explore many nuances.
+							1. Understand some more uses of partial functions in the standard library for List.
 					1. Week 3 - Recursion
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions

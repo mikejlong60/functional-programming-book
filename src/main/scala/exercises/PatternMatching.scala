@@ -23,11 +23,11 @@ object PatternMatching {
   val numbers = sample map (isEven orElse isOdd)
 
   def aBigSalary(x: Int) = x match {
-    case  x if x > 100000 => "you might be a bigshot"
+    case  x if x >= 100000 => "you might be a bigshot"
   }
 
   def anySalary(x: Int) = x match {
-    case  x if x > 100000 => "don't think you are bigshot."
+    case  x if x < 100000 => "don't think you are bigshot."
     case _ => "Money will not make you happy"
   }
 

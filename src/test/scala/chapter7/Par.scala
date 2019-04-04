@@ -48,13 +48,14 @@ object Par {
     }
   }
 
-  def sumInParallel[A](ints: List[Int]): Par[Int] = {
+  def sumInParallel[A](ints: List[Int]): Par[Int] = {//Give the thread 10 millisecond timeout.
+    val timeout = 10
     if (ints.size <= 1) {
       val p = Par.unit(ints.headOption getOrElse 0)
       p
     } else {
       val (l, r) = ints.splitAt(ints.length/2)
-      Par.map2(Par.fork(sumInParallel(l)), Par.fork(sumInParallel(r)), 1000)((x, y) => x + y)
+      Par.map2(Par.fork(sumInParallel(l)), Par.fork(sumInParallel(r)), timeout)((x, y) => x + y)
     }
   }
 }

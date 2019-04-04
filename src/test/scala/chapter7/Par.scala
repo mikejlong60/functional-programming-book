@@ -18,6 +18,14 @@ object Par {
     def cancel(evenIfRunning: Boolean): Boolean = false
   }
 
+  def asyncF[A, B](f: A => B): A => Par[B] = a => {
+    (es: ExecutorService) => UnitFuture(f(a))
+  }
+
+  def asyncF2[A, B](f: A => B): A => Par[B] = a => {
+    lazyUnit(f(a))
+  }
+
   def map2[A, B, C](a: Par[A], b: Par[B], timeoutMillis: Long)(f: (A, B) => C): Par[C] =
     (es: ExecutorService) => {
       val af = a(es)
@@ -33,8 +41,6 @@ object Par {
           def call = a(es).get
         })
     
-  def asyncF[A, B](f: A => B): A => Par[B] = ???
-
   def sumInParallelNot(ints: List[Int]): Int = {
     if (ints.size <= 1) ints.headOption getOrElse 0
     else {

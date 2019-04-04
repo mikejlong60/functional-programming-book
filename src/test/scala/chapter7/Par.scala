@@ -22,9 +22,8 @@ object Par {
     (es: ExecutorService) => UnitFuture(f(a))
   }
 
-  def asyncF2[A, B](f: A => B): A => Par[B] = a => {
-    lazyUnit(f(a))
-  }
+  def asyncF2[A, B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
+  
 
   def map2[A, B, C](a: Par[A], b: Par[B], timeoutMillis: Long)(f: (A, B) => C): Par[C] =
     (es: ExecutorService) => {

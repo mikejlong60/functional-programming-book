@@ -55,5 +55,19 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
     actual should be (48)
   }
 
+  property("Parallel sorting") {
+    forAll{ xs: List[Int] => 
+      val actual = Par.sortPar(unit(xs))(executor).get
+      actual should be (xs.sorted)
+    }
+  }
+
+  property("use map") {
+    forAll{ xs: List[Int] =>
+      val actual = Par.map(unit(xs))(a => a.map(aa => aa + 12))(executor).get
+      actual should be (xs.map(aa => aa + 12))
+    }
+  }
+
 }
 

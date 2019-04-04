@@ -39,7 +39,12 @@ object Par {
         es => es.submit(new Callable[A] {
           def call = a(es).get
         })
-    
+
+  def map[A, B](pa: Par[A])(f: A => B): Par[B] = map2(pa, unit(()), 1000)((a, _) => f(a))
+
+  def sortPar(parList: Par[List[Int]]): Par[List[Int]] = map(parList)( a => a.sorted)
+
+
   def sumInParallelNot(ints: List[Int]): Int = {
     if (ints.size <= 1) ints.headOption getOrElse 0
     else {

@@ -11,6 +11,12 @@ object Par {
 
   def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
 
+  def id[A](a: A): A = a
+
+  def lawOfMap[A](a: Par[A])(es: ExecutorService): Boolean =  map(a)(id)(es).get == a(es).get
+
+  def lawOfFork[A](a: Par[A])(es: ExecutorService): Boolean =  fork(a)(es).get == a(es).get
+  
   private case class UnitFuture[A](get: A) extends Future[A] {
     def isDone = true
     def get(timeout: Long, units: TimeUnit) = get
@@ -41,6 +47,34 @@ object Par {
         })
 
   def map[A, B](pa: Par[A])(f: A => B): Par[B] = map2(pa, unit(()), 1000)((a, _) => f(a))
+
+  def sequence[A](ps: List[Par[A]]): Par[List[A]] = {
+    (es: ExecutorService) =>
+    def fold(z: List[Par[A]]): List[A] = z match {
+      case x :: xs => x(es).get :: fold(xs)
+      case _ => Nil 
+    }
+
+    val as = fold(ps)
+    unit(as)(es)
+  }
+
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = (es: ExecutorService) => as match {
+    case x :: xs => {
+      val (l, r) = as.splitAt(as.length/2)
+      val split = sequence(List(
+        unit(l.filter(xx => f(xx))),
+        unit(r.filter(xx => f(xx)))
+      ))(es).get.flatten
+      unit(split)(es)
+    }
+    case _ => unit(List.empty[A])(es)
+  }
+
+  def parMap[A, B](ps: List[A])(f: A => B): Par[List[B]] = fork {
+    val fbs: List[Par[B]] = ps.map(asyncF(f))
+    sequence(fbs)
+  }
 
   def sortPar(parList: Par[List[Int]]): Par[List[Int]] = map(parList)( a => a.sorted)
 

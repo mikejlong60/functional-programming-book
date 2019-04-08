@@ -46,6 +46,8 @@ object Par {
           def call = a(es).get
         })
 
+  def delay[A](fa: => Par[A]): Par[A] = es => fa(es)
+
   def map[A, B](pa: Par[A])(f: A => B): Par[B] = map2(pa, unit(()), 1000)((a, _) => f(a))
 
   def sequence[A](ps: List[Par[A]]): Par[List[A]] = {

@@ -74,7 +74,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						1. Use the Scala range statement to use collect.  See the example.
 						1. Understand pattern matching on strings.  Explore many nuances.
 						1. Understand some more uses of partial functions in the standard library for List.
-					1. Week 3 - Recursion
+        1. Week 3 - Recursion
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions
 		1. Week 6 - laziness
@@ -119,4 +119,4 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		3. Monad laws.
 	1. Lenses - This is the workshop I am presenting at the conference in two weeks.
 
-
+			

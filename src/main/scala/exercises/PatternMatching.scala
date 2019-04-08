@@ -6,6 +6,11 @@ object PatternMatching {
   def sum(x: Int, y: Int):Int = x + y
 
   val sample = 1 to 10
+
+  val isBiggerThan5: PartialFunction[Int, String] = {
+    case x if x > 5 => "is bigger than five"
+  }
+
   //From https://www.scala-lang.org/api/current/scala/PartialFunction.html
   val isEven: PartialFunction[Int, String] = {
     case x if x % 2 == 0 => x+" is even"
@@ -46,5 +51,12 @@ object PatternMatching {
     case "Luther" => false
     case _ => false
   }
+
+  val aBigList = (1 to 500).toList
+  def sum1stThree(theList: List[Int]): Int = theList match {
+    case x :: y :: z :: xs => x + y + z
+    case _ => 0
+  }
+
 
 }

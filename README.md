@@ -52,6 +52,13 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				```
 				def sum(x: Int, y: Int):Int = x + y
 				```
+				1. Contrasting a Partial Function with a Partially Applied Function?   A partially applied function is a very different animal.  A partially applied function is a function value that has one or more of its arguments applied.  Its a way making a new function with some parameter fixed.  Say for example that you have a two parameter function that gets called very often. And that one of its parameters is fixed and the other is not. An example from Notification Service was a Mustache template that needed to get compiled one time and was then fixed for the life of the application.  That computation is expensive. So I partially applied it.  Here is an example:
+				```
+				val divide = (num: Double, den: Double) => num / den
+
+				val halfOf: (Double) => Double = divide(_, 2)
+				halfOf 20 == 10
+				```
 				1. What is a partial function? From https://www.scala-lang.org/api/current/scala/PartialFunction.html
 				```
 				trait PartialFunction[-A, +B] extends (A) ⇒ B
@@ -64,16 +71,18 @@ In this course the implementation language will be Scala.  Haskell would be bett
 					1. import exercises.PatternMatching._
 					1. I am going to take you on a tour of partial functions and pattern matching.
 						1. Use a partial function on a list of numbers to see which are even, are odd, or both
-						1. Show how partial functions are composable
+						1. Create a partially applied function such as the one above so you will understand what it is and not be confused about the difference between a partial function and a partially applied function.
+						1. Show how partial functions are composable using ```orElse```.
 						1. Use isDefinedAt to see if you will get a match error at runtime. 
 						1. Make Scala throw a Match Error on a  partial function
 						1. Partial Functions -  Implement you.
 						1. Make it throw a Match Error
 						1. Compose it with me.
 						1. Use isDefinedAt to see if you will get a Match Error.
-						1. Use the Scala range statement to use collect.  See the example.
+						1. Use the collect on a Scala range statement ```1 to 50``` to see which are odd and which are even.  See the example.
+						1. Understand the importance of the ordering of partial functions. Use the previous range to compose three partial functions ```isEven isOdd isBiggerThan5``` with ```orElse```. 
+						1. Pattern match on a list to add its 1st 4 elements if it has 4. If it does not return 0.
 						1. Understand pattern matching on strings.  Explore many nuances.
-						1. Understand some more uses of partial functions in the standard library for List.
         1. Week 3 - Recursion
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions

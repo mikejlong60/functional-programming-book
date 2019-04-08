@@ -40,5 +40,27 @@ object ActorPar {
     es.submit(new Callable[Unit] { def call = r})
 
 
+//  def map2[A, B, C](p: ActorPar[A], p2: ActorPar[B])(f: (A, B) => C): ActorPar[C] =
+//    es => new ActorFuture[C] {
+//      def apply(cb: C => Unit): Unit = {
+//        var ar: Option[A] = None
+ //       var br: Option[B] = None
+
+//        def combiner = ActorPar[A, B, C] (es) {
+//          case Left(a) => br match {
+//            case None => ar = Some(a)
+//            case Some(b) => eval(es)(cb(f(a, b)))
+//          }
+//          case Right(b) => ar match {
+//            case None => br = Some(b)
+//            case Some(a) => eval(es)(cb(f(a, b)))
+//          }
+//        //}
+
+//        p(es)(a => combiner ! Left(a))
+//        p2(es)(b => combiner ! Right(b))
+//      }
+//    }
+
 }
 

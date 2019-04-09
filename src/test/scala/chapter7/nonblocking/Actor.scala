@@ -1,4 +1,4 @@
-package chapter7
+package chapter7.nonblocking
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.concurrent.{Callable,ExecutorService}

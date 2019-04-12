@@ -7,15 +7,15 @@ import Nonblocking.Par._
 import java.util.concurrent._
 
 class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
-  val executor = Executors.newFixedThreadPool(8)
+  val executor = Executors.newFixedThreadPool(1)
 
-  def sumInParallel[A](ints: List[Int]): Nonblocking.Par[Int] = {//Give the thread 10 millisecond timeout.
+  def sumInParallel[A](ints: List[Int]): Nonblocking.Par[Int] = {//Try sequencebalanced
     if (ints.size <= 1) {
       val p = unit(ints.headOption getOrElse 0)
       p
     } else {
       val (l, r) = ints.splitAt(ints.length/2)
-      map2(fork(sumInParallel(l)), fork(sumInParallel(r)))((x, y) => x + y)
+      map2(lazyUnit(sumInParallel(l)), lazyUnit(sumInParallel(r)))((x, y) => (_ + _)//Nonblocking.Par.run(executor)(x) + Nonblocking.Par.run(executor)(y))
     }
   }
 
@@ -25,6 +25,14 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
       val expected = xs.sum
       actual should be (expected)
     }
+  }
+
+  property("prove that parMap does not deadlock") {
+    val xs = 1 to 1000 toList
+    val a = Nonblocking.Par.parMap(xs)(math.sqrt(_))
+    val actual = Nonblocking.Par.run(executor)(a)
+    val expected = xs.map(math.sqrt(_))
+    actual should be (expected)
   }
 
   def lawOfFork[A](a: Nonblocking.Par[A])(es: ExecutorService): Boolean = {

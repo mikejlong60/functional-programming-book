@@ -79,7 +79,7 @@ object Nonblocking {
           var ar: Option[A] = None
           var br: Option[B] = None
 
-          def combiner = Actor[Either[A, B]] (es) {
+          val combiner = Actor[Either[A, B]] (es) {
             case Left(a) => br match {
               case None => ar = Some(a)
               case Some(b) => eval(es)(cb(f(a, b)))

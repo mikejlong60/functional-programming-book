@@ -15,7 +15,12 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
       p
     } else {
       val (l, r) = ints.splitAt(ints.length/2)
-      map2(lazyUnit(sumInParallel(l)(es)), lazyUnit(sumInParallel(r)(es)))((x, y) => Nonblocking.Par.run(es)(x) + Nonblocking.Par.run(es)(y))
+      map2(lazyUnit(sumInParallel(l)(es)), lazyUnit(sumInParallel(r)(es)))((x, y) => {
+        val xx = Nonblocking.Par.run(es)(x)
+        val yy =  Nonblocking.Par.run(es)(y)
+        xx.get + yy.get
+      }
+      )
     }
   }
 
@@ -23,7 +28,7 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
 //    forAll { xs: List[Int] =>
 //      val actual = Nonblocking.Par.run(executor)(sumInParallel(xs)(executor))
 //      val expected = xs.sum
-//      actual should be (expected)
+//      actual.get should be (expected)
 //    }
 //  }
 
@@ -32,7 +37,7 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
 
     println("piss1")
     val a = Nonblocking.Par.parMap(xs)(math.sqrt(_))
-    val actual = Nonblocking.Par.run(executor)(a)
+    val actual = Nonblocking.Par.run(executor)(a).get
     println("piss2")
     val expected = xs.map(math.sqrt(_))
     actual should be (expected)

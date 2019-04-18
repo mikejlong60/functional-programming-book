@@ -93,6 +93,35 @@ object Nonblocking {
           p(es)(a => combiner ! Left(a))
           p2(es)(b => combiner ! Right(b))
       }
-    }
+      }
+
+       /*
+     * We can implement `choice` as a new primitive.
+     *
+     * `p(es)(result => ...)` for some `ExecutorService`, `es`, and
+     * some `Par`, `p`, is the idiom for running `p`, and registering
+     * a callback to be invoked when its result is available. The
+     * result will be bound to `result` in the function passed to
+     * `p(es)`.
+     *
+     * If you find this code difficult to follow, you may want to
+     * write down the type of each subexpression and follow the types
+     * through the implementation. What is the type of `p(es)`? What
+     * about `t(es)`? What about `t(es)(cb)`?
+     */
+    def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+      es => new Future[A] {
+        def apply(cb: A => Unit): Unit =
+          cond(es) { b =>
+            if (b) eval(es) { t(es)(cb) }
+            else eval(es) { f(es)(cb) }
+          }
+      }
+
+    def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+      es => new Future[A] {
+        def apply(cb: A => Unit): Unit =
+          n(es) { index => eval(es) {choices(index)(es)(cb)}}
+      }
   }
 }

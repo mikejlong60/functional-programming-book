@@ -32,6 +32,17 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
 //    }
 //  }
 
+  property("run choice") {
+    val xs = 1 to 100 toList
+
+    println("piss1")
+    val a = Nonblocking.Par.parMap(xs)(math.sqrt(_))
+    val actual = Nonblocking.Par.run(executor)(a).get
+    println("piss2")
+    val expected = xs.map(math.sqrt(_))
+    actual should be (expected)
+  }
+
   property("prove that parMap does not deadlock") {
     val xs = 1 to 100 toList
 

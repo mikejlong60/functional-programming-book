@@ -94,7 +94,7 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
       val t = lazyUnit("it was true")
       val f = lazyUnit("it was false")
       val c = if (choice) 0 else 1
-      val a = Nonblocking.Par.chooser(unit(c))(List(t, f))
+      val a = Nonblocking.Par.flatMap(unit(c))(List(t, f))
       val actual = Nonblocking.Par.run(executor)(a).get
       if (choice) actual should be ("it was true")
       else actual should be ("it was false")
@@ -103,11 +103,8 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
 
   property("prove that parMap does not deadlock") {
     val xs = 1 to 100 toList
-
-    println("piss1")
     val a = Nonblocking.Par.parMap(xs)(math.sqrt(_))
     val actual = Nonblocking.Par.run(executor)(a).get
-    println("piss2")
     val expected = xs.map(math.sqrt(_))
     actual should be (expected)
   }

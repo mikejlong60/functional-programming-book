@@ -122,11 +122,11 @@ object Nonblocking {
       choiceN(map(cond)(b => if (b) 0 else 1))(List(t,  f))
 
     def choiceUsingChooser[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
-      chooser(map(cond)(b => if (b) 0 else 1))(List(t,  f))
+      flatMap(map(cond)(b => if (b) 0 else 1))(List(t,  f))
 
 
     def choiceNUsingChooser[A](n: Par[Int])(choices: List[Par[A]]): Par[A] = 
-      chooser(map(n)(index =>  index))(choices)
+      flatMap(map(n)(index =>index))(choices)
     
     def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
       es => new Future[A] {
@@ -134,10 +134,15 @@ object Nonblocking {
           n(es) { index => eval(es) {choices(index)(es)(cb)}}
       }
 
-    def chooser[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+    //This used to be called chooser.  But its really flatMap.  Ya!!!!
+    def flatMap[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
       es => new Future[B] {
         def apply(cb: B => Unit): Unit =
           pa(es){ index => eval(es) {choices(index)(es)(cb)}}
       }
+
+    def join[A](a: Par[Par[A]]): Par[A] = ???
+    //Ha flatMap is really chooser.
+    //def flatMap[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] = chooser(pa)(choices)
   }
 }

@@ -54,12 +54,47 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("run choiceUsingChooser") {
+    forAll {choice: Boolean =>
+      val t = lazyUnit("it was true")
+      val f = lazyUnit("it was false")
+      val a = Nonblocking.Par.choiceUsingChooser(unit(choice))(t, f)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      if (choice) actual should be ("it was true")
+      else actual should be ("it was false")
+    }
+  }
+
   property("run choiceN") {
     forAll {choice: Boolean =>
       val t = lazyUnit("it was true")
       val f = lazyUnit("it was false")
       val c = if (choice) 0 else 1
       val a = Nonblocking.Par.choiceN(unit(c))(List(t, f))
+      val actual = Nonblocking.Par.run(executor)(a).get
+      if (choice) actual should be ("it was true")
+      else actual should be ("it was false")
+    }
+  }
+
+  property("run choiceNUsingChooser") {
+    forAll {choice: Boolean =>
+      val t = lazyUnit("it was true")
+      val f = lazyUnit("it was false")
+      val c = if (choice) 0 else 1
+      val a = Nonblocking.Par.choiceNUsingChooser(unit(c))(List(t, f))
+      val actual = Nonblocking.Par.run(executor)(a).get
+      if (choice) actual should be ("it was true")
+      else actual should be ("it was false")
+    }
+  }
+
+  property("run chooser") {
+    forAll {choice: Boolean =>
+      val t = lazyUnit("it was true")
+      val f = lazyUnit("it was false")
+      val c = if (choice) 0 else 1
+      val a = Nonblocking.Par.chooser(unit(c))(List(t, f))
       val actual = Nonblocking.Par.run(executor)(a).get
       if (choice) actual should be ("it was true")
       else actual should be ("it was false")

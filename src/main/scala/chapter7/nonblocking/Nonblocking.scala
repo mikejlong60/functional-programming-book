@@ -121,10 +121,23 @@ object Nonblocking {
     def choiceUsingChoiceN[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
       choiceN(map(cond)(b => if (b) 0 else 1))(List(t,  f))
 
+    def choiceUsingChooser[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+      chooser(map(cond)(b => if (b) 0 else 1))(List(t,  f))
+
+
+    def choiceNUsingChooser[A](n: Par[Int])(choices: List[Par[A]]): Par[A] = 
+      chooser(map(n)(index =>  index))(choices)
+    
     def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
       es => new Future[A] {
         def apply(cb: A => Unit): Unit =
           n(es) { index => eval(es) {choices(index)(es)(cb)}}
+      }
+
+    def chooser[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+      es => new Future[B] {
+        def apply(cb: B => Unit): Unit =
+          pa(es){ index => eval(es) {choices(index)(es)(cb)}}
       }
   }
 }

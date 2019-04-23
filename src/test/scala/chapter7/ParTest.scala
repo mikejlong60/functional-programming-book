@@ -134,8 +134,6 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
     forAll{(x: Int, xs: List[Int]) =>
       val g = (i: Int) => i  + x
       val actual = delay(unit(g))(executor).get()(x)
-      println("dude:"+actual)
-
     }
   }
 

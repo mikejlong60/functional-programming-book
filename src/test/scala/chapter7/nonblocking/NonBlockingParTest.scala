@@ -89,12 +89,24 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("run chooser") {
+  property("run flatMap.  It used to be called chooser.") {
     forAll {choice: Boolean =>
       val t = lazyUnit("it was true")
       val f = lazyUnit("it was false")
       val c = if (choice) 0 else 1
       val a = Nonblocking.Par.flatMap(unit(c))(List(t, f))
+      val actual = Nonblocking.Par.run(executor)(a).get
+      if (choice) actual should be ("it was true")
+      else actual should be ("it was false")
+    }
+  }
+
+  property("run flatMap that uses join. ") {
+    forAll {choice: Boolean =>
+      val t = lazyUnit("it was true")
+      val f = lazyUnit("it was false")
+      val c = if (choice) 0 else 1
+      val a = Nonblocking.Par.flatMapThatUsesJoin(unit(c))(List(t, f))
       val actual = Nonblocking.Par.run(executor)(a).get
       if (choice) actual should be ("it was true")
       else actual should be ("it was false")

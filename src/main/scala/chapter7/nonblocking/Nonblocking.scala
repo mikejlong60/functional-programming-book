@@ -141,8 +141,16 @@ object Nonblocking {
           pa(es){ index => eval(es) {choices(index)(es)(cb)}}
       }
 
-    def join[A](a: Par[Par[A]]): Par[A] = ???
-    //Ha flatMap is really chooser.
-    //def flatMap[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] = chooser(pa)(choices)
+    def join[A](a: Par[Par[A]]): Par[A] =
+      es => new Future[A] {
+        def apply(cb: A => Unit): Unit= {
+          a(es){x => eval(es)(x(es)(cb))}
+          ()
+        }
+      }
+
+    def flatMapThatUsesJoin[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+     join(map(pa)(index =>choices(index)))
+
   }
 }

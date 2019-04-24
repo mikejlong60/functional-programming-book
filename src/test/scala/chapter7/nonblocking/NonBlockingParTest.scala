@@ -113,6 +113,30 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("run join. ") {
+    forAll {choice: Boolean =>
+      val c = if (choice) 1 else 0
+      val cc = unit(c)
+      val ccc = unit(map(cc)(c => c))
+      val a = join(ccc)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      if (choice) actual should be (1)
+      else actual should be (0)
+    }
+  }
+
+    property("run join that uses flatmap. ") {
+    forAll {choice: Boolean =>
+      val c = if (choice) 1 else 0
+      val cc = unit(c)
+      val ccc = unit(map(cc)(c => c))
+      val a = joinThatUsesFlatMap(ccc)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      if (choice) actual should be (1)
+      else actual should be (0)
+    }
+  }
+
   property("prove that parMap does not deadlock") {
     val xs = 1 to 100 toList
     val a = Nonblocking.Par.parMap(xs)(math.sqrt(_))

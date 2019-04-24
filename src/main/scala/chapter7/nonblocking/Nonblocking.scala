@@ -135,10 +135,10 @@ object Nonblocking {
       }
 
     //This used to be called chooser.  But its really flatMap.  Ya!!!!
-    def flatMap[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+    def flatMap[A, B](pa: Par[A])(f: A => Par[B]): Par[B] =
       es => new Future[B] {
         def apply(cb: B => Unit): Unit =
-          pa(es){ index => eval(es) {choices(index)(es)(cb)}}
+          pa(es){ index => eval(es) {f(index)(es)(cb)}}
       }
 
     def join[A](a: Par[Par[A]]): Par[A] =
@@ -149,8 +149,10 @@ object Nonblocking {
         }
       }
 
-    def flatMapThatUsesJoin[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
-     join(map(pa)(index =>choices(index)))
+    def flatMapThatUsesJoin[A, B](pa: Par[A])(f: A => Par[B]): Par[B] =
+     join(map(pa)(index => f(index)))
+
+    def joinThatUsesFlatMap[A](a: Par[Par[A]]): Par[A] = flatMap(a)(aa => aa)
 
   }
 }

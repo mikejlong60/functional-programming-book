@@ -83,7 +83,18 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						1. Understand the importance of the ordering of partial functions. Use the previous range to compose three partial functions ```isEven isOdd isBiggerThan5``` with ```orElse```. 
 						1. Pattern match on a list to add its 1st 4 elements if it has 4. If it does not return 0.
 						1. Understand pattern matching on strings.  Explore many nuances.
-        1. Week 3 - Recursion
+        1. Week 3 - Recursion 
+		   1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
+			   1. Important points:
+				   1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
+				   1. What is great about recursion?
+					   1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
+					   1. Its more composable. A recursive function can be composed with other functions. Try doing that with a loop.
+				   1. What's bad about recursion?
+					   1. It can't operate in constant stack space without tail recursion. Golang does not support tail-recursion.
+					   1. Some recursive functions are not tail recursive like foldRight on a List.  But you can do a clever trick to make foldRight tail recursive.
+				   1. What is tail recursion? 
+					   1. A function is tail recursive when the recursive call is the last thing in the function. In that case the compiler can optimize it as a loop and does not need to keep the stack frame around, the parameters to the function contain all necessary state to execute the function call.
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions
 		1. Week 6 - laziness
@@ -128,4 +139,4 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		3. Monad laws.
 	1. Lenses - This is the workshop I am presenting at the conference in two weeks.
 
-			
+

@@ -89,12 +89,17 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				   1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
 				   1. What is great about recursion?
 					   1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
-					   1. Its more composable. A recursive function can be composed with other functions. Try doing that with a loop.
+					   1. Its composable. A recursive function can be composed with other functions. Try doing that with a loop. 
+						   1. Notes for Mike. Show example of function composition using functions that are recursive. Show that they can be composed
 				   1. What's bad about recursion?
 					   1. It can't operate in constant stack space without tail recursion. Golang does not support tail-recursion.
 					   1. Some recursive functions are not tail recursive like foldRight on a List.  But you can do a clever trick to make foldRight tail recursive.
 				   1. What is tail recursion? 
 					   1. A function is tail recursive when the recursive call is the last thing in the function. In that case the compiler can optimize it as a loop and does not need to keep the stack frame around, the parameters to the function contain all necessary state to execute the function call.
+
+				   1. Exercises:
+					   1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
+					   1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.
 		1. Week 4 - Building an understanding of polymorphic functions
 		1. Week 5 - 1st class functions
 		1. Week 6 - laziness

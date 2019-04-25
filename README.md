@@ -89,7 +89,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				   1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
 				   1. What is great about recursion?
 					   1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
-					   1. Its composable. A recursive function can be composed with other functions. Try doing that with a loop. 
+					   1. You can replace code in loops with recursive functions and reuse them and compose them. Loops are monolithic and don't lend themselves to reuse. A recursive function can be composed with other functions. 
 						   1. Notes for Mike. Show example of function composition using functions that are recursive. Show that they can be composed.
 				   1. What's bad about recursion?
 					   1. It can't operate in constant stack space without tail recursion. Golang does not support tail-recursion.

@@ -154,5 +154,8 @@ object Nonblocking {
 
     def joinThatUsesFlatMap[A](a: Par[Par[A]]): Par[A] = flatMap(a)(aa => aa)
 
+    def map2ThatUsesJoinAndFlatmap[A, B, C](p: Par[A], p2: Par[B])(f: (A, B) => C): Par[C] =
+      flatMap(p)(a => flatMap(p2)(b => unit(f(a, b))))
+
   }
 }

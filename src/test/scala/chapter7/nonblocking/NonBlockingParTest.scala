@@ -125,7 +125,7 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-    property("run join that uses flatmap. ") {
+  property("run join that uses flatmap. ") {
     forAll {choice: Boolean =>
       val c = if (choice) 1 else 0
       val cc = unit(c)
@@ -158,5 +158,60 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
       lawOfFork(unit(xs))(executor) should be (true)
     }
   }
+
+  //Concluding ponderings in response to the following three questions at the end of Chapter 7:
+  // 1. Question -  Can you implement a function with the same signature as map2 that uses flatMap and unit?
+  // Answer -  Yes. See last test below.  But it is different than the other parallel version of map2 in that it waits for
+  //the first computation to complete before doing the other. The implementation that uses flatMap and unit also uses two Future
+  //which is the implementation detail that forces the second to always wait for the first to complete.
+  //The other implementation fired them both off in parelllel and the one that finished first was pattern matched
+  //and used by the second when it finished.
+  //2. Question - Can you think of laws governing how join relates to the other primitives of the algebra? 
+  //Answer - Join is the same as flatMapping over the identity function.
+  //3. Question - What parallel computations cannot be expressed using this algebra?  Think about this for tomorrow.
+  property("run map2 that uses flatmap and unit. ") {
+    forAll {(x: Int, y: Int) =>
+      val sum = (x:Int, y: Int) => x + y
+      val a = map2ThatUsesJoinAndFlatmap(unit(x), unit(y))(sum)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      actual should be (x + y)
+    }
+  }
+
+  property("run map2 that uses flatmap and unit with 2 functions. ") {
+    forAll {x: Int =>
+      val cube = (x: Int) => x * x * x
+      val square = (x: Int) => x  * x
+      val cubeU = unit(cube)
+      val squareU = unit((x: Int) => x * x)
+      val sum = (z: Int => Int, z2: Int => Int) => z(x) + z2(x)
+      val a = map2ThatUsesJoinAndFlatmap(cubeU, squareU)(sum)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      actual should be (cube(x) + square(x))
+    }
+  }
+
+  property("run regular map2 with 2 functions. ") {
+    forAll {x: Int =>
+      val cube = (x: Int) => x * x * x
+      val square = (x: Int) => x  * x
+      val cubeU = unit(cube)
+      val squareU = unit((x: Int) => x * x)
+      val sum = (z: Int => Int, z2: Int => Int) => z(x) + z2(x)
+      val a = map2(cubeU, squareU)(sum)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      actual should be (cube(x) + square(x))
+    }
+  }
+
+  property("run regular map2. ") {
+    forAll {(x: Int, y: Int) =>
+      val sum = (x:Int, y: Int) => x + y
+      val a = map2(unit(x), unit(y))(sum)
+      val actual = Nonblocking.Par.run(executor)(a).get
+      actual should be (x + y)
+    }
+  }
+
 }
 

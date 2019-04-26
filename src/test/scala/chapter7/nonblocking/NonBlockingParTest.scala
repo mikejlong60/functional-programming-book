@@ -139,11 +139,12 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
 
   property("law of map") {
     //Law of map says:
-    // map(unit(1))(_ + 1) == unit(2)
+    // map(y)(id) == y ////where y is any Par and id is the identity function that just returns its parameter unchanged.
     forAll { x: Int =>
-      val g  = (i: Int) =>  i + 1
-      val actual = Nonblocking.Par.run(executor)( map(unit(x))(g)).get
-      val expected = Nonblocking.Par.run(executor)(unit(x + 1)).get
+      val id  = (i: Int) =>  i
+      val y = unit(x)
+      val actual = Nonblocking.Par.run(executor)( map(y)(id)).get
+      val expected = Nonblocking.Par.run(executor)(y).get
       actual should be (expected)
     }
   }

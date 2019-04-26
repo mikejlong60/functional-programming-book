@@ -90,7 +90,20 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				   1. What is great about recursion?
 					   1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
 					   1. You can replace code in loops with recursive functions and reuse them and compose them. Loops are monolithic and don't lend themselves to reuse. A recursive function can be composed with other functions. 
-						   1. Notes for Mike. Show example of function composition using functions that are recursive. Show that they can be composed.
+						   1. Notes for Mike. Show example of function composition using functions that are recursive. You can mix and match recursive and non-recursive.  All that matters is that the types match up at the pointy ends.
+						   ```
+						   def compose[A, B, C](f: B => C, g: A => B): A => C = (a: A) => f(g(a))
+
+						   import exercises.Recursion._
+						   square(100)
+						   val gg = compose(factorial, square)//squares the number then takes the factorial of that square.
+						   val hh = compose(gg, square)//squares the number then (square and factorial) the result
+						   gg(2) //24
+						   hh(2) //20922789888000
+						   
+						   //Show example from chapter7.nonblocking.TestThatUsedToDeadlock ...sumInParallel
+						   
+						   ```
 				   1. What's bad about recursion?
 					   1. It can't operate in constant stack space without tail recursion. Golang does not support tail-recursion.
 					   1. Some recursive functions are not tail recursive like foldRight on a List.  But you can do a clever trick to make foldRight tail recursive.

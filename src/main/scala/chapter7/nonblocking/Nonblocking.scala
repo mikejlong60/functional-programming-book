@@ -44,18 +44,13 @@ object Nonblocking {
       }
 
     def run[A](es: ExecutorService)(p: Par[A]): Try[A] = {
-
       val ref = new AtomicReference[Try[A]]
-
       val latch = new CountDownLatch(1)
-
       Try(p(es) {
         a => ref.set(Success(a))
         latch.countDown
       })
-
       latch.await
-
       ref.get
     }
 
@@ -89,7 +84,6 @@ object Nonblocking {
               case Some(a) => eval(es)(cb(f(a, b)))
             }
           }
-
           p(es)(a => combiner ! Left(a))
           p2(es)(b => combiner ! Right(b))
       }

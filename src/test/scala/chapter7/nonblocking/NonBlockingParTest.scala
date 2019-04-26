@@ -9,29 +9,6 @@ import java.util.concurrent._
 class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
   val executor = Executors.newFixedThreadPool(5)
 
-  def sumInParallel[A](ints: List[Int])(es: ExecutorService): Nonblocking.Par[Int] = {//Try sequencebalanced
-    if (ints.size <= 1) {
-      val p = unit(ints.headOption getOrElse 0)
-      p
-    } else {
-      val (l, r) = ints.splitAt(ints.length/2)
-      map2(lazyUnit(sumInParallel(l)(es)), lazyUnit(sumInParallel(r)(es)))((x, y) => {
-        val xx = Nonblocking.Par.run(es)(x)
-        val yy =  Nonblocking.Par.run(es)(y)
-        xx.get + yy.get
-      }
-      )
-    }
-  }
-
-//  property("prove that you don't have a deadlock as in exercise 7.9") {
-//    forAll { xs: List[Int] =>
-//      val actual = Nonblocking.Par.run(executor)(sumInParallel(xs)(executor))
-//      val expected = xs.sum
-//      actual.get should be (expected)
-//    }
-//  }
-
   property("run choice") {
     forAll {choice: Boolean =>
       val t = lazyUnit("it was true")
@@ -137,10 +114,11 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("prove that parMap does not deadlock") {
-    val xs = 1 to 100 toList
+  property("prove that parMap does not deadlock, even with a thread pool of only 1 thread.") {
+    val ex = Executors.newFixedThreadPool(1)
+    val xs = 1 to 1000 toList
     val a = Nonblocking.Par.parMap(xs)(math.sqrt(_))
-    val actual = Nonblocking.Par.run(executor)(a).get
+    val actual = Nonblocking.Par.run(ex)(a).get
     val expected = xs.map(math.sqrt(_))
     actual should be (expected)
   }
@@ -156,6 +134,17 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
       lawOfFork(unit(g))(executor) should be (true)
       lawOfFork(unit(x))(executor) should be (true)
       lawOfFork(unit(xs))(executor) should be (true)
+    }
+  }
+
+  property("law of map") {
+    //Law of map says:
+    // map(unit(1))(_ + 1) == unit(2)
+    forAll { x: Int =>
+      val g  = (i: Int) =>  i + 1
+      val actual = Nonblocking.Par.run(executor)( map(unit(x))(g)).get
+      val expected = Nonblocking.Par.run(executor)(unit(x + 1)).get
+      actual should be (expected)
     }
   }
 
@@ -212,6 +201,5 @@ class NonBlockingParTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (x + y)
     }
   }
-
 }
 

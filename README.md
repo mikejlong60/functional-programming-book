@@ -105,7 +105,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						   
 						   ```
 				   1. What's bad about recursion?
-					   1. It can't operate in constant stack space without tail recursion. Golang does not support tail-recursion.
+					   1. It can't operate in constant stack space without tail recursion. Golang and Java do not have this optimization because C and C++ do not and Go and Java are descendents of these languages. Scala and Haskell and all other languages that support FP do.  Tail-recursion is a compiler optimization. 
 					   1. Some recursive functions are not tail recursive like foldRight on a List.  But you can do a clever trick to make foldRight tail recursive.
 				   1. What is tail recursion? 
 					   1. A function is tail recursive when the recursive call is the last thing in the function. In that case the compiler can optimize it as a loop and does not need to keep the stack frame around, the parameters to the function contain all necessary state to execute the next function call.

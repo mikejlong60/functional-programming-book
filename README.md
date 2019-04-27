@@ -103,6 +103,10 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						   
 						   //Show example from chapter7.nonblocking.TestThatUsedToDeadlock ...sumInParallel
 						   
+						   //Show example from chapter5.Stream.scala, the drop function.  Drop takes a Stream and returns a new Stream with the first n elements  missing. In this case the Stream is lazy, its a lazy list, its infinite and operates in constant memory.  Imagine taking away the first 100 elements of a list of integers starting at 100 and ending at infinity.  That's what this does in 4 lines of code. Recursion is beautiful.
+						   //Also show example of take which grabs the first n elements of a Stream, operating in constant memory. You can chain operations like this together and the whole pipeline operates on one element at a time in constant memory.  This Stream implementation only does enough work to compute the answer for the requested elements. The memory required in a stream is only what is reaquired to compute a given element of the stream.  Think Kafka and AKKA streams. But they are poor imperative substitutes for this.  Recursion makes composition like this possible.  Recursion makes reuse like this possible.
+						   
+						   //As functional programmers we are going to learn how to construct software using algebraic laws. And there are not that many, < 10 in most cases. And all our systems will abide by the same laws.  This is different than imperative programming.  In imperative programming you cannot see the forest for the trees.
 						   ```
 				   1. What's bad about recursion?
 					   1. It can't operate in constant stack space without tail recursion. Golang and Java do not have this optimization because C and C++ do not and Go and Java are descendents of these languages. Scala and Haskell and all other languages that support FP do.  Tail-recursion is a compiler optimization. 

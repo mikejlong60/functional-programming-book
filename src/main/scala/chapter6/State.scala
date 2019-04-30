@@ -38,5 +38,3 @@ object State {
   }
 
 }
-
-

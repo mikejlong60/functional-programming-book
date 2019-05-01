@@ -17,7 +17,7 @@ object Gen {
     @annotation.tailrec
     def intInRange(rng: RNG): (Int, RNG) = {
       val r = rng.nextInt
-      println("piss:"+r._1 + " start:"+start  + " stopExclusive:"+ stopExclusive)
+      println("dude:"+r._1 + " start:"+start  + " stopExclusive:"+ stopExclusive)
       if (r._1 >=  start && r._1 < stopExclusive) r
       else intInRange(r._2)
     }
@@ -25,4 +25,11 @@ object Gen {
     val g = intInRange(rng)
     Gen(State.unit(g._1))
   }
+
+  def unit[A](a: => A): Gen[A] = Gen(State.unit(a))
+
+  def boolean: Gen[Boolean]  = Gen(State(run = RNG.nonNegativeInt).map(n => (n % 2 == 0)))
+
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = ???
+
 }

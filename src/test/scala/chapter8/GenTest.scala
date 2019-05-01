@@ -2,7 +2,7 @@ package chapter8
 
 import org.scalatest.{ Matchers, PropSpec }
 import org.scalatest.prop.PropertyChecks
-import chapter6.SimpleRNG
+import chapter6.{SimpleRNG, RNG}
 
 
 class GenTest extends PropSpec with PropertyChecks with Matchers {
@@ -18,6 +18,26 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
       }
     }
   }
+
+  property("Run unit which always generates a value of A") {
+    forAll{a: Int =>
+      val actual = Gen.unit(a)
+      val rng = SimpleRNG(System.currentTimeMillis)
+      actual.sample.run(rng)._1 should be (a)
+    }
+  }
+
+  property("Run boolean which always generates a random boolean value") {
+    forAll{a: Int =>
+      val rng = SimpleRNG(a)
+      val actual = Gen.boolean.sample.run(rng)._1
+      val ex = RNG.nonNegativeInt(rng)
+      val expected =  ex._1 % 2 == 0
+      actual should be (expected)
+    }
+  }
+
+
 }
 
 

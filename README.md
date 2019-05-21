@@ -83,7 +83,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						1. Understand the importance of the ordering of partial functions. Use the previous range to compose three partial functions ```isEven isOdd isBiggerThan5``` with ```orElse```. 
 						1. Pattern match on a list to add its 1st 4 elements if it has 4. If it does not return 0.
 						1. Understand pattern matching on strings.  Explore many nuances.
-        1. Week 3 - Recursion 
+        1. Week 3 - Recursion o
 		   1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
 			   1. Important points:
 				   1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
@@ -104,7 +104,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						   //Show example from chapter7.nonblocking.TestThatUsedToDeadlock ...sumInParallel
 						   
 						   //Show example from chapter5.Stream.scala, the drop function.  Drop takes a Stream and returns a new Stream with the first n elements  missing. In this case the Stream is lazy, its a lazy list, its infinite and operates in constant memory.  Imagine taking away the first 100 elements of a list of integers starting at 100 and ending at infinity.  That's what this does in 4 lines of code. Recursion is beautiful.
-						   //Also show example of take which grabs the first n elements of a Stream, operating in constant memory. You can chain operations like this together and the whole pipeline operates on one element at a time in constant memory.  This Stream implementation only does enough work to compute the answer for the requested elements. The memory required in a stream is only what is reaquired to compute a given element of the stream.  Think Kafka and AKKA streams. But they are poor imperative substitutes for this.  Recursion makes composition like this possible.  Recursion makes reuse like this possible.
+						   //Also show example of take which grabs the first n elements of a Stream, operating in constant memory. You can chain operations like this together and the whole pipeline operates on one element at a time in constant memory.  This Stream implementation only does enough work to compute the answer for the requested elements. The memory required in a stream is only what is required to compute a given element of the stream.  Think Kafka and AKKA streams. But they are poor imperative substitutes for this.  Recursion makes composition like this possible.  Recursion makes reuse like this possible.
 						   
 						   //As functional programmers we are going to learn how to construct software using algebraic laws. And there are not that many, < 10 in most cases. And all our systems will abide by the same laws.  This is different than imperative programming.  In imperative programming you cannot see the forest for the trees.
 						   ```
@@ -122,7 +122,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		1. Week 6 - laziness
 		1. Week 7 - tail recursion
 1. Stuff we will start talking about in a couple months.  
-		1. What is referential transparency?  Something is referentially transparent if it cannot be observed from the outside. Examples include local variables, writing to a hidden file(might cause a panic and crash with out od disk space but it's still transparent because no caller could observe this or affect the outcome).
+		1. What is referential transparency?  Something is referentially transparent if it cannot be observed from the outside. Examples include local variables, writing to a hidden file(might cause a panic and crash with out of disk space but it's still transparent because no caller could observe this or affect the outcome).
 		1. What is the substitution model?	
     1. Recursion
 	    1. Why should you do it?

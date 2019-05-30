@@ -37,4 +37,17 @@ object State {
     else double(r)
   }
 
+  //Mike - I needed this so I took it from the answer key.
+  //This implementation uses a loop internally and is the same recursion
+  // pattern as a left fold. It is quite common with left folds to build
+  // up a list in reverse order, then reverse it at the end.
+  // (We could also use a collection.mutable.ListBuffer internally.)
+  def sequence[S, A](sas: List[State[S, A]]): State[S, List[A]] = {
+    def go(s: S, actions: List[State[S,A]], acc: List[A]): (List[A],S) =
+      actions match {
+        case Nil => (acc.reverse,s)
+        case h :: t => h.run(s) match { case (a,s2) => go(s2, t, a :: acc) }
+      }
+    State((s: S) => go(s,sas,List()))
+  }
 }

@@ -2,7 +2,7 @@ package chapter8
 
 import org.scalatest.{ Matchers, PropSpec }
 import org.scalatest.prop.PropertyChecks
-import chapter6.{SimpleRNG, RNG}
+import chapter6.{SimpleRNG, RNG, State}
 
 
 class GenTest extends PropSpec with PropertyChecks with Matchers {
@@ -34,6 +34,17 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
       val ex = RNG.nonNegativeInt(rng)
       val expected =  ex._1 % 2 == 0
       actual should be (expected)
+    }
+  }
+
+  property("Generate a list of length n using the generator g") {
+    forAll{(n : Short, x: Int) =>
+      whenever(n >= 0) {
+        val rng = SimpleRNG(x)
+        val g: Gen[List[Int]] = Gen.listOfN(n, Gen.choose(1, 1300))
+        val result: List[Int]  = g.sample.run(rng)._1
+        result.size should be (n)
+      }
     }
   }
 

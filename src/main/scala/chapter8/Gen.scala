@@ -30,6 +30,6 @@ object Gen {
 
   def boolean: Gen[Boolean]  = Gen(State(run = RNG.nonNegativeInt).map(n => (n % 2 == 0)))
 
-  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = ???
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen(sample = State.sequence(List.fill(n)(g.sample)))
 
 }

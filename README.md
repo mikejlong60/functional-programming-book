@@ -83,7 +83,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						1. Understand the importance of the ordering of partial functions. Use the previous range to compose three partial functions ```isEven isOdd isBiggerThan5``` with ```orElse```. 
 						1. Pattern match on a list to add its 1st 4 elements if it has 4. If it does not return 0.
 						1. Understand pattern matching on strings.  Explore many nuances.
-        1. Week 3 - Recursion o
+        1. Week 3 - Recursion 
 		   1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
 			   1. Important points:
 				   1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.

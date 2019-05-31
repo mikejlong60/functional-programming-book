@@ -39,16 +39,34 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Generate a list of length n using the generator g") {
     forAll{(n : Short, x: Int) =>
-      whenever(n >= 0) {
+      whenever(n > 0) {
         val rng = SimpleRNG(x)
-        val g: Gen[List[Int]] = Gen.listOfN(n, Gen.choose(1, 1300))
+        val g: Gen[List[Int]] = Gen.listOfN(n, Gen.choose(1, 5))
         val result: List[Int]  = g.sample.run(rng)._1
-        result.size should be (n)
+        result should (contain  (1) or contain(2) or contain(3) or contain (4) or contain (5)  and have size (n))
       }
     }
   }
 
+  property("Use Map to produce a new generator") {
+    forAll{ n: Int =>
+      val a = Gen.unit(n)
+      val r = Gen.map(a)(s => s.toString)
+      val rng = SimpleRNG(n)
+      val x = r.sample.run(rng)
+      x._1 should be (n.toString)
+    }
+  }
 
+  property("Use flatMap to produce a new generator") {
+    forAll{ n: Int =>
+      val a = Gen.unit(n)
+      val r = Gen.flatMap(a)(s => Gen.unit(s.toString))
+      val rng = SimpleRNG(n)
+      val x = r.sample.run(rng)
+      x._1 should be (n.toString)
+    }
+  }
 }
 
 

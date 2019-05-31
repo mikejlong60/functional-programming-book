@@ -32,4 +32,13 @@ object Gen {
 
   def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen(sample = State.sequence(List.fill(n)(g.sample)))
 
+  def map[A, B](a: Gen[A])(f: A => B): Gen[B] = {
+    val r = a.sample.map(a => f(a))
+    Gen(r)
+  }
+  def flatMap[A, B](a: Gen[A])( f: A => Gen[B] ): Gen[B] = {
+    val r = a.sample.flatMap(aa =>  f(aa).sample)
+   Gen(r)
+  }
+
 }

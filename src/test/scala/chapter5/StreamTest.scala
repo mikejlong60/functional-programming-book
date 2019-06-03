@@ -4,6 +4,8 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
 import org.scalacheck.Gen
 
+case class ODriveDoc(name: String)
+
 class StreamTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Test drop function for Stream of ints") {
@@ -171,6 +173,57 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     val actual = Stream.unfold(99)(nextPositiveIntLT100).take(12).toList
     actual should be (List(99))
   }
+  var first100 = 0
+
+  property("Test a pipeline of functions fed by an unfold") {
+     val asssctual = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs).map(d => {
+   //   println(d)
+     s"$d:dude" 
+    }).map(d => {
+      val f = s"$d:mama"
+//      //println(f)
+      f
+    })//.take(300).toList
+    //actual should be (empty)
+      (1 to 6000).map(n =>{
+        val actual = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs)
+          .map(d => {
+              s"$d:dude"
+          })
+          .map(d => {
+              val f = s"$d:mama"
+              f
+            })
+        val drain = actual.take(3000).toList
+        //println(drain)
+          
+       // println(actual)
+       /// first100 = 0
+        //println(actual.take(300).toList)
+//        val r = actual.head//take(30)//.toList
+//       println(r)
+        drain should have size(3000)
+      })
+   //actual should have size (1100)
+  }
+
+//    property("Test another pipeline of functions fed by an unfold") {
+//      val a1 = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs)
+//      val a2 = mapWunfold(a1)(d => {
+//        println(d)
+//      s"$d:dude" 
+//    })
+//     val a3 =  mapWunfold(a2)(d => {
+//      val f = s"$d:mama"
+//      f
+//     })//.take(30000).toList
+//       (1 to 100000).map(n => {
+//         val x = a3.take(1)
+//         //println(x)
+//         x
+//       })
+    //a3 should have size (100)
+ // }
 
   property("Test unfold with computation that will stop when you take it too far") {
     val actual = Stream.unfold(100)(nextPositiveIntLT100).take(12).toList
@@ -187,10 +240,22 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     actual should be (0 to 99)
   }
 
-
   val nextPositiveIntLT100: Int => Option[(Int, Int)] = s =>
      if (s < 100) Some(s, s + 1)
      else None 
+
+  val keepItRollingUntilNoMoreUnmigratedDocs: Option[ODriveDoc] => Option[(ODriveDoc, Option[ODriveDoc])] = doc => doc match {
+    case Some(d) => Some(d, getNextDoc())
+    case None => None
+  }
+
+
+  val getNextDoc: () => Option[ODriveDoc] = () => {
+    first100 = first100 + 1
+    if (first100 < 1000000001)
+      Some(ODriveDoc(s"fred:$first100"))
+    else None
+  }
 
 
   val fib: ((Int, Int)) => Option[(Int, (Int,Int))] = s => s match {

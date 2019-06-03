@@ -142,7 +142,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 	   1. Exercise. Write findFirst as a polymorphic function.  Here it is as a monomorphic function:
 	   ```
 		   def findFirst(ss: Array[String], key: String): Int = {
-			   @annotation.tailrec
+			  @annotation.tailrec
 				   def loop(n: Int): Int = 
 					   if (n >= ss.length) -1
 					   else if (ss(n) == key) n

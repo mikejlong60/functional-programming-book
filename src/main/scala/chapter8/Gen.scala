@@ -32,6 +32,12 @@ object Gen {
 
   def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen(sample = State.sequence(List.fill(n)(g.sample)))
 
+  //Just like listOfN but uses another generator(n) to decide how big a list to make.
+  def listOfN2[A](n: Gen[Int], g: Gen[A]): Gen[List[A]] = {
+    val r = n.sample.flatMap(nn =>  State.sequence(List.fill(nn)(g.sample)))
+    Gen(sample=r)
+  }
+  
   def map[A, B](a: Gen[A])(f: A => B): Gen[B] = {
     val r = a.sample.map(a => f(a))
     Gen(r)

@@ -48,6 +48,16 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Generate a list of random lists, each inner list having a length of 7 random values between 50 and 700") {
+    val nn: Gen[Int] = Gen.choose(50, 100)
+    val rng = SimpleRNG(12)
+    val g: Gen[List[Int]] = Gen.listOfN(7, Gen.choose(50, 700))
+    val gg: Gen[List[List[Int]]]  = Gen.listOfN2(nn, g)
+    val result  = gg.sample.run(rng)._1
+    result.map(hh => hh should have size (7) )
+    result .size should(be >= (50) and be <= (100))
+  }
+
   property("Use Map to produce a new generator") {
     forAll{ n: Int =>
       val a = Gen.unit(n)

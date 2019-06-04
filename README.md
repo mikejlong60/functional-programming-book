@@ -40,11 +40,11 @@ In this course the implementation language will be Scala.  Haskell would be bett
 			// Entering paste mode (ctrl-D to finish)
 		
 
-1. Week 1 - What is a case class? A constructor for an immutable type? Or is it a function? Tell me why?
+### Week 1 - What is a case class? A constructor for an immutable type? Or is it a function? Tell me why?
 	1. Exercise 1: Make a case class
 	1. Exercise 2: Make a case class that references another case class
 	1. Exercise 3: Learning to compare case classes.  Make two instances of your case class above.  How can you compare it for equality.  
-1. Week 2, 3 - Pattern Matching
+### Week 2, 3 - Pattern Matching
 	1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
 		1. What is a total function? A total function is a function that is defined for all possible values of its input. That is, it always terminates and always returns a value. 
 		
@@ -84,7 +84,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				1. Understand the importance of the ordering of partial functions. Use the previous range to compose three partial functions ```isEven isOdd isBiggerThan5``` with ```orElse```. 
 				1. Pattern match on a list to add its 1st 4 elements if it has 4. If it does not return 0.
 				1. Understand pattern matching on strings.  Explore many nuances.
-1. Week 3 - Recursion 
+### Week 4,5 - Recursion 
 	1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
 		1. Important points:
 			1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
@@ -119,7 +119,8 @@ In this course the implementation language will be Scala.  Haskell would be bett
 					1. Exercises:
 						1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
 						1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.						
-1.  Week 4 - Building an understanding of polymorphic functions.  The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
+### Week 5, 6 - Building an understanding of polymorphic functions.  
+The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
 	Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` below.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character. 
 
 ```
@@ -145,27 +146,27 @@ In this course the implementation language will be Scala.  Haskell would be bett
     def findFirstP[A](as: Array[A], p: A => Boolean): Int = ???
 ```
 		
-1. Week 5 - Function Currying
-1. Week 6 - Properties-based testing with Scalacheck
-1. Week 7 - Why types are better than tests. In many cases the type system tells you whether or not your function is correct. Often there is only one possible implementation.
-1. Week 8 -What is a Functor?
+### Week 5 - Function Currying
+### Week 6 - Properties-based testing with Scalacheck
+### Week 7 - Why types are better than tests. In many cases the type system tells you whether or not your function is correct. Often there is only one possible implementation.
+### Week 8 -What is a Functor?
 	1. Algebraic Data Types
 	2. Examples from real life?
 	3. How is it useful?
 	4. The Functor laws
-1. Week 9 - What is an Applicative Functor
+### Week 9 - What is an Applicative Functor
 	1. How is it useful?
 	2. Applicative Functor laws
 	3. Why Applicative Functors are better than Monads
-1. Week 10 - Natural Transformations
+### Week 10 - Natural Transformations
 	1. What is a Natural Transformatrion -  A mapping between functors.
-1. Week 11 - Monoids
+### Week 11 - Monoids
 	1. Why are they useful?
 	2. Monoid laws
-1.  Week 12 - Monads
+### Week 12 - Monads
 	1. When are they useful?
 	2. When are they bad?
 	3. Monad laws.
-1. Week 13 -  Lenses - This is the workshop I am presenting at the conference in two weeks.
+### Week 13 -  Lenses - This is the workshop I am presenting at the conference in two weeks.
 
 

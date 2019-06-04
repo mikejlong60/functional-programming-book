@@ -48,18 +48,19 @@ In this course the implementation language will be Scala.  Haskell would be bett
 	1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
 		1. What is a total function? A total function is a function that is defined for all possible values of its input. That is, it always terminates and always returns a value. 
 		
-				```
+				
 				def sum(x: Int, y: Int):Int = x + y
-				```
+				
 		
 		1. Contrasting a Partial Function with a Partially Applied Function?   A partially applied function is a very different animal.  A partially applied function is a function value that has one or more of its arguments applied.  Its a way making a new function with some parameter fixed.  Say for example that you have a two parameter function that gets called very often. And that one of its parameters is fixed and the other is not. An example from Notification Service was a Mustache template that needed to get compiled one time and was then fixed for the life of the application.  That computation is expensive. So I partially applied it.  Here is an example:
-				```
+				
 				val divide = (num: Double, den: Double) => num / den
 
 				val halfOf: (Double) => Double = divide(_, 2)
 				halfOf 20 == 10
-				```
+				
 		1. What is a partial function? From https://www.scala-lang.org/api/current/scala/PartialFunction.html
+				
 				```
 				trait PartialFunction[-A, +B] extends (A) ⇒ B
 				``` 

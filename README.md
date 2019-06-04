@@ -41,30 +41,30 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		
 
 ### Week 1 - What is a case class? A constructor for an immutable type? Or is it a function? Tell me why?
-	1. Exercise 1: Make a case class
-	1. Exercise 2: Make a case class that references another case class
-	1. Exercise 3: Learning to compare case classes.  Make two instances of your case class above.  How can you compare it for equality.  
+  1. Exercise 1: Make a case class
+  1. Exercise 2: Make a case class that references another case class
+  1. Exercise 3: Learning to compare case classes.  Make two instances of your case class above.  How can you compare it for equality.  
 ### Week 2, 3 - Pattern Matching
-	1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
-		1. What is a total function? A total function is a function that is defined for all possible values of its input. That is, it always terminates and always returns a value. 
+1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
+1. What is a total function? A total function is a function that is defined for all possible values of its input. That is, it always terminates and always returns a value. 
 		
 				
 				def sum(x: Int, y: Int):Int = x + y
 				
 		
-		1. Contrasting a Partial Function with a Partially Applied Function?   A partially applied function is a very different animal.  A partially applied function is a function value that has one or more of its arguments applied.  Its a way making a new function with some parameter fixed.  Say for example that you have a two parameter function that gets called very often. And that one of its parameters is fixed and the other is not. An example from Notification Service was a Mustache template that needed to get compiled one time and was then fixed for the life of the application.  That computation is expensive. So I partially applied it.  Here is an example:
+1. Contrasting a Partial Function with a Partially Applied Function?   A partially applied function is a very different animal.  A partially applied function is a function value that has one or more of its arguments applied.  Its a way making a new function with some parameter fixed.  Say for example that you have a two parameter function that gets called very often. And that one of its parameters is fixed and the other is not. An example from Notification Service was a Mustache template that needed to get compiled one time and was then fixed for the life of the application.  That computation is expensive. So I partially applied it.  Here is an example:
 				
 				val divide = (num: Double, den: Double) => num / den
 
 				val halfOf: (Double) => Double = divide(_, 2)
 				halfOf 20 == 10
 				
-		1. What is a partial function? From https://www.scala-lang.org/api/current/scala/PartialFunction.html
+  1. What is a partial function? From https://www.scala-lang.org/api/current/scala/PartialFunction.html
 				
 				```
 				trait PartialFunction[-A, +B] extends (A) ⇒ B
 				``` 
-				Unlike a total function, a partial function might not apply for all possible values of its domain(its possible inputs). Everything in FP returns a value. Case and match is no different.  This is different than if/else/ switch.  A value passed into a case statement may not have any matches. The compiler might warn you when this is the case(not in the console). And you will always get a runtime error if this is the case.  A Case expression is a Partial Function. They can be combined with the Match keyword.  But its just as accurate to make them as Partial Functions and combine them with orElse.  Partial functions have a fantastic property. They are composable.  And therein lies their power.  Everything always comes back to the composition of functions.  Such is the case with ```collect``` in the exercises.  You can apply a partial function just like any other function.  You can also ask it if your particular argument would apply using isDefinedAt.
+  Unlike a total function, a partial function might not apply for all possible values of its domain(its possible inputs). Everything in FP returns a value. Case and match is no different.  This is different than if/else/ switch.  A value passed into a case statement may not have any matches. The compiler might warn you when this is the case(not in the console). And you will always get a runtime error if this is the case.  A Case expression is a Partial Function. They can be combined with the Match keyword.  But its just as accurate to make them as Partial Functions and combine them with orElse.  Partial functions have a fantastic property. They are composable.  And therein lies their power.  Everything always comes back to the composition of functions.  Such is the case with ```collect``` in the exercises.  You can apply a partial function just like any other function.  You can also ask it if your particular argument would apply using isDefinedAt.
 		1. Why does this relate to pattern matching?  Because I don't want you to think about branching like an imperative programmer.  I want you to think in terms of functions. At the surface case and match seem like their imperative counterparts but they are not that similar.  
 		1. For these exercises use the console.  And add your functions to the PatternMatching object in the exercises package.  Or you can use the console directly.  To start out in the console:
 		1. sbt
@@ -85,14 +85,14 @@ In this course the implementation language will be Scala.  Haskell would be bett
 				1. Pattern match on a list to add its 1st 4 elements if it has 4. If it does not return 0.
 				1. Understand pattern matching on strings.  Explore many nuances.
 ### Week 4,5 - Recursion 
-	1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
-		1. Important points:
-			1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
-			1. Recursion is closely related to the _Closure property of cons_.  A function has this property when applying a function to the members of some set produces an element that is again a member of this set.  The function ```f``` above has this property because it both takes and produces a B.  Functions that have this property can be composed to produce new functions.  And these functions have algebaric properties.  This is the big deal of FP because it allows us to reuse functions.  Its what I did to generalize the addition of Kafka logging for the suite of Notifications applications.
-			1. What is great about recursion?
-				1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
-				1. You can replace code in loops with recursive functions and reuse them and compose them. Loops are monolithic and don't lend themselves to reuse. A recursive function can be composed with other functions. 
-				1. Notes for Mike. Show example of function composition using functions that are recursive. You can mix and match recursive and non-recursive.  All that matters is that the types match up at the pointy ends.
+1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
+	1. Important points:
+		1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
+		1. Recursion is closely related to the _Closure property of cons_.  A function has this property when applying a function to the members of some set produces an element that is again a member of this set.  The function ```f``` above has this property because it both takes and produces a B.  Functions that have this property can be composed to produce new functions.  And these functions have algebaric properties.  This is the big deal of FP because it allows us to reuse functions.  Its what I did to generalize the addition of Kafka logging for the suite of Notifications applications.
+		1. What is great about recursion?
+			1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
+			1. You can replace code in loops with recursive functions and reuse them and compose them. Loops are monolithic and don't lend themselves to reuse. A recursive function can be composed with other functions. 
+			1. Notes for Mike. Show example of function composition using functions that are recursive. You can mix and match recursive and non-recursive.  All that matters is that the types match up at the pointy ends.
 						   ```
 						   def compose[A, B, C](f: B => C, g: A => B): A => C = (a: A) => f(g(a))
 
@@ -110,15 +110,15 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						   
 						   //As functional programmers we are going to learn how to construct software using algebraic laws. And there are not that many, < 10 in most cases. And all our systems will abide by the same laws.  This is different than imperative programming.  In imperative programming you cannot see the forest for the trees.
 						   ```
-				1. What's bad about recursion?
-					1. It can't operate in constant stack space without tail recursion. Golang and Java do not have this optimization because C and C++ do not and Go and Java are descendents of these languages. Scala and Haskell and all other languages that support FP do.  Tail-recursion is a compiler optimization. 
-					1. Some recursive functions are not tail recursive like foldRight on a List.  But you can do a clever trick to make foldRight tail recursive.
-					1. What is tail recursion? 
-						1. A function is tail recursive when the recursive call is the last thing in the function. In that case the compiler can optimize it as a loop and does not need to keep the stack frame around, the parameters to the function contain all necessary state to execute the next function call.
+		1. What's bad about recursion?
+			1. It can't operate in constant stack space without tail recursion. Golang and Java do not have this optimization because C and C++ do not and Go and Java are descendents of these languages. Scala and Haskell and all other languages that support FP do.  Tail-recursion is a compiler optimization. 
+				1. Some recursive functions are not tail recursive like foldRight on a List.  But you can do a clever trick to make foldRight tail recursive.
+				1. What is tail recursion? 
+					1. A function is tail recursive when the recursive call is the last thing in the function. In that case the compiler can optimize it as a loop and does not need to keep the stack frame around, the parameters to the function contain all necessary state to execute the next function call.
 
-					1. Exercises:
-						1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
-						1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.						
+		1. Exercises:
+			1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
+			1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.						
 ### Week 5, 6 - Building an understanding of polymorphic functions.  
 The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
 	Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` below.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character. 

@@ -119,8 +119,9 @@ In this course the implementation language will be Scala.  Haskell would be bett
 					1. Exercises:
 						1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
 						1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.
+						
 1. Week 4 - Building an understanding of polymorphic functions
-  1. The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
+   1. The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
 
 ```
     def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
@@ -128,8 +129,8 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		case _ => z
     }
 ```	
-  1. Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` above.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character.  
-  1. Exercise. Write findFirst as a polymorphic function.  Here it is as a monomorphic function:
+	1. Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` above.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character.  
+	1. Exercise. Write findFirst as a polymorphic function.  Here it is as a monomorphic function:
    
    ```
 	def findFirst(ss: Array[String], key: String): Int = {

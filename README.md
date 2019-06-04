@@ -87,6 +87,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 		   1. What is recursion? - Read this: https://www.geeksforgeeks.org/recursion/
 			   1. Important points:
 				   1. Every recursive function can be written non-recursively as a loop.  We will go back and forth in some exercises.
+				   1. Recursion is closely related to the _Closure property of cons_.  A function has this property when applying a function to the members of some set produces an element that is again a member of this set.  The function ```f``` above has this property because it both takes and produces a B.  Functions that have this property can be composed to produce new functions.  And these functions have algebaric properties.  This is the big deal of FP because it allows us to reuse functions.  Its what I did to generalize the addition of Kafka logging for the suite of Notifications applications.
 				   1. What is great about recursion?
 					   1. It's beautiful, like a Chambered Nautilus or an M.C Escher painting or counterpoint in the music of Bach.
 					   1. You can replace code in loops with recursive functions and reuse them and compose them. Loops are monolithic and don't lend themselves to reuse. A recursive function can be composed with other functions. 
@@ -118,28 +119,9 @@ In this course the implementation language will be Scala.  Haskell would be bett
 					   1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
 					   1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.
 		1. Week 4 - Building an understanding of polymorphic functions
-		1. Week 5 - 1st class functions
-		1. Week 6 - laziness
-		1. Week 7 - tail recursion
-1. Stuff we will start talking about in a couple months.  
-		1. What is referential transparency?  Something is referentially transparent if it cannot be observed from the outside. Examples include local variables, writing to a hidden file(might cause a panic and crash with out of disk space but it's still transparent because no caller could observe this or affect the outcome).
-		1. What is the substitution model?	
-    1. Recursion
-	    1. Why should you do it?
-		    1. It's beautiful:
-			```
-			@annotation.tailrec
-            def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
-              case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
-              case _ => z
-            }
-
-			```
-		1. Recursion is closely related to the _Closure property of cons_.  A function has this property when applying a function to the members of some set produces an element that is again a member of this set.  The function ```f``` above has this property because it both takes and produces a B.  Functions that have this property can be composed to produce new functions.  And these functions have algebaric properties.  This is the big deal of FP because it allows us to reuse functions.  Its what I did to generalize the addition of Kafka logging for the suite of Notifications applications.
-    1. Polymorphic functions
-	   1. The functions ````sum``` and ```halfOf```` and ````divide``` above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
-	   1. Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` above.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character.  
-	   1. Exercise. Write findFirst as a polymorphic function.  Here it is as a monomorphic function:
+			1. The functions ````sum``` and ```halfOf```` and ````divide``` above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
+			1. Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` above.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character.  
+			1. Exercise. Write findFirst as a polymorphic function.  Here it is as a monomorphic function:
 	   ```
 		   def findFirst(ss: Array[String], key: String): Int = {
 			  @annotation.tailrec
@@ -153,11 +135,10 @@ In this course the implementation language will be Scala.  Haskell would be bett
 			
 			def findFirstP[A](as: Array[A], p: A => Boolean): Int = ???
 	   ```
+		
+	1. Function Currying
 	1. Properties-based testing with Scalacheck
     1. Why types are better than tests. In many cases the type system tells you whether or not your function is correct. Often there is only one possible implementation.
-	1. What does the term `currying` mean?
-	1. What does the term `partial application of a function` mean?
-	1. What does the term `partial function` mean?
 	1. What is a Functor?
 		1. Algebraic Data Types
 		2. Examples from real life?

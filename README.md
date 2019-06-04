@@ -46,9 +46,11 @@ In this course the implementation language will be Scala.  Haskell would be bett
 1. Week 2, 3 - Pattern Matching
 	1. For at least the next week or two we will work at understanding pattern matching and the related concepts of partial and total functions:
 		1. What is a total function? A total function is a function that is defined for all possible values of its input. That is, it always terminates and always returns a value. 
+		
 				```
 				def sum(x: Int, y: Int):Int = x + y
 				```
+		
 		1. Contrasting a Partial Function with a Partially Applied Function?   A partially applied function is a very different animal.  A partially applied function is a function value that has one or more of its arguments applied.  Its a way making a new function with some parameter fixed.  Say for example that you have a two parameter function that gets called very often. And that one of its parameters is fixed and the other is not. An example from Notification Service was a Mustache template that needed to get compiled one time and was then fixed for the life of the application.  That computation is expensive. So I partially applied it.  Here is an example:
 				```
 				val divide = (num: Double, den: Double) => num / den
@@ -116,7 +118,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 						1. Implement factorial from  https://github.com/mikejlong60/functional-programming-book/blob/master/src/main/scala/exercises/Recursion.scala using a loop.  I don't want you to use loops in FP code but you need to begin building an understanding of how loops and recursion are related.
 						1. Note the technique of using an inner function from the previous exercise.  Use that technique to implement a function that returns a given Fibonacci number.  See the preceding file for that function's signature.
 1. Week 4 - Building an understanding of polymorphic functions
-	1. The functions ````sum``` and ```halfOf```` and ````divide``` above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
+	1. The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphic functions.  They only contain parameters and return values of specific types. Golang only allows monomorphic functions, or at least the compiler will not type check them.  To have a semblence of polymorphic functiuons in Golang you use an empty interface, and the compiler cannot help you at all to write correct code.  Scala allows polymorphic functions.  And the term polymorphic in this context is not the same as Java's or other object-oriented languages where it implies a subtype relationship. 
 	1. Often in our programs we want to write programs that will work for any type and  also be type safe.   A function that can apply to any type is called a Polymorphic function.  Polymorphic functions are very important when using higher order functions. Recall that HOF functions are functions that  are passed as parameters to other functions or returned by them.  Observing the fact that many functions contain the same structure or pertain to the same absraction will help you understand the concept and need for polymorphic functions.  Observe the function ```foldLeft``` above.  What can you tell me about it?  One thing is that it will be correct for any kind of List.  A polymorphic function uses  a list of type variables inside brackets and separated by commas at the very beginning of the function.  The type variables can be anything you want.  The the convention in Scala is that they are a single upper-case character.  
 	1. Exercise. Write findFirst as a polymorphic function.  Here it is as a monomorphic function:
 	   ```

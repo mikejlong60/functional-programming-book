@@ -19,7 +19,7 @@ In this course the implementation language will be Scala.  Haskell would be bett
 	4. It looks weird.
 	5. Because Google doesn't use it.
 
-`## Course Syllabus
+## Course Syllabus
 1. Week 0 - Getting set up and trying to convince you to stick it out.
     1. Make sure you have a modern JDK installed.
 	1. [Install SBT](https://www.scala-sbt.org/). For the initial weeks we will not need an editor at all. We will be using SBT and its repl for the exercises.

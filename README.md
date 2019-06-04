@@ -146,27 +146,27 @@ The functions ```sum``` and ```halfOf``` and  ```divide```  above are monomorphi
     def findFirstP[A](as: Array[A], p: A => Boolean): Int = ???
 ```
 		
-### Week 5 - Function Currying
-### Week 6 - Properties-based testing with Scalacheck
-### Week 7 - Why types are better than tests. In many cases the type system tells you whether or not your function is correct. Often there is only one possible implementation.
-### Week 8 -What is a Functor?
+### Week 7 - Function Currying
+### Week 8 - Properties-based testing with Scalacheck
+### Week 9 - Why types are better than tests. In many cases the type system tells you whether or not your function is correct. Often there is only one possible implementation.
+### Week 10 -What is a Functor?
 	1. Algebraic Data Types
 	2. Examples from real life?
 	3. How is it useful?
 	4. The Functor laws
-### Week 9 - What is an Applicative Functor
+### Week 11 - What is an Applicative Functor
 	1. How is it useful?
 	2. Applicative Functor laws
 	3. Why Applicative Functors are better than Monads
-### Week 10 - Natural Transformations
+### Week 12 - Natural Transformations
 	1. What is a Natural Transformatrion -  A mapping between functors.
-### Week 11 - Monoids
+### Week 13 - Monoids
 	1. Why are they useful?
 	2. Monoid laws
-### Week 12 - Monads
+### Week 14 - Monads
 	1. When are they useful?
 	2. When are they bad?
 	3. Monad laws.
-### Week 13 -  Lenses - This is the workshop I am presenting at the conference in two weeks.
+### Week 15 -  Lenses - This is the workshop I am presenting at the conference in two weeks.
 
 

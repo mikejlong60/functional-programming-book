@@ -52,4 +52,13 @@ object Gen {
       if (first) g1.sample
       else g2.sample
     })
+
+  def weighted[A](g1: (Gen[A], Int), g2: (Gen[A], Int)): Gen[A] = {
+    val k = List.fill(g1._2)(g1._1) ++ List.fill(g2._2)(g2._1)
+    val len = k.length
+    val fff = Gen.choose(0, len)
+    val r = fff.sample.flatMap(n => k(n).sample)
+     Gen(r)
+  }
+
 }

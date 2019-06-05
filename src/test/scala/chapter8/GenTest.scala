@@ -58,6 +58,14 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
     result .size should(be >= (50) and be <= (100))
   }
 
+  property("Generate the union of two generators") {
+    val first: Gen[Int] = Gen.choose(5,6)
+    val second: Gen[Int] = Gen.choose(8, 9)
+    val rng = SimpleRNG(12)
+    val result = Gen.union(first, second).sample.run(rng)
+    result._1 should  (be (5) or be (6) or be (8) or be(9))
+  }
+
   property("Use Map to produce a new generator") {
     forAll{ n: Int =>
       val a = Gen.unit(n)

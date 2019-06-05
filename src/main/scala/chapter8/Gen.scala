@@ -47,4 +47,9 @@ object Gen {
    Gen(r)
   }
 
+  def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] = 
+    Gen(boolean.sample.flatMap{first =>
+      if (first) g1.sample
+      else g2.sample
+    })
 }

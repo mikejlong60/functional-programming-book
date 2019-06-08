@@ -96,6 +96,38 @@ object Stream {
 
   def empty[A]: Stream[A] = Empty
 
+
+  //Latest additions on 6/08/2019.  There were no exercises for this so I stole them from answer key for use with later exercises.
+  def zipWith[A, B,C](s1 :Stream[A], s2: Stream[B])(f: (A,B) => C): Stream[C] =
+    unfold((s1, s2)) {
+      case (Cons(h1,t1), Cons(h2,t2)) =>
+        Some((f(h1(), h2()), (t1(), t2())))
+      case _ => None
+    }
+
+  // special case of `zipWith`
+  def zip[A, B](s1: Stream[A], s2: Stream[B]): Stream[(A,B)] =
+    zipWith(s1, s2)((_,_))
+
+  def zipAll[A, B](s1: Stream[A], s2: Stream[B]): Stream[(Option[A],Option[B])] =
+    zipWithAll(s1, s2)((_,_))
+
+  def zipWithAll[A, B, C](s1: Stream[A], s2: Stream[B])(f: (Option[A], Option[B]) => C): Stream[C] =
+    Stream.unfold((s1, s2)) {
+      case (Empty, Empty) => None
+      case (Cons(h, t), Empty) => Some(f(Some(h()), Option.empty[B]) -> (t(), empty[B]))
+      case (Empty, Cons(h, t)) => Some(f(Option.empty[A], Some(h())) -> (empty[A] -> t()))
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(f(Some(h1()), Some(h2())) -> (t1() -> t2()))
+    }
+
+  @annotation.tailrec
+  def find[A](s: Stream[A])(f: A => Boolean): Option[A] = s match {
+    case Empty => None
+    case Cons(h, t) => if (f(h())) Some(h()) else find(t())(f)
+  }
+
+  ///End stuff stolen for tests later in book 0n 6/8/2019
+
   def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
   def constant[A](a: A): Stream[A] = cons(a, constant(a))

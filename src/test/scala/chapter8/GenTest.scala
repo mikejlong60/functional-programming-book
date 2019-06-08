@@ -66,7 +66,7 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
     result._1 should  (be (5) or be (6) or be (8) or be(9))
   }
 
- property("Generate the weigted union of two generators") {
+ property("Generate the weighted union of two generators") {
     val first: Gen[Int] = Gen.choose(5,6)
     val second: Gen[Int] = Gen.choose(8, 9)
     val rng = SimpleRNG(12)

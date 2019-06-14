@@ -23,7 +23,34 @@ case class Falsified(failure: FailedCase, successes: SuccessCount) extends Resul
   def isFalsified = true
 }
 
-case class Prop(run:  (TestCases, RNG) => Result) {
+case class Prop(run:  (TestCases, RNG) => Result)  {
+
+  def &&(p: Prop): Prop = Prop {
+     (n,  rng) => run(n, rng) match {
+      case Passed => p.run(n, rng)
+       case x => x
+    }
+  }
+
+  def ||(p: Prop): Prop = Prop {
+    (n, rng) => run(n, rng) match {
+      case x @ Passed => x
+      case Falsified(_, _)=> p.run(n, rng) 
+    }
+  }
+}
+ //   val r1 = Prop {()}
+  // if (check(p1.run()) && p2.check)
+  //    Prop {
+  //      def check = true
+  //    }
+  //    else {
+  //      new PropT {
+  //        def check = false
+  //      }
+  //    }
+
+
  // def check: Boolean
 //  def &&(p: Prop): Prop =
 //    if (p.check && this.check)
@@ -36,6 +63,7 @@ case class Prop(run:  (TestCases, RNG) => Result) {
 //        }
 //      }
 
+object Prop {
   def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
     (n, rng) => {
       val r = Stream.zip(randomStream(as)(rng), Stream.from(0)).take(n).map {
@@ -53,5 +81,10 @@ case class Prop(run:  (TestCases, RNG) => Result) {
     s"test case: $s\n" +
   s"generated an exception: ${e.getMessage}\n" +
   s"stack trace: \n ${e.getStackTrace.mkString("\n")}"
+
+
+  def check(p: => Boolean): Prop = Prop { (_, _) =>
+      if (p) Passed else Falsified("()", 0)
+  }
 
 }

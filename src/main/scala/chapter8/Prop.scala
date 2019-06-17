@@ -9,33 +9,38 @@ object types {
   type TestCases = Int
 }
 
+sealed trait CausedBy
+case object First extends CausedBy
+case object Second extends CausedBy
+
 import types._
 
 sealed trait Result {
   def isFalsified: Boolean
+  def fstFailure: Int
 }
 
-case object Passed extends Result  {
+case class Passed(fstFailure: Int) extends Result  {
   def isFalsified = false
 }
 
-case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result  {
+case class Falsified(fstFailure: Int, failure: FailedCase, successes: SuccessCount) extends Result  {
   def isFalsified = true
 }
 
-case class Prop(run:  (TestCases, RNG) => Result)  {
+case class Prop(run:  (Int, TestCases, RNG) => Result)  {
 
   def &&(p: Prop): Prop = Prop {
-     (n,  rng) => run(n, rng) match {
-      case Passed => p.run(n, rng)
-       case x => x
+     (fstFailure, n,  rng) => run(fstFailure, n, rng) match {
+      case Passed(fst) => p.run(fst + 1, n, rng)
+       case Falsified(fst, failure, successes) =>  Falsified(fst, failure, successes)
     }
   }
 
   def ||(p: Prop): Prop = Prop {
-    (n, rng) => run(n, rng) match {
-      case x @ Passed => x
-      case Falsified(_, _)=> p.run(n, rng) 
+    (fstFailure, n, rng) => run(fstFailure, n, rng) match {
+      case Passed(_) => Passed(fstFailure + 1)
+      case Falsified(_, failure, successes) => p.run(fstFailure + 1, n, rng) 
     }
   }
 }
@@ -65,13 +70,13 @@ case class Prop(run:  (TestCases, RNG) => Result)  {
 
 object Prop {
   def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
-    (n, rng) => {
+    (fstFailure, n, rng) => {
       val r = Stream.zip(randomStream(as)(rng), Stream.from(0)).take(n).map {
         case (a, i) => try {
-          if (f(a)) Passed else Falsified(a.toString, i)
-        } catch { case e: Exception => Falsified(buildMsg(a, e), i) }
+          if (f(a)) Passed(fstFailure) else Falsified(fstFailure, a.toString, i)
+        } catch { case e: Exception => Falsified(fstFailure, buildMsg(a, e), i) }
       }
-      Stream.find(r)(_.isFalsified).getOrElse(Passed)
+      Stream.find(r)(c => c.isFalsified).getOrElse(Passed(0))
     }
   }
 
@@ -83,8 +88,8 @@ object Prop {
   s"stack trace: \n ${e.getStackTrace.mkString("\n")}"
 
 
-  def check(p: => Boolean): Prop = Prop { (_, _) =>
-      if (p) Passed else Falsified("()", 0)
+  def check(p: => Boolean): Prop = Prop { (fstFailure, _, _) =>
+      if (p) Passed(fstFailure) else Falsified(fstFailure, "()", 0)
   }
 
 }

@@ -7,42 +7,41 @@ object types {
   type SuccessCount = Int
   type FailedCase = String
   type TestCases = Int
+  type PropName = String
 }
-
-sealed trait CausedBy
-case object First extends CausedBy
-case object Second extends CausedBy
 
 import types._
 
 sealed trait Result {
   def isFalsified: Boolean
-  def fstFailure: Int
 }
 
-case class Passed(fstFailure: Int) extends Result  {
+case object Passed extends Result  {
   def isFalsified = false
 }
 
-case class Falsified(fstFailure: Int, failure: FailedCase, successes: SuccessCount) extends Result  {
+case class Falsified(name: PropName, failure: FailedCase, successes: SuccessCount) extends Result  {
   def isFalsified = true
 }
 
-case class Prop(run:  (Int, TestCases, RNG) => Result)  {
+case class Prop(run:  (TestCases, RNG) => Result, name: PropName )  {
 
-  def &&(p: Prop): Prop = Prop {
-     (fstFailure, n,  rng) => run(fstFailure, n, rng) match {
-      case Passed(fst) => p.run(fst + 1, n, rng)
-       case Falsified(fst, failure, successes) =>  Falsified(fst, failure, successes)
-    }
-  }
+  def &&(p: Prop): Prop = Prop (
+     run = (n,  rng) => run(n, rng) match {
+      case Passed => p.run(n, rng)
+       case Falsified(name, failure, successes) =>  Falsified(name, failure, successes)
+     },
+       name = this.name
+  )
 
-  def ||(p: Prop): Prop = Prop {
-    (fstFailure, n, rng) => run(fstFailure, n, rng) match {
-      case Passed(_) => Passed(fstFailure + 1)
-      case Falsified(_, failure, successes) => p.run(fstFailure + 1, n, rng) 
-    }
-  }
+  def ||(p: Prop): Prop = Prop (
+    run = (n, rng) => run(n, rng) match {
+      case Passed => Passed
+      case Falsified(_, failure, successes) => p.run(n, rng) 
+    },
+    name = this.name
+
+  )
 }
  //   val r1 = Prop {()}
   // if (check(p1.run()) && p2.check)
@@ -69,16 +68,17 @@ case class Prop(run:  (Int, TestCases, RNG) => Result)  {
 //      }
 
 object Prop {
-  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
-    (fstFailure, n, rng) => {
+  def forAll[A](as: Gen[A], name: PropName = "First")(f: A => Boolean): Prop = Prop (
+    run = (n, rng) => {
       val r = Stream.zip(randomStream(as)(rng), Stream.from(0)).take(n).map {
         case (a, i) => try {
-          if (f(a)) Passed(fstFailure) else Falsified(fstFailure, a.toString, i)
-        } catch { case e: Exception => Falsified(fstFailure, buildMsg(a, e), i) }
+          if (f(a)) Passed else Falsified(name, a.toString, i)
+        } catch { case e: Exception => Falsified(name, buildMsg(a, e), i) }
       }
-      Stream.find(r)(c => c.isFalsified).getOrElse(Passed(0))
-    }
-  }
+      Stream.find(r)(c => c.isFalsified).getOrElse(Passed)
+    },
+    name = name
+  )
 
   def randomStream[A](g: Gen[A])(rng: RNG): Stream[A] = Stream.unfold(rng)(rng => Some(g.sample.run(rng)))
 
@@ -88,8 +88,8 @@ object Prop {
   s"stack trace: \n ${e.getStackTrace.mkString("\n")}"
 
 
-  def check(p: => Boolean): Prop = Prop { (fstFailure, _, _) =>
-      if (p) Passed(fstFailure) else Falsified(fstFailure, "()", 0)
-  }
+//  def check(p: => Boolean): Prop = Prop { ( _, _) =>
+//      if (p) Passed else Falsified(0, "()", 0)
+//  }
 
 }

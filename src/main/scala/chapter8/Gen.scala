@@ -3,16 +3,22 @@ package chapter8
 import chapter6.{ RNG, SimpleRNG, State}
 
 
-case class Gen[A](sample: State[RNG, A])
+case class Gen[+A](sample: State[RNG, A]) {
 
+  def unsized: SGen[A] = {
+    val sizer: ( (Int) => Gen[A] ) = n  => this
+    SGen(sizer)
+  }
+}
+ 
 object Gen {
-
+  
   def choose(start: Int, stopExclusive: Int): Gen[Int] =
     Gen(State(run = RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
 
   def chooseThatRunsTooLong(start: Int, stopExclusive: Int): Gen[Int] = {   
 
-    val rng = SimpleRNG(System.currentTimeMillis)
+    val rng: SimpleRNG = SimpleRNG(System.currentTimeMillis)
 
     @annotation.tailrec
     def intInRange(rng: RNG): (Int, RNG) = {

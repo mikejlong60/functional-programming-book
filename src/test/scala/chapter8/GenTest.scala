@@ -77,7 +77,7 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
   property("Use Map to produce a new generator") {
     forAll{ n: Int =>
       val a = Gen.unit(n)
-      val r = Gen.map(a)(s => s.toString)
+      val r = a.map(s => s.toString)
       val rng = SimpleRNG(n)
       val x = r.sample.run(rng)
       x._1 should be (n.toString)
@@ -87,7 +87,7 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
   property("Use flatMap to produce a new generator") {
     forAll{ n: Int =>
       val a = Gen.unit(n)
-      val r = Gen.flatMap(a)(s => Gen.unit(s.toString))
+      val r = a.flatMap(s => Gen.unit(s.toString))
       val rng = SimpleRNG(n)
       val x = r.sample.run(rng)
       x._1 should be (n.toString)

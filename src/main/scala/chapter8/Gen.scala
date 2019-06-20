@@ -9,6 +9,17 @@ case class Gen[+A](sample: State[RNG, A]) {
     val sizer: ( (Int) => Gen[A] ) = n  => this
     SGen(sizer)
   }
+
+  def map[B](f: A => B): Gen[B] = {
+    val r = sample.map(a => f(a))
+    Gen(r)
+  }
+
+  def flatMap[B]( f: A => Gen[B] ): Gen[B] = {
+    val r = sample.flatMap(aa =>  f(aa).sample)
+   Gen(r)
+  }
+
 }
  
 object Gen {
@@ -44,15 +55,6 @@ object Gen {
     Gen(sample=r)
   }
   
-  def map[A, B](a: Gen[A])(f: A => B): Gen[B] = {
-    val r = a.sample.map(a => f(a))
-    Gen(r)
-  }
-  def flatMap[A, B](a: Gen[A])( f: A => Gen[B] ): Gen[B] = {
-    val r = a.sample.flatMap(aa =>  f(aa).sample)
-   Gen(r)
-  }
-
   def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] = 
     Gen(boolean.sample.flatMap{first =>
       if (first) g1.sample

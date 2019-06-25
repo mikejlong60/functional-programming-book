@@ -69,13 +69,14 @@ object Prop {
   s"stack trace: \n ${e.getStackTrace.mkString("\n")}"
 
 
+  //TODO Write some tests aroungd these SGen guys.
   def forAll[A](g: SGen[A], name: PropName)(f: A => Boolean) : Prop = forAll(g(_), name)(f)
 
   def forAll[A](g: Int =>  Gen[A], name: PropName)(f: A => Boolean): Prop = Prop (
     run  = (max, n, rng) => {
       val casesPerSize = (n + (max -1)) / max
       val props =  Stream.from(0).take((n min max) + 1)
-        val c = props.map(i => forAll(g(i))(f))
+      val c = props.map(i => forAll(g(i))(f))
       val prop: Prop = c.map(p => Prop { (max, _, rng) => p.run(max, casesPerSize, rng)}).toList.reduce(_ && _)
       prop.run(max, n, rng) 
     },

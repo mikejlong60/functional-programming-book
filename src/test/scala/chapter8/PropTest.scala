@@ -24,11 +24,12 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  val maxSize = 12
   property("Test your own property, running 120 test cases. Its not scalacheck's property.  Its mine.") {
     val gen = Gen.choose(1, 1000)
     val rng = SimpleRNG(1)
     val actual = Prop.forAll(gen)(x =>  x  > 0  && x < 1001)
-    val result = actual.run(120, rng)
+    val result = actual.run(maxSize, 120, rng)
     result should be (Passed)
   }
 
@@ -38,7 +39,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val actual1= Prop.forAll(gen, "First")(x =>  x  > 0  && x < 1001)
     val actual2= Prop.forAll(gen, "Second")(x =>  x  > 0)
     val combinedActual = actual1.&&(actual2)
-    val result = combinedActual.run(120, rng)
+    val result = combinedActual.run(maxSize, 120, rng)
     result should be (Passed)
   }
 
@@ -48,7 +49,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val actual1= Prop.forAll(gen, "First")(x =>  x  < 0)
     val actual2= Prop.forAll(gen, "Second")(x =>  x  > 0)
     val combinedActual = actual1.||(actual2)
-    val result = combinedActual.run(120, rng)
+    val result = combinedActual.run(maxSize, 120, rng)
     result should be (Passed)
   }
 
@@ -58,7 +59,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val actual1= Prop.forAll(gen, "First")(x =>  x  > 0  && x < 1001)
     val actual2= Prop.forAll(gen, "Second")(x =>  x  < 0)
     val combinedActual = actual1.&&(actual2)
-    val result = combinedActual.run(120, rng)
+    val result = combinedActual.run(maxSize, 120, rng)
     result shouldBe a  [Falsified]
   }
 
@@ -68,7 +69,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val actual1= Prop.forAll(gen, "First")(x =>  x  < 0)
     val actual2= Prop.forAll(gen, "Second")(x =>  x  < 0)
     val combinedActual = actual1.||(actual2)
-    val result = combinedActual.run(120, rng)
+    val result = combinedActual.run(maxSize, 120, rng)
     result  shouldBe a [Falsified]
   }
 
@@ -79,7 +80,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val actual2= Prop.forAll(gen, "gt zero")(x =>  x  > 0)
     val actual3= Prop.forAll(gen, "less than zero")(x =>  x  < 0)
     val combinedActual = actual1.&&(actual2).&&(actual3)
-    val result = combinedActual.run(120, rng)
+    val result = combinedActual.run(maxSize, 120, rng)
     result match {
       case Falsified(propName,  _ , _) => propName should be ("less than zero")
       case _ => fail("should have been falsified")
@@ -93,7 +94,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val actual2= Prop.forAll(gen, "less than zero")(x =>  x  < 0)
     val actual3= Prop.forAll(gen, "gt 4000")(x =>  x  > 4000)
     val combinedActual = actual1.||(actual2).||(actual3)
-    val result = combinedActual.run(120, rng)
+    val result = combinedActual.run(maxSize, 120, rng)
     result match {
       case Falsified(propName,  _ , _) => propName should be ("gt 4000")
       case _ => fail(s"result was [$result] but  should have been falsified")

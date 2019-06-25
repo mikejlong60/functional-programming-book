@@ -8,6 +8,7 @@ object types {
   type FailedCase = String
   type TestCases = Int
   type PropName = String
+  type MaxSize = Int
 }
 
 import types._
@@ -24,52 +25,32 @@ case class Falsified(name: PropName, failure: FailedCase, successes: SuccessCoun
   def isFalsified = true
 }
 
-case class Prop(run:  (TestCases, RNG) => Result, name: PropName )  {
+case class Prop(run:  (MaxSize, TestCases, RNG) => Result, name: PropName = "First" )  {
 
   def &&(p: Prop): Prop = Prop (
-     run = (n,  rng) => run(n, rng) match {
-      case Passed => p.run(n, rng)
+     run = (max, n,  rng) => run(max, n, rng) match {
+      case Passed => p.run(max, n, rng)
        case Falsified(name, failure, successes) =>  Falsified(name, failure, successes)
      },
        name = this.name
   )
 
   def ||(p: Prop): Prop = Prop (
-    run = (n, rng) => run(n, rng) match {
+    run = (max, n, rng) => run(max, n, rng) match {
       case Passed => Passed
-      case Falsified(_, failure, successes) => p.run(n, rng) 
+      case Falsified(_, failure, successes) => p.run(max, n, rng) 
     },
     name = this.name
 
   )
 }
- //   val r1 = Prop {()}
-  // if (check(p1.run()) && p2.check)
-  //    Prop {
-  //      def check = true
-  //    }
-  //    else {
-  //      new PropT {
-  //        def check = false
-  //      }
-  //    }
-
-
- // def check: Boolean
-//  def &&(p: Prop): Prop =
-//    if (p.check && this.check)
-//      new PropT {
-//        def check = true
-//      }
-//      else {
-//        new PropT {
-//          def check = false
-//        }
-//      }
 
 object Prop {
+
+ // def apply(f: (TestCases,RNG) => Result): Prop = Prop (run = (_,n,rng) => f(n,rng) )
+
   def forAll[A](as: Gen[A], name: PropName = "First")(f: A => Boolean): Prop = Prop (
-    run = (n, rng) => {
+    run = (max, n, rng) => {
       val r = Stream.zip(randomStream(as)(rng), Stream.from(0)).take(n).map {
         case (a, i) => try {
           if (f(a)) Passed else Falsified(name, a.toString, i)
@@ -87,6 +68,19 @@ object Prop {
   s"generated an exception: ${e.getMessage}\n" +
   s"stack trace: \n ${e.getStackTrace.mkString("\n")}"
 
+
+  def forAll[A](g: SGen[A], name: PropName)(f: A => Boolean) : Prop = forAll(g(_), name)(f)
+
+  def forAll[A](g: Int =>  Gen[A], name: PropName)(f: A => Boolean): Prop = Prop (
+    run  = (max, n, rng) => {
+      val casesPerSize = (n + (max -1)) / max
+      val props =  Stream.from(0).take((n min max) + 1)
+        val c = props.map(i => forAll(g(i))(f))
+      val prop: Prop = c.map(p => Prop { (max, _, rng) => p.run(max, casesPerSize, rng)}).toList.reduce(_ && _)
+      prop.run(max, n, rng) 
+    },
+    name = name
+  )
 
 //  def check(p: => Boolean): Prop = Prop { ( _, _) =>
 //      if (p) Passed else Falsified(0, "()", 0)

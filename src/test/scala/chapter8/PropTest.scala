@@ -103,19 +103,34 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("Run Prop.forAll with an SGen[A] instead of a Gen[A].  You have come close to making ScalaCheck!!!!") {
-    forAll{ n: Short => 
-      whenever(n > 0) {
-        val rng = SimpleRNG(System.currentTimeMillis())
-        val a = Gen.choose(19, 21)
-        val b = a.unsized
-        val c = b.listOf(a)
-        val d = c(n)
-        val e = Prop.forAll(d, "list members must be either 19, 20 or 21")(l => 
-          l.forall(m => m == 19 || m ==20 || m== 21)
-        )
-        val result = e.run(maxSize ,20, rng)
-        result should be (Passed)
-      }
+    val numberOfTestCases = 100
+    val maxSizeOfGenerator = 12
+    val rng = SimpleRNG(System.currentTimeMillis())
+    val a = Gen.choose(19, 23)
+    val b = a.unsized
+    val c = b.listOf(a)
+    val e = Prop.forAll(c, "list members must be either 19, 20,  21, or 22 ")(l => {
+      println(l)
+      l.forall(m => m == 19 || m ==20 || m== 21 || m == 22)
+    })
+   val result = e.run(maxSizeOfGenerator ,numberOfTestCases, rng)
+   result should be (Passed)
+  }
+
+  property("Run a failing Prop.forAll with an SGen[A] instead of a Gen[A] because the list was too large") {
+    val numberOfTestCases = 50
+    val maxSizeOfGenerator = 12
+    val rng = SimpleRNG(System.currentTimeMillis())
+    val a = Gen.choose(19, 23)
+    val b = a.unsized
+    val c = b.listOf(a)
+    val e = Prop.forAll(c, "list members must be either 19, 20,  21, or 22  and the list size must be < 10")(l => {
+      l.forall(m => m == 19 || m ==20 || m== 21 || m == 22) && l.size < 10 && l.size < 10
+    })
+   val result = e.run(maxSizeOfGenerator ,numberOfTestCases, rng)
+    result match {
+      case Falsified(propName,  _ , _) => propName should be ("list members must be either 19, 20,  21, or 22  and the list size must be < 10")
+      case _ => fail(s"result was [$result] but  should have been falsified")
     }
   }
 

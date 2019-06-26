@@ -47,7 +47,7 @@ case class Prop(run:  (MaxSize, TestCases, RNG) => Result, name: PropName = "Fir
 
 object Prop {
 
-  def apply(f: (TestCases,RNG) => Result): Prop = Prop (run = (_,n,rng) => f(n,rng) )
+ // def apply(f: (TestCases,RNG) => Result): Prop = Prop (run = (_,n,rng) => f(n,rng) )
 
   def forAll[A](as: Gen[A], name: PropName = "First")(f: A => Boolean): Prop = Prop (
     run = (max, n, rng) => {
@@ -71,12 +71,12 @@ object Prop {
   def forAll[A](g: SGen[A], name: PropName)(f: A => Boolean) : Prop = forAll(g(_), name)(f)
 
   def forAll[A](g: Int =>  Gen[A], name: PropName)(f: A => Boolean): Prop = Prop (
-    run  = (max, n, rng) => {
-      val casesPerSize = (n + (max -1)) / max
-      val props =  Stream.from(0).take((n min max) + 1)
+    run  = (maxSizeOfGenerator, numberOfTestCases, rng) => {
+      val casesPerSize = (numberOfTestCases + (maxSizeOfGenerator -1)) / maxSizeOfGenerator
+      val props =  Stream.from(0).take((numberOfTestCases min maxSizeOfGenerator) + 1)
       val c = props.map(i => forAll(g(i), name)(f))
       val prop: Prop = c.map(p => Prop { (max, _, rng) => p.run(max, casesPerSize, rng)}).toList.reduce(_ && _)
-      prop.run(max, n, rng) 
+      prop.run(maxSizeOfGenerator, numberOfTestCases, rng) 
     },
     name = name
   )

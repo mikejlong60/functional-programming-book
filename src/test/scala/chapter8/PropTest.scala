@@ -4,6 +4,7 @@ import org.scalatest.{ Matchers, PropSpec }
 import org.scalatest.prop.PropertyChecks
 import chapter6.{RNG, SimpleRNG, State}
 import chapter8.types._
+import scala.collection.immutable.List._
 
 
 class PropTest extends PropSpec with PropertyChecks with Matchers {
@@ -101,4 +102,28 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Run Prop.forAll with an SGen[A] instead of a Gen[A].  You have come close to making ScalaCheck!!!!") {
+    forAll{ n: Short => 
+      whenever(n > 0) {
+        val rng = SimpleRNG(System.currentTimeMillis())
+        val a = Gen.choose(19, 21)
+        val b = a.unsized
+        val c = b.listOf(a)
+        val d = c(n)
+        val e = Prop.forAll(d, "list members must be either 19, 20 or 21")(l => 
+          l.forall(m => m == 19 || m ==20 || m== 21)
+        )
+        val result = e.run(maxSize ,20, rng)
+        result should be (Passed)
+      }
+    }
+  }
+
+ // property("Reveal a bug in your new SGen version of Prop.forAll") {
+  //  val a = Gen.choose(19, 21)
+  //      val b = a.unsized
+  //      val c = b.listOf(a)
+  //  val smallInt = Gen.choose(-10, 10)//.unsized
+  //  val maxProp = Prop.forAll(c.listOf(a))//.listOf(10))
+  //}
 }

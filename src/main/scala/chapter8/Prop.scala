@@ -1,6 +1,7 @@
 package chapter8
 
 import chapter6.RNG
+import chapter6.SimpleRNG
 import chapter5.Stream
 
 object types {
@@ -80,6 +81,12 @@ object Prop {
     },
     name = name
   )
+
+  def run(p: Prop, maxSize: Int = 100, testCases: Int = 100, rng: RNG = SimpleRNG(System.currentTimeMillis)): Unit =
+    p.run(maxSize, testCases, rng) match {
+      case Falsified(propName, msg, n) => println(s"! Property [$propName] failed after $n passed tests: \n $msg")
+      case Passed => println(s"OK, passed $testCases tests.")
+    }
 
 //  def check(p: => Boolean): Prop = Prop { ( _, _) =>
 //      if (p) Passed else Falsified(0, "()", 0)

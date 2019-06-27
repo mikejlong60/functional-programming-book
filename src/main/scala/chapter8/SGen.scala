@@ -16,6 +16,11 @@ case class SGen[+A](forSize: Int => Gen[A]) {
     SGen(forSize2)
   }
 
+  def nonEmptyListOf[A](g: Gen[A]): SGen[List[A]] = {
+    val fs: Int => Gen[List[A]] = n => Gen.listOfN(n max 1, g)
+    SGen(fs)
+  }
+
   def listOf[A](g: Gen[A]): SGen[List[A]] = {
    val fs: Int => Gen[List[A]] = n =>  Gen.listOfN(n, g)
    SGen(fs)

@@ -134,11 +134,34 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
- // property("Reveal a bug in your new SGen version of Prop.forAll") {
-  //  val a = Gen.choose(19, 21)
-  //      val b = a.unsized
-  //      val c = b.listOf(a)
-  //  val smallInt = Gen.choose(-10, 10)//.unsized
-  //  val maxProp = Prop.forAll(c.listOf(a))//.listOf(10))
-  //}
+  property("Reveal a bug in your new SGen version of Prop.forAll. Max of an empty list throws an exception") {
+    val rng = SimpleRNG(System.currentTimeMillis())
+    val a = Gen.choose(-10, 10)
+    val b = a.unsized
+    val c = b.listOf(a)
+    val maxProp = Prop.forAll(c, "value must not exceed max allowed value in the list") {ns =>
+      val max = ns.max
+      ns.forall(_ <= max)
+     } 
+   val result = maxProp.run(100 , 100, rng)
+    result match {
+      case Falsified(propName,  _ , _) => propName should be ("value must not exceed max allowed value in the list")
+      case _ => fail(s"result was [$result] but  should have been falsified")
+    }
+    //This illustrates what happens on a failing test in the UI, just for illustrative purposes as Prop.run returns Unit.
+    Prop.run(maxProp)
+  }
+
+    property("Fix the bug you showed previously.") {
+    val a = Gen.choose(-10, 10)
+    val b = a.unsized
+    val c = b.nonEmptyListOf(a)
+    val maxProp = Prop.forAll(c, "value must not exceed max allowed value in the list") {ns =>
+      val max = ns.max
+      ns.forall(_ <= max)
+     } 
+    Prop.run(maxProp)
+  }
+
+
 }

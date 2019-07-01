@@ -110,7 +110,6 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val b = a.unsized
     val c = b.listOf(a)
     val e = Prop.forAll(c, "list members must be either 19, 20,  21, or 22 ")(l => {
-      println(l)
       l.forall(m => m == 19 || m ==20 || m== 21 || m == 22)
     })
    val result = e.run(maxSizeOfGenerator ,numberOfTestCases, rng)
@@ -156,7 +155,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val a = Gen.choose(-10, 10)
     val b = a.unsized
     val c = b.nonEmptyListOf(a)
-    val maxProp = Prop.forAll(c, "value must not exceed max allowed value in the list") {ns =>
+      val maxProp = Prop.forAll(c, "value must not exceed max allowed value in the list") {ns =>
       val max = ns.max
       ns.forall(_ <= max)
      } 

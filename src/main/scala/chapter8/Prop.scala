@@ -4,6 +4,7 @@ import chapter6.RNG
 import chapter6.SimpleRNG
 import chapter5.Stream
 import java.util.concurrent._
+import chapter7.Par.Par  //nonblocking.Nonblocking.Par
 
 object types {
   type SuccessCount = Int
@@ -99,8 +100,14 @@ object Prop {
     }
 
   val S = Gen.weighted(Gen.choose(1, 4).map(Executors.newFixedThreadPool) -> 75,
-   Gen.unit(Executors.newCachedThreadPool) -> 25)
+    Gen.unit(Executors.newCachedThreadPool) -> 25
+  )
 
+   object ** {
+    def unapply[A, B](p: (A, B)) = Some(p)
+  }
+
+  def forAllPar[A](g: Gen[A])(f: A => Par[Boolean]): Prop = forAll(S  ** g) { case (s ** a) => f(a)(s).get }
 //  def check(p: => Boolean): Prop = Prop { ( _, _) =>
 //      if (p) Passed else Falsified(0, "()", 0)
 //  }

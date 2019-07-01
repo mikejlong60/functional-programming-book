@@ -20,12 +20,16 @@ case class Gen[+A](sample: State[RNG, A]) {
    Gen(r)
   }
 
+  def map2[B,C](g: Gen[B])(f: (A,B) => C): Gen[C] = Gen(sample.map2(g.sample)(f))
+
+  def **[B](g: Gen[B]): Gen[(A, B)] = (this map2 g)((_, _))
 }
  
 object Gen {
   
-  def choose(start: Int, stopExclusive: Int): Gen[Int] =
-    Gen(State(run = RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
+  def choose(start: Double, stopExclusive: Double): Gen[Double] = Gen(State(run = RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
+
+  def choose(start: Int, stopExclusive: Int): Gen[Int]  = choose(start.toFloat, stopExclusive.toFloat).map(fl=> fl.toInt)
 
   def chooseThatRunsTooLong(start: Int, stopExclusive: Int): Gen[Int] = {   
 

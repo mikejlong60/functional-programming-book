@@ -11,10 +11,7 @@ case class State[S, +A](run: S => (A, S)) {
       g(a).run(s1)
     })
 
-//  def map2[S, A, B, C](rb: State[S, B])(f: (A, B) => C): State[S, C] = { rng =>
-//    val r = flatMap(a => rb.flatMap(b => State.unit(f(a, b))))
-//    r(rng)
-//  }
+  def map2[B,C](sb: State[S, B])(f: (A, B) => C): State[S, C] = flatMap(a => sb.map(b => f(a, b)))
 
 }
 

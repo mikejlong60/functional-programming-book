@@ -3,7 +3,7 @@ package chapter7
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
 import org.scalactic.TypeCheckedTripleEquals._ 
-import Par._
+import chapter7.Par._
 import java.util.concurrent._
 
 

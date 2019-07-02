@@ -31,7 +31,7 @@ object Par {
   def asyncF2[A, B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
   
 
-  def map2[A, B, C](a: Par[A], b: Par[B], timeoutMillis: Long)(f: (A, B) => C): Par[C] =
+  def map2[A, B, C](a: Par[A], b: Par[B], timeoutMillis: Long = 1000)(f: (A, B) => C): Par[C] =
     (es: ExecutorService) => {
       val af = a(es)
       val bf = b(es)
@@ -99,4 +99,8 @@ object Par {
       Par.map2(Par.fork(sumInParallel(l)), Par.fork(sumInParallel(r)), timeout)((x, y) => x + y)
     }
   }
+
+  def equal[A](p1: Par[A], p2: Par[A]): Par[Boolean] = Par.map2(p1, p2)(_ == _)
+
+
 }

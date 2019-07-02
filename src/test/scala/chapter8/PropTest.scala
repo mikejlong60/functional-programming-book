@@ -5,6 +5,7 @@ import org.scalatest.prop.PropertyChecks
 import chapter6.{RNG, SimpleRNG, State}
 import chapter8.types._
 import scala.collection.immutable.List._
+import chapter7.Par
 
 
 class PropTest extends PropSpec with PropertyChecks with Matchers {
@@ -162,5 +163,25 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     Prop.run(maxProp)
   }
 
+  property("Test mapping law where Par.map(Par.unit(1))(x => x + 1) == Par.unit(2)" ) {
+    import java.util.concurrent.Executors
+    val executor = Executors.newFixedThreadPool(8)
+    val result = Par.equal(
+      Par.map(Par.unit(1))(x => x + 1),
+      Par.unit(2)
+    )
+    val r = Par.map(result)(r => r)(executor).get
+    r should be (true)
+  }
 
+  property("Run forAllPar") {
+    val rng = SimpleRNG(System.currentTimeMillis())
+    val pint = Gen.choose(1, 1000) map (Par.unit(_))
+    val p = Prop.forAllPar(pint)(n => Par.equal(Par.map(n)(y => y), n))
+
+    val result1 = p.run(100, 100,  rng)
+    result1 should be (Passed)
+
+
+  }
 }

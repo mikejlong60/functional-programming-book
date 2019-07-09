@@ -1,7 +1,8 @@
 package chapter8
 
 import chapter6.{ RNG, SimpleRNG, State}
-
+import chapter7.Par //.Par
+import chapter7.Par._
 
 case class Gen[+A](sample: State[RNG, A]) {
 
@@ -29,7 +30,8 @@ object Gen {
   
   def choose(start: Double, stopExclusive: Double): Gen[Double] = Gen(State(run = RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
 
-  def choose(start: Int, stopExclusive: Int): Gen[Int]  = choose(start.toFloat, stopExclusive.toFloat).map(fl=> fl.toInt)
+  def
+    choose(start: Int, stopExclusive: Int): Gen[Int]  = choose(start.toFloat, stopExclusive.toFloat).map(fl=> fl.toInt)
 
   def chooseThatRunsTooLong(start: Int, stopExclusive: Int): Gen[Int] = {   
 
@@ -72,5 +74,9 @@ object Gen {
     val r = fff.sample.flatMap(n => k(n).sample)
      Gen(r)
   }
+
+  def parIntGen(start: Double, stopExclusive: Double) = Gen.choose(start, stopExclusive) map (Par.unit(_))
+
+  def parListOfN[A](n: Gen[Int], g: Gen[A]) = listOfN2(n, g) map (Par.unit(_))
 
 }

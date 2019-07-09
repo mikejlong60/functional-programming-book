@@ -6,6 +6,7 @@ import chapter6.{RNG, SimpleRNG, State}
 import chapter8.types._
 import scala.collection.immutable.List._
 import chapter7.Par
+import Gen.{parIntGen, parListOfN}
 
 
 class PropTest extends PropSpec with PropertyChecks with Matchers {
@@ -174,14 +175,22 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     r should be (true)
   }
 
-  property("Run forAllPar") {
+  property("Run forAllPar to prove the law of map(mapping the identity function over a computation should have no effect) using parIntGen") {
     val rng = SimpleRNG(System.currentTimeMillis())
-    val pint = Gen.choose(1, 1000) map (Par.unit(_))
-    val p = Prop.forAllPar(pint)(n => Par.equal(Par.map(n)(y => y), n))
+    val p = Prop.forAllPar(parIntGen(1, 1000))(n => Par.equal(Par.map(n)(y => y), n))
 
     val result1 = p.run(100, 100,  rng)
     result1 should be (Passed)
+  }
 
+  property("Run forAllPar to prove the law of map(mapping the identity function over a computation should have no effect) using  parListOfN") {
+    val nn: Gen[Int] = Gen.choose(50, 100)
+    val rng = SimpleRNG(12)
+    val g: Gen[List[Int]] = Gen.listOfN(7, Gen.choose(50, 700))
+    val gg  = parListOfN(nn, g)
+    val p = Prop.forAllPar(gg)(n => Par.equal(Par.map(n)(y => y), n))
 
+    val result1 = p.run(100, 100,  rng)
+    result1 should be (Passed)
   }
 }

@@ -6,8 +6,9 @@ import chapter6.{RNG, SimpleRNG, State}
 import chapter8.types._
 import scala.collection.immutable.List._
 import chapter7.Par
+import chapter7.Par.lawOfMap
 import Gen.{parIntGen, parListOfN}
-
+import java.util.concurrent._
 
 class PropTest extends PropSpec with PropertyChecks with Matchers {
 
@@ -193,4 +194,17 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     val result1 = p.run(100, 100,  rng)
     result1 should be (Passed)
   }
+
+  property("Prove the law of map(mapping the identity function over a computation should have no effect) and law of fork(forking a computation across threads should not produce a different result than running it in a single thread )using  parListOfN") {
+    val nn: Gen[Int] = Gen.choose(50, 100)
+    val rng = SimpleRNG(12)
+    val g: Gen[List[Int]] = Gen.listOfN(7, Gen.choose(50, 700))
+    val gg  = parListOfN(nn, g)
+
+    val r1 = Par.lawOfMap(Par.unit(gg))(Executors.newFixedThreadPool(8))
+    r1 should be (true)
+    val r2 =  Par.lawOfFork(Par.unit(gg))(Executors.newFixedThreadPool(8))
+    r2 should be (true)
+  }
+
 }

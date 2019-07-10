@@ -9,7 +9,7 @@ case class ODriveDoc(name: String)
 class StreamTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Test drop function for Stream of ints") {
-    forAll { xs: Seq[Int] =>
+    PropertyChecks.forAll { xs: Seq[Int] =>
       val a = Stream.apply(xs:_*)
 
       val actual = a.drop(1).toList

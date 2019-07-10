@@ -207,4 +207,25 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     r2 should be (true)
   }
 
+  property("Run Prop.forAll with a generated function to prove the relationship between takewhile and dropwhile") {
+    forAll  { (xs: List[Int]) =>
+    val numberOfTestCases = 100
+    val maxSizeOfGenerator = 12
+    val rng = SimpleRNG(System.currentTimeMillis())
+    val a = Gen.choose(19, 23)
+    val b = a.unsized
+    val c = b.listOf(a)
+    val dF = Gen.takeWhileDropWhileF(a)
+    //val e: Prop = Prop.forAll(c, "list members must be either 19, 20,  21, or 22 ")(l => {
+      val r = dF.map(p => xs.forall(p))
+      val gg = Prop.forAll(r)(h => h)
+      val result = gg.run(maxSizeOfGenerator, numberOfTestCases, rng)
+      //l.forall(m => m == 19 || m ==20 || m== 21 || m == 22)
+   // })
+   //val result = e.run(maxSizeOfGenerator ,numberOfTestCases, rng)
+       result should be (Passed)
+     }
+  }
+
+
 }

@@ -58,8 +58,6 @@ case class Prop(run:  (MaxSize, TestCases, RNG) => Result, name: PropName = "Fir
 
 object Prop {
 
- // def apply(f: (TestCases,RNG) => Result): Prop = Prop (run = (_,n,rng) => f(n,rng) )
-
   def forAll[A](as: Gen[A], name: PropName = "First")(f: A => Boolean): Prop = Prop (
     run = (max, n, rng) => {
       val r = Stream.zip(randomStream(as)(rng), Stream.from(0)).take(n).map {
@@ -108,8 +106,4 @@ object Prop {
   }
 
   def forAllPar[A](g: Gen[A])(f: A => Par[Boolean]): Prop = forAll(S  ** g) { case (s ** a) => f(a)(s).get }
-//  def check(p: => Boolean): Prop = Prop { ( _, _) =>
-//      if (p) Passed else Falsified(0, "()", 0)
-//  }
-
 }

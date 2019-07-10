@@ -79,4 +79,10 @@ object Gen {
 
   def parListOfN[A](n: Gen[Int], g: Gen[A]) = listOfN2(n, g) map (Par.unit(_))
 
+  def takeWhileDropWhileF(n: Gen[Int]): Gen[(Int) => Boolean] = n map (i =>  ((x: Int) => {
+    println(s"x: $x, i: $i")
+    x  >= i
+  } ))
+
+  //def parListOfNTakeWhileDropWhile()
 }

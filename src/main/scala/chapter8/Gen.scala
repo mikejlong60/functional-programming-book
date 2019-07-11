@@ -84,5 +84,15 @@ object Gen {
     x  >= i
   } ))
 
+   def dtakeWhileDropWhileF[A](n: Gen[A])(l: List[A]): Gen[(A) => Boolean] = n map (i =>  ((x: A) => {
+    println(s"x: $x, i: $i")
+     val dropped = l.dropWhile(ii => ii  != i)
+     val kept = l.takeWhile(ii   => ii == i )
+     println("================")
+     println("dropped:"+dropped)
+     println("kept:"+kept)
+     (dropped ++ kept).toSet == l.toSet
+  } ))
+
   //def parListOfNTakeWhileDropWhile()
 }

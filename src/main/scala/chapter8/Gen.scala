@@ -91,9 +91,6 @@ object Gen {
      val dropped = l.filter(ii => ii  != i)
      val kept = l.filter(ii   => ii == i )
      val actual = (dropped ++ kept)
-     println("kept:" + kept)
-     println("dropped:" +dropped)
-     println("orig:"+l)
      actual.toSet == l.toSet
    } ))
 

@@ -12,22 +12,6 @@ import java.util.concurrent._
 
 class PropTest extends PropSpec with PropertyChecks with Matchers {
 
-  property("Check first property") {
-    forAll{(check1: Boolean, check2: Boolean) =>
-//      val p = new Prop{
-//        def check = check1
-//      }
-//      val p2 = new Prop {
-//        def check = check2
-//      //}
-
- //     val expected = new Prop {
- //       def check = check1 && check2
- //     }
- //     p2.&&(p).check should be (expected.check)
-    }
-  }
-
   val maxSize = 12
   property("Test your own property, running 120 test cases. Its not scalacheck's property.  Its mine.") {
     val gen = Gen.choose(1, 1000)
@@ -207,25 +191,35 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     r2 should be (true)
   }
 
-  property("Run Prop.forAll with a generated function to prove the relationship between takewhile and dropwhile") {
+  property("Run Prop.forAll with a generated function to prove the behavior of filter with a generated function") {
     forAll  { (xs: List[Int]) =>
-    val numberOfTestCases = 100
-    val maxSizeOfGenerator = 12
-    val rng = SimpleRNG(System.currentTimeMillis())
-    val a = Gen.choose(19, 23)
-    val b = a.unsized
-    val c = b.listOf(a)
-    val dF = Gen.dtakeWhileDropWhileF(a)(List(19,20,21))//xs)
-    //val e: Prop = Prop.forAll(c, "list members must be either 19, 20,  21, or 22 ")(l => {
-      val r = dF.map(p => xs.forall(p))
-      val gg = Prop.forAll(r)(h => h)
-      val result = gg.run(maxSizeOfGenerator, numberOfTestCases, rng)
-      //l.forall(m => m == 19 || m ==20 || m== 21 || m == 22)
-   // })
-   //val result = e.run(maxSizeOfGenerator ,numberOfTestCases, rng)
+      val numberOfTestCases = 100
+      val maxSizeOfGenerator = 12
+      val rng = SimpleRNG(System.currentTimeMillis())
+      val a = Gen.choose(-1000, 1000)
+      val b = a.unsized
+      val c = b.listOf(a)
+      val d = Gen.filterFTest(a)(xs)
+      val e = d.map(p => xs.forall(p))
+      val f = Prop.forAll(e)(h => h)
+      val result = f.run(maxSizeOfGenerator, numberOfTestCases, rng)
        result should be (Passed)
      }
   }
 
-
+    property("Run Prop.forAll with a generated function to prove the relationship of filter and exists with a generated function") {
+    forAll  { (xs: List[Int]) =>
+      val numberOfTestCases = 100
+      val maxSizeOfGenerator = 12
+      val rng = SimpleRNG(System.currentTimeMillis())
+      val a = Gen.choose(-1000, 1000)
+      val b = a.unsized
+      val c = b.listOf(a)
+      val d = Gen.existsFTest(a)(xs)
+      val e = d.map(p => xs.forall(p))
+      val f = Prop.forAll(e)(h => h)
+      val result = f.run(maxSizeOfGenerator, numberOfTestCases, rng)
+       result should be (Passed)
+     }
+  }
 }

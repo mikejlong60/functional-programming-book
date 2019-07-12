@@ -93,6 +93,19 @@ class GenTest extends PropSpec with PropertyChecks with Matchers {
       x._1 should be (n.toString)
     }
   }
+
+  property("mapping a generator using its ID function results in the same generator") {
+    forAll{ n: Int =>
+      val a = Gen.unit(n)
+      val b = a.map(Gen.id)
+      val rng = SimpleRNG(n)
+      val actual = b.sample.run(rng)
+      val expected = a.sample.run(rng)
+      actual should be (expected)
+    }
+  }
+
+
 }
 
 

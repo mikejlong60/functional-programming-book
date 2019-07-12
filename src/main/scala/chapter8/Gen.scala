@@ -28,10 +28,11 @@ case class Gen[+A](sample: State[RNG, A]) {
  
 object Gen {
   
+  def id[A](a: A): A = a
+
   def choose(start: Double, stopExclusive: Double): Gen[Double] = Gen(State(run = RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
 
-  def
-    choose(start: Int, stopExclusive: Int): Gen[Int]  = choose(start.toFloat, stopExclusive.toFloat).map(fl=> fl.toInt)
+  def choose(start: Int, stopExclusive: Int): Gen[Int]  = choose(start.toFloat, stopExclusive.toFloat).map(fl=> fl.toInt)
 
   def chooseThatRunsTooLong(start: Int, stopExclusive: Int): Gen[Int] = {   
 
@@ -84,15 +85,24 @@ object Gen {
     x  >= i
   } ))
 
-   def dtakeWhileDropWhileF[A](n: Gen[A])(l: List[A]): Gen[(A) => Boolean] = n map (i =>  ((x: A) => {
-    println(s"x: $x, i: $i")
-     val dropped = l.dropWhile(ii => ii  != i)
-     val kept = l.takeWhile(ii   => ii == i )
-     println("================")
-     println("dropped:"+dropped)
-     println("kept:"+kept)
-     (dropped ++ kept).toSet == l.toSet
-  } ))
 
-  //def parListOfNTakeWhileDropWhile()
-}
+  //This generates a function that verifies the behavior of a particular API method on List.
+   def filterFTest[A](n: Gen[A])(l: List[A]): Gen[(A) => Boolean] = n map (i =>  ((x: A) => {
+     val dropped = l.filter(ii => ii  != i)
+     val kept = l.filter(ii   => ii == i )
+     val actual = (dropped ++ kept)
+     println("kept:" + kept)
+     println("dropped:" +dropped)
+     println("orig:"+l)
+     actual.toSet == l.toSet
+   } ))
+
+  //This generates a function showing the relationship between exists and filter on List
+   def existsFTest[A](n: Gen[A])(l: List[A]): Gen[(A) => Boolean] = n map (i =>  ((x: A) => {
+     val filtered = l.filter(ii => ii  == i)
+     val atLeastOne = l.exists(ii   => ii == i )
+     if (filtered.size > 0) atLeastOne == true
+     else atLeastOne == false
+   } ))
+
+ }

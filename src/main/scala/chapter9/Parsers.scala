@@ -5,7 +5,13 @@ import Prop._
 
 
 
-trait Parsers[ParseError, Parser[+_]] { self =>
+case class ParseError(stack: List[(String, String)])
+
+object Types {
+  type Parser[+A] = String => Either[ParseError, A]
+}
+
+trait Parsers[Parser[+_]] { self =>
   def run[A](p: Parser[A])(input: String): Either[ParseError, A]
   def char(c: Char): Parser[Char] = string(c.toString) map (s => s.charAt(0))
   def or[A](s1: Parser[A], s2: Parser[A]): Parser[A]
@@ -32,5 +38,5 @@ trait Parsers[ParseError, Parser[+_]] { self =>
   }
 }
 
-//class CharParser[+A](s: String) extends Parsers[Either]
+//class CharParser[+A](s: String) extends Parsers[String, Char]
 //object MyParsers extends Parsers[MyParser, String]

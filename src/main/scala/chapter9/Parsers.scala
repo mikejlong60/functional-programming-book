@@ -12,6 +12,12 @@ object Types {
 }
 
 trait Parsers[Parser[+_]] { self =>
+  case class ParserOps[A](p: Parser[A]) {
+    def |[B >: A](p2: Parser[B]): Parser[B] = self.or(p, p2)
+    def or[B >: A](p2:  => Parser[B]): Parser[B] = self.or(p, p2)
+    def map[B](f: A => B): Parser[B] = self.map(p)(f)
+  }
+
   def run[A](p: Parser[A])(input: String): Either[ParseError, A]
   def char(c: Char): Parser[Char] = string(c.toString) map (s => s.charAt(0))
   def or[A](s1: Parser[A], s2: Parser[A]): Parser[A]
@@ -24,11 +30,6 @@ trait Parsers[Parser[+_]] { self =>
   implicit def operators[A](p: Parser[A]) = ParserOps[A](p)
   implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = ParserOps(f(a))
 
-  case class ParserOps[A](p: Parser[A]) {
-    def |[B >: A](p2: Parser[B]): Parser[B] = self.or(p, p2)
-    def or[B >: A](p2:  => Parser[B]): Parser[B] = self.or(p, p2)
-    def map[B](f: A => B): Parser[B] = self.map(p)(f)
-  }
 
   object Laws {
     def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop = forAll(in, "Two Parsers of the same type should produce the same result when given the same argument.")(s => run(p1)(s) == run(p2)(s))

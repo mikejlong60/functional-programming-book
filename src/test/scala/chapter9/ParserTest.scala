@@ -17,8 +17,8 @@ class ParserTest extends PropSpec with PropertyChecks with Matchers {
       p
     }
     
-    def or[A](s1: MyParser[A],s2: MyParser[A]): MyParser[A] = ???
-    def run[A](p: MyParser[A])(input: String): Either[ParseError, A] = Left(ParseError(List(("what", "the heck"))))//"hello")//p//(input)
+    def or[A](s1: MyParser[A],s2: MyParser[A]): MyParser[A] = s1.map
+    def run[A](p: MyParser[A])(input: String): Either[ParseError, A] = Le0ft(ParseError(List(("what", "the heck"))))//"hello")//p//(input)
     def string(s: String): MyParser[String] = new MyParser(s)
   }
 

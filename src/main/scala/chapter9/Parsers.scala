@@ -2,7 +2,7 @@ package chapter9
 
 import java.util.regex._
 import scala.util.matching.Regex
-import chapter8._//.testing._
+import chapter8._
 import chapter8.Prop._
 import language.higherKinds
 import language.implicitConversions
@@ -11,12 +11,21 @@ trait Parsers[Parser[+_]] { self => // so inner classes may call methods of trai
   def run[A](p: Parser[A])(input: String): Either[ParseError,A]
 
   implicit def string(s: String): Parser[String]
-  implicit def operators[A](p: Parser[A]) = ParserOps[A](p)
-  implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]):
-    ParserOps[String] = ParserOps(f(a))
+  implicit def operators[A](p: Parser[A]) = {
+    println("in operators")
+    ParserOps[A](p)
+  }
 
-  def char(c: Char): Parser[Char] =
+  implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = {
+    println(s"making a parser from $a")
+    val r = f(a)
+    println(r)
+    ParserOps(f(a))
+  }
+  def char(c: Char): Parser[Char] = {
+    println("in char")
     string(c.toString) map (_.charAt(0))
+  }
 
   /*
    * A default `succeed` implementation in terms of `string` and `map`.

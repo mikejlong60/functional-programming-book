@@ -7,6 +7,11 @@ import chapter8.Prop._
 import language.higherKinds
 import language.implicitConversions
 
+//object Parsers {
+  //type Parser[+A] = String => Either[ParseError, A]
+//}
+
+
 trait Parsers[Parser[+_]] { self => // so inner classes may call methods of trait
   def run[A](p: Parser[A])(input: String): Either[ParseError,A]
 
@@ -247,8 +252,4 @@ case class ParseError(stack: List[(Location,String)] = List()) {
       toList.sortBy(_._1.offset)
 
   def formatLoc(l: Location): String = l.line + "." + l.col
-}
-
-object Parsers {
-
 }

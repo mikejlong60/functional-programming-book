@@ -16,22 +16,13 @@ trait Parsers[Parser[+_]] { self => // so inner classes may call methods of trai
   def run[A](p: Parser[A])(input: String): Either[ParseError,A]
 
   implicit def string(s: String): Parser[String]
-  implicit def operators[A](p: Parser[A]) = {
-    println("in operators")
-    ParserOps[A](p)
-  }
+  implicit def operators[A](p: Parser[A]) = ParserOps[A](p)
+  
 
-  implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = {
-    println(s"making a parser from $a")
-    val r = f(a)
-    println(r)
-    ParserOps(f(a))
-  }
-  def char(c: Char): Parser[Char] = {
-    println("in char")
-    string(c.toString) map (_.charAt(0))
-  }
-
+  implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = ParserOps(f(a))
+  
+  def char(c: Char): Parser[Char] = string(c.toString) map (_.charAt(0))
+  
   /*
    * A default `succeed` implementation in terms of `string` and `map`.
    * We leave `succeed` abstract, since `map` is defined below in terms of

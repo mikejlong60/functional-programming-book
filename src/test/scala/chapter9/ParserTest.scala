@@ -30,23 +30,23 @@ class ParserTest extends PropSpec with PropertyChecks with Matchers {
   val P = chapter9.instances.Reference
   import chapter9.instances.ReferenceTypes.Parser
   
-  property("Prove the equal law for your parser") {
-    forAll{(c: String, n: Int, done: Boolean, lots: List[String]) =>
+  property("Practice parsing some JSON") {//TODO Fix the bug in the JArray parser or in your function that generates the JSON.  It does not handle blank spaces, single quotes and maybe others.
+    forAll{(c: String, n: Double, done: Boolean, lots: List[String]) =>
+      val lotsA = lots.mkString("""["""","""","""",""""]""")
       val goodJson = s"""{
 "SomeString": "${c}", 
  "SomeNumber": $n,
-"Done" : $done
+"Done" : $done,
+"Lots" : $lotsA,
+"What" : null
 }
 """
+      val goodJson2 = s"""{"MikeObject" : $goodJson}"""
       val json: Parser[JSON] = JSON.jsonParser(P)
       val actual = P.run(json)(goodJson)
-
-      println(actual)
-      //val p1 = c.toString
-      //val prop = MyParsers.Laws.equal(c.toString, c.toString)(Gen.unit(c.toString))
-      //val rng = SimpleRNG(n)
-      //val result = prop.run(100, 120, rng)
-      //result should be (chapter8.Passed)
+      val actual2 = P.run(json)(goodJson2)
+      actual shouldBe a [Right[_, _]]
+      actual2 shouldBe a [Right[_,_]]
     }
   }
 

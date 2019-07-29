@@ -29,35 +29,56 @@ class ParserTest extends PropSpec with PropertyChecks with Matchers {
  // }
   val P = chapter9.instances.Reference
   import chapter9.instances.ReferenceTypes.Parser
+
   
-  property("Practice parsing some JSON") {//TODO Fix the bug in the JArray parser or in your function that generates the JSON.  It does not handle blank spaces, single quotes and maybe others.
-    forAll{(c: String, n: Double, done: Boolean, lots: List[String]) =>
-      val lotsA = lots.mkString("""["""","""","""",""""]""")
+  property("Practice parsing some JSON") {
+    forAll{(c: String, n: Double, done: Boolean, lots: List[Float]) =>
       val goodJson = s"""{
 "SomeString": "${c}", 
  "SomeNumber": $n,
 "Done" : $done,
-"Lots" : $lotsA,
+"Lots" : ${lots.mkString("[",",","]")},
 "What" : null
 }
 """
       val goodJson2 = s"""{"MikeObject" : $goodJson}"""
-      val json: Parser[JSON] = JSON.jsonParser(P)
-      val actual = P.run(json)(goodJson)
-      val actual2 = P.run(json)(goodJson2)
+      val p: Parser[JSON] = JSON.jsonParser(P)
+      val actual = P.run(p)(goodJson)
+      val actual2 = P.run(p)(goodJson2)
       actual shouldBe a [Right[_, _]]
       actual2 shouldBe a [Right[_,_]]
     }
   }
 
-  //property("Prove the map law for your parser. This is busted because I have not implemented MyParsers") {
-   //forAll{(c: Char, n: Int) =>
-    //  val prop = MyParsers.Laws.mapLaw(c.toString)(Gen.unit(c.toString))
-    //  val rng = SimpleRNG(n)
-     // val result = prop.run(100, 120, rng)
-     // result should be (chapter8.Passed)
-  // }
-  //}
+ // import chapter8._
+ // import chapter8.Prop._
+
+ // object Laws {
+ //   def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop =
+ //     forAll(in)(s => run(p1)(s) == run(p2)(s)/)
+
+//    def mapLaw[A](p: Parser[A])(in: Gen[String]): Prop =
+ //     equal(p, p.map(a => a))(in)
+ // }
+
+
+  property("Prove the map law for your parser.") {
+    forAll{(c: Int, n: Double, done: Boolean, lots: List[Float]) =>
+      val json = s"""{
+"SomeString": "${c}", 
+ "SomeNumber": $n,
+"Done" : $done,
+"Lots" : ${lots.mkString("[",",","]")},
+"What" : null
+}
+"""
+      val p1 = JSON.jsonParser(P)
+      val p2=  P.map(p1)(x => x)
+      val a1 = P.run(p1)(json)
+      val a2 = P.run(p2)(json)
+      a1 should be (a2)
+   }
+ }
 
   //property("Join parsers with `or` using ParserOps.  This is busted too because I have not implemented MyParsers") {
   //  forAll{(s1: String, s2: String, n: Int) =>

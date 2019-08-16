@@ -77,8 +77,27 @@ class ParserTest extends PropSpec with PropertyChecks with Matchers {
       val a1 = P.run(p1)(json)
       val a2 = P.run(p2)(json)
       a1 should be (a2)
-   }
- }
+    }
+  }
+
+  property("Verify or behavior") {
+    forAll{(c: Int, n: Double, done: Boolean, lots: List[Float]) =>
+      val json = s"""{
+"SomeString": "${c}", 
+ "SomeNumber": $n,
+"Done" : $done,
+"Lots" : ${lots.mkString("[",",","]")},
+"What" : null
+}
+"""
+      val p1 = P.map(JSON.jsonParser(P))(x => JSON.JNull)
+      val p2=  P.map(p1)(x => JSON.JString(n.toString))
+      val g = P.or(p1,p2)
+      val a1 = P.run(g)(json)
+      a1 should be ("fred")
+    }
+  }
+
 
   //property("Join parsers with `or` using ParserOps.  This is busted too because I have not implemented MyParsers") {
   //  forAll{(s1: String, s2: String, n: Int) =>

@@ -145,8 +145,7 @@ trait Parsers[Parser[+_]] { self => // so inner classes may call methods of trai
     def or[B>:A](p2: => Parser[B]): Parser[B] = self.or(p,p2)
 
     def map[B](f: A => B): Parser[B] = self.map(p)(f)
-    def many = self.many(p)
-
+    def many = self.many(p) 
     def slice: Parser[String] = self.slice(p)
 
     def **[B](p2: => Parser[B]): Parser[(A,B)] =

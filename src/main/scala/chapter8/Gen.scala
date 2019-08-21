@@ -1,7 +1,7 @@
 package chapter8
 
 import chapter6.{ RNG, SimpleRNG, State}
-import chapter7.Par //.Par
+import chapter7.Par 
 import chapter7.Par._
 
 case class Gen[+A](sample: State[RNG, A]) {

@@ -5,6 +5,8 @@ import java.util.regex._
 import scala.util.matching.Regex
 import chapter8._
 import chapter8.Prop._
+import chapter8.Gen
+import chapter8.SGen
 
 
 //This code is copied from Runar's Red Book chapter 9.  I am trying to understand it
@@ -133,10 +135,20 @@ trait Parsers[Parser[+_]] { self =>
   }
 
   object Laws {
-    def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop =
-      forAll(in)(s => run(p1)(s) == run(p2)(s))
+    def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop = forAll(in)(s => run(p1)(s) == run(p2)(s))
 
     def mapLaw[A](p: Parser[A])(in: Gen[String]): Prop = equal(p,p.map(a => a))(in)
+
+    def succeedLaw[A](p: Parser[A])(in: Gen[String]): Prop = forAll(in)(s => run(succeed(in))(s) == Right(in))
+
+    def labelLaw[A](p: Parser[A], input1: Gen[String], input2: Gen[String]): Prop = {
+      forAll(input1 ** input2) { case (input, msg) =>
+        run(label(msg)(p))(input) match {
+          case Left(e) =>  e.toString == msg //toError(e) == msg//TODO this is stupid. Your test always produces other than Left
+          case _ => true
+        }
+      }
+    }
   }
 }
 

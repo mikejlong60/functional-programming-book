@@ -23,10 +23,7 @@ object ReferenceTypes {
   sealed trait Result[+A] {
     def extract: Either[ParseError, A] = this match {
       case Failure(e, _) => Left(e)
-      case Success(a, _) => {
-        println("the dude:"+a)
-        Right(a)
-      }
+      case Success(a, _) => Right(a)
     }
 
     //Used by `attempt`
@@ -101,7 +98,6 @@ object Reference extends Parsers[Parser]  {
         Failure(s.loc.advanceBy(i).toError(msg), i != 0)
     }
   }
-
 
   def regex(r: Regex): Parser[String] = {
     val msg = "regex " + r

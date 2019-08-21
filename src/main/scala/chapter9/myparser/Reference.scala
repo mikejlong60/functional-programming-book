@@ -23,7 +23,10 @@ object ReferenceTypes {
   sealed trait Result[+A] {
     def extract: Either[ParseError, A] = this match {
       case Failure(e, _) => Left(e)
-      case Success(a, _) => Right(a)
+      case Success(a, _) => {
+        println("the dude:"+a)
+        Right(a)
+      }
     }
 
     //Used by `attempt`
@@ -122,7 +125,7 @@ object Reference extends Parsers[Parser]  {
   }
 
   //Here is an overridden version of many that accumulates the list of results
-  //usiing a loop, thgus avoiding stack overflow errors.
+  //usiing a loop, thus avoiding stack overflow errors.
   override def many[A](p: Parser[A]): Parser[List[A]] = s => {
     var nConsumed: Int = 0
     val buf = new collection.mutable.ListBuffer[A]

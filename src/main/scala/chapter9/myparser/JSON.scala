@@ -51,6 +51,15 @@ object MYJSONExample extends App {
 }
 """
 
+  val jsonArray = """
+[
+  [ "HPQ", "IBM",
+  "YHOO", "DELL",
+  "GOOG"
+  ]
+]
+"""
+
   val malformedJson1 = """{"Company name" ; "Microsoft Corporation"}"""
 
   val malformedJson2 = """
@@ -68,6 +77,11 @@ object MYJSONExample extends App {
   def printResult[E](e: Either[E,JSON]) = e.fold(println, println)
 
   val json: Parser[JSON] = JSON.jsonParser(P)
+  val g: Either[ParseError, JSON] = P.run(json)(jsonArray)
+  println(g.right.map(j => j match {
+    case JSON.JObject(m) => println("an object:"+m)
+    case JSON.JArray(a) => println("an array:"+a)
+  }))
   printResult{P.run(json)(jsonTxt)}
   println("=====================")
   printResult{P.run(json)(malformedJson1)}

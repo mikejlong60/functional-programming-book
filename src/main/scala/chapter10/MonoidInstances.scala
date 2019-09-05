@@ -30,4 +30,14 @@ object MonoidInstances {
     def op(a1: Boolean, a2: Boolean): Boolean = if (!a1) a1 else if (!a2) a2 else true
     def zero: Boolean = true
   }
+
+  def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
+    def op(f1: A => A, f2: A => A): A=> A = (a: A) => f1(f2(a))  //This is same as f2 andThen f1 or f1 compose f2
+    def zero: A => A = (x: A) => x
+  }
+
+  def optionMonoid[A]: Monoid[Option[A]] = new Monoid[Option[A]] {
+    def op(a1: Option[A], a2: Option[A]): Option[A] = a1 orElse a2
+    def zero: Option[A] = None
+  }
 }

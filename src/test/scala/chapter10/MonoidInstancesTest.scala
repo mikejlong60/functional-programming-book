@@ -62,4 +62,32 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Endofunctor Monoid op") {
+    forAll{(x: Int) =>
+      val actual = endoMonoid[Int].op(x => x + x, x => x + x)
+        actual(x) should be (x * 4)
+    }
+  }
+
+  property("Endofunctor Monoid zero") {
+    forAll{ x: Boolean =>
+      val actual = endoMonoid[Boolean].zero
+      actual(x) should be (x)
+    }
+  }
+
+  property("Option Monoid op") {
+    forAll{(x: Option[Boolean], y: Option[Boolean]) =>
+      val actual = optionMonoid[Boolean].op(x, y)
+      actual should be (x orElse y)
+    }
+  }
+
+  property("Option Monoid zero") {
+    forAll{ x: Option[Boolean] =>
+      val actual = optionMonoid[Boolean].zero
+      actual should be (None)
+    }
+  }
+
 }

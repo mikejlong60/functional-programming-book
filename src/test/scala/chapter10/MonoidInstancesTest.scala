@@ -6,87 +6,85 @@ import MonoidInstances._
 
 class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
-  property("String Monoid op") {
-    forAll{(x: String, y: String) =>
-      val actual = stringMonoid.op(x, y)
-      actual should be (x + y)
+  def zeroLawTest[A](m: Monoid[A])(x: A): org.scalatest.Assertion = m.zeroLaw(x) should be (true)
+  def associativeLawTest[A](m: Monoid[A])(x: A, y: A, z: A): org.scalatest.Assertion = m.associativeLaw(x, y, z) should be (true)
+
+  property("String Monoid associative law") {
+    forAll{(x: String, y: String, z: String) =>
+      associativeLawTest(stringMonoid)(x, y, z)
     }
   }
 
-  property("String Monoid zero") {
+  property("String Monoid zero law") {
     forAll{ x: String =>
-      val actual = stringMonoid.op(stringMonoid.zero, x)
-      actual should be (x)
+      zeroLawTest(stringMonoid)(x)
     }
   }
 
-  property("Int Addition Monoid op") {
-    forAll{(x: Int, y: Int) =>
-      val actual = intAddition.op(x, y)
-      actual should be (x + y)
+  property("Int Addition Monoid associative law") {
+    forAll{(x: Int, y: Int, z: Int) =>
+      associativeLawTest(intAddition)(x, y, z)
     }
   }
 
-  property("Int Addition Monoid zero") {
+  property("Int Addition Monoid zero law") {
     forAll{ x: Int =>
-      val actual = intAddition.op(intAddition.zero, x)
-      actual should be (x)
+      zeroLawTest(intAddition)(x)
     }
   }
 
-  property("Boolean and Monoid op") {
-    forAll{(x: Boolean, y: Boolean) =>
-      val actual = booleanAnd.op(x, y)
-      actual should be (x && y)
+  property("Boolean and Monoid associative law") {
+    forAll{(x: Boolean, y: Boolean, z: Boolean) =>
+      associativeLawTest(booleanAnd)(x, y, z)
     }
   }
 
-  property("Boolean and Monoid zero") {
+  property("Boolean and Monoid zero law") {
     forAll{ x: Boolean =>
-      val actual = booleanAnd.op(booleanAnd.zero, x)
-      actual should be (x)
+      zeroLawTest(booleanAnd)(x)
     }
   }
 
-  property("Boolean or Monoid op") {
-    forAll{(x: Boolean, y: Boolean) =>
-      val actual = booleanOr.op(x, y)
-      actual should be (x || y)
+  property("Boolean or Monoid associative law") {
+    forAll{(x: Boolean, y: Boolean, z: Boolean) =>
+      associativeLawTest(booleanOr)(x, y, z)
     }
   }
 
-  property("Boolean or Monoid zero") {
+  property("Boolean or Monoid zero law") {
     forAll{ x: Boolean =>
-      val actual = booleanOr.op(booleanOr.zero, x)
-      actual should be (x)
+      zeroLawTest(booleanOr)(x)
     }
   }
 
-  property("Endofunctor Monoid op") {
+  property("Endofunctor Monoid associative law") {
     forAll{(x: Int) =>
-      val actual = endoMonoid[Int].op(x => x + x, x => x + x)
-        actual(x) should be (x * 4)
+      val f1 = (x: Int) => x + x
+      val f2 = (x: Int) => x + 12
+      val f3 = (x: Int) => x + 50
+      val op1 = endoMonoid.op(endoMonoid.op(f1, f2) , f3)
+      val op2 = endoMonoid.op(f1, endoMonoid.op(f2, f3))
+      op1(x) should be (op2(x))
     }
   }
 
-  property("Endofunctor Monoid zero") {
+  property("Endofunctor Monoid zero law") {
     forAll{ x: Boolean =>
-      val actual = endoMonoid[Boolean].zero
-      actual(x) should be (x)
+      val f1 = (x: Boolean) => x != true
+      val z = endoMonoid.op(f1, endoMonoid.zero)
+      z(x) should be (!x)
     }
   }
 
-  property("Option Monoid op") {
-    forAll{(x: Option[Boolean], y: Option[Boolean]) =>
-      val actual = optionMonoid[Boolean].op(x, y)
-      actual should be (x orElse y)
+  property("Option Monoid associative law") {
+    forAll{(x: Option[Boolean], y: Option[Boolean], z: Option[Boolean]) =>
+      associativeLawTest[Option[Boolean]](optionMonoid)(x, y, z)
     }
   }
 
-  property("Option Monoid zero") {
+  property("Option Monoid zero law") {
     forAll{ x: Option[Boolean] =>
-      val actual = optionMonoid[Boolean].zero
-      actual should be (None)
+      zeroLawTest[Option[Boolean]](optionMonoid)(x)
     }
   }
 

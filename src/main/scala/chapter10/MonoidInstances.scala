@@ -27,7 +27,7 @@ object MonoidInstances {
   }
 
   val booleanAnd: Monoid[Boolean] = new Monoid[Boolean]  {
-    def op(a1: Boolean, a2: Boolean): Boolean = if (!a1) a1 else if (!a2) a2 else true
+    def op(a1: Boolean, a2: Boolean): Boolean = if (a1) a2 else false
     def zero: Boolean = true
   }
 

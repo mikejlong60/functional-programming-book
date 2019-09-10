@@ -4,6 +4,7 @@ import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.PropertyChecks
 import MonoidInstances._
 
+
 class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
   def zeroLawTest[A](m: Monoid[A])(x: A): org.scalatest.Assertion = m.zeroLaw(x) should be (true)
@@ -88,4 +89,37 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("contatenate test") {
+    forAll{ l: List[String] =>
+      val actual = Monoid.concatenate(l)(stringMonoid)
+      val expected = l.foldLeft("")(_ + _)
+      actual should be (expected)
+    }
+  }
+
+  val blubber = (x: Int) =>  s"We got ${(x  * .65)} pounds of whale oil from this whale which weighed in at $x pounds. \n"
+
+  property("Make foldMap for type that does not have a monoid instance") {
+    forAll{whales: List[Int] =>
+      val expected = whales.foldLeft("")((b, a) => b +   blubber(a))
+      val actual = Monoid.lFoldMap(whales)(stringMonoid)(blubber)
+      actual should be (expected)
+   }
+  }
+
+  property("Write foldLeft using foldMap") {
+    forAll{whales: List[Int] =>
+      val expected = whales.foldLeft("")((b, a) => b +   blubber(a))
+      val actual = Monoid.foldLeft(whales)(stringMonoid)(blubber)
+      actual should be (expected) 
+    }
+  }
+
+    property("Write foldRight using rFoldMap") {
+    forAll{whales: List[Int] =>
+      val expected = whales.foldRight("")((a, b) => b +   blubber(a))
+      val actual = Monoid.foldRight(whales)(stringMonoid)(blubber)
+      actual should be (expected) 
+    }
+  }
 }

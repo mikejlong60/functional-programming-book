@@ -10,16 +10,20 @@ trait Monad[F[_]] extends Functor[F] {
 }
 
 
-object Monad {
+object Option {
   trait Option[+A]
-  case object None extends Option[Nothing]
-  case class Some[+A](get: A) extends Option[A]
+  case object None extends Option[Nothing] {
+    println("this is my none")
+  }
+  case class Some[+A](get: A) extends Option[A] {
+    println("this is my some")
+  }
 
-  val optionMonad = new Monad[Option] {
-    def point[A](a: => A): Option[A] = None
-    def flatMap[A, B](ma: Option[A])(f: A => Option[B]): Option[B] = map(ma)(f) match {
-      case mb @ Some(b) => b//mb
-      case _ => None
+  val option = new Monad[Option] {
+    def point[A](a: => A): Option[A] = Some(a)
+    def flatMap[A, B](ma: Option[A])(f: A => Option[B]): Option[B] = ma match {
+      case Some(a) => f(a)
+      case None => None
     }
   }
 }

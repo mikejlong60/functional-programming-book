@@ -9,7 +9,6 @@ class OptionTest extends PropSpec with PropertyChecks with Matchers {
   import Option._
   val mon = option
 
-
   property("Test Option map function for Ints") {
     forAll { x: Int =>
       val actual = mon.map(Some(x))(x => x + 1)

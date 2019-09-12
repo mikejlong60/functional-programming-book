@@ -65,8 +65,13 @@ object Option {
     case Nil => None
   }
 
-  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] =
+    //sequence(a.map(a => f(a)))
+
+  a match {
     case Cons(h, t) =>  map2(f(h), traverse(t)(f))((a, b) => Cons(a, b))
     case _ => Some(Nil)
   }
+
+  
 }

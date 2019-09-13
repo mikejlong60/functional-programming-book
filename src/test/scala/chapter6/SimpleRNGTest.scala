@@ -7,8 +7,6 @@ import RNG._
 
 class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
 
-  implicit override val generatorDrivenConfig = PropertyCheckConfig(minSize = 10, maxSize = 20, maxDiscarded=2000)
-
   property("Generating two random numbers using the same generator produces the same number ") {
     forAll { x: Int =>
       val rng = SimpleRNG(x)

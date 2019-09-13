@@ -1,6 +1,6 @@
 package chapter11
 
-import scala.{Option => _, None => _, Either => _, _}
+import scala.{Option => _, None => _,  Right => _, Left => _, Either => _, _}
 
 trait Functor[F[_]] {
   def map[A, B](fa: F[A])(f: A => B): F[B]
@@ -28,17 +28,22 @@ trait Monad[F[_]] extends Functor[F] {
   }
 }
 
-
-object Option {
-  trait Option[+A]
-  case object None extends Option[Nothing]
-  case class Some[+A](get: A) extends Option[A]
-  
-  val option = new Monad[Option] {
-    def unit[A](a: => A): Option[A] = Some(a)
-    def flatMap[A, B](ma: Option[A])(f: A => Option[B]): Option[B] = ma match {
-      case Some(a) =>  f(a)
-      case None => None
-    }
+object Monad {
+   val optionMonad = new Monad[chapter4.Option] {
+    def unit[A](a: => A) = chapter4.Some(a)
+    def flatMap[A,B](ma: chapter4.Option[A])(f: A => chapter4.Option[B]) = ma flatMap f
   }
+
+  def eitherMonad[S] = new  Monad[({type f[x] = chapter4.Either[S, x]}) #f]  {
+    def flatMap[A,B](ma: chapter4.Either[S,A])(f: A => chapter4.Either[S,B]): chapter4.Either[S,B] = ma flatMap f
+     
+    def unit[A](a: => A): chapter4.Either[S,A] = chapter4.Right(a)
+  }
+
+  def stateMonad[S] = new  Monad[({type s[x] = State[S, x]}) #s]  {
+    def flatMap[A,B](sa: State[S,A])(f: A => State[S,B]): State[S,B] = sa flatMap f
+      
+    def unit[A](a: => A): State[S,A] = State(s => (a, s))
+  }
+
 }

@@ -15,7 +15,7 @@ sealed trait Option[+A] { // +A means that A is covariant or positive.  If I lef
   }
 
   def flatMap[B](f: A => Option[B]): Option[B] = map(f) getOrElse (None)
-
+  
   def getOrElse[B >: A](default: => B): B = this match {
     case Some(a) => a
     case _ => default

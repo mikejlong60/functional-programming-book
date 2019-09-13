@@ -6,8 +6,13 @@ import scala.{Option => _, None => _, Some => _,  Either => _, _}
 
 class OptionTest extends PropSpec with PropertyChecks with Matchers {
 
-  import Option._
-  val mon = option
+  import Monad._
+  val mon = optionMonad
+
+  import chapter4.Option
+  import chapter4.None
+  import chapter4.Some
+
 
   property("Test Option map function for Ints") {
     forAll { x: Int =>
@@ -19,8 +24,8 @@ class OptionTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Test Map Law for Option Monad") {
     val o = Some(1)
-    option.mapLaw(o) should be (true)
-    option.mapLaw(None) should be (true)
+    mon.mapLaw(o) should be (true)
+    mon.mapLaw(None) should be (true)
   }
 
   property("Test Associative Law for Option Monad") {
@@ -113,7 +118,6 @@ val f: String => Option[Int] = (x: String) =>
     forAll { l: List[Int] =>
       val ll = l.map((Some(_)))
       val actual = mon.sequence(ll)
-      println(actual)
       actual should be (Some(l))
     }
   }

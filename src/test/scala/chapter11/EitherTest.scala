@@ -30,7 +30,6 @@ class EitherTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Test Either map function for left error") {
     val actual = mon.map(Left(List("one")))((x:Int)  => x + 1000)
-    println(actual)
     val expected = Left(List("one"))
     actual should be (expected)
   }
@@ -126,7 +125,6 @@ val f: String => Either[List[String], Int] = (x: String) =>
     forAll { l: List[Int] =>
       val ll = l.map((Right(_)))
       val actual = mon.sequence(ll)
-      println(actual)
       actual should be (Right(l))
     }
   }

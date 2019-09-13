@@ -20,7 +20,6 @@ class VarianceTest extends PropSpec with PropertyChecks with Matchers {
   property("Test variance function") {
     forAll { xs: Seq[Double] =>
       val actual = variance(xs)
-      //println(actual)
       if (xs.isEmpty) actual should be (None)
       else actual should be {
         val m = xs.sum / xs.length

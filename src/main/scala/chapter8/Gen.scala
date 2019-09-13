@@ -41,7 +41,6 @@ object Gen {
     @annotation.tailrec
     def intInRange(rng: RNG): (Int, RNG) = {
       val r = rng.nextInt
-      println("dude:"+r._1 + " start:"+start  + " stopExclusive:"+ stopExclusive)
       if (r._1 >=  start && r._1 < stopExclusive) r
       else intInRange(r._2)
     }
@@ -81,7 +80,6 @@ object Gen {
   def parListOfN[A](n: Gen[Int], g: Gen[A]) = listOfN2(n, g) map (Par.unit(_))
 
   def takeWhileDropWhileF(n: Gen[Int]): Gen[(Int) => Boolean] = n map (i =>  ((x: Int) => {
-    println(s"x: $x, i: $i")
     x  >= i
   } ))
 

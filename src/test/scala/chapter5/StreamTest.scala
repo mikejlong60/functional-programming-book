@@ -177,11 +177,9 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Test a pipeline of functions fed by an unfold") {
      val asssctual = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs).map(d => {
-   //   println(d)
-     s"$d:dude" 
+        s"$d:dude" 
     }).map(d => {
       val f = s"$d:mama"
-//      //println(f)
       f
     })//.take(300).toList
     //actual should be (empty)
@@ -195,35 +193,9 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
               f
             })
         val drain = actual.take(3000).toList
-        //println(drain)
-          
-       // println(actual)
-       /// first100 = 0
-        //println(actual.take(300).toList)
-//        val r = actual.head//take(30)//.toList
-//       println(r)
         drain should have size(3000)
       })
-   //actual should have size (1100)
   }
-
-//    property("Test another pipeline of functions fed by an unfold") {
-//      val a1 = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs)
-//      val a2 = mapWunfold(a1)(d => {
-//        println(d)
-//      s"$d:dude" 
-//    })
-//     val a3 =  mapWunfold(a2)(d => {
-//      val f = s"$d:mama"
-//      f
-//     })//.take(30000).toList
-//       (1 to 100000).map(n => {
-//         val x = a3.take(1)
-//         //println(x)
-//         x
-//       })
-    //a3 should have size (100)
- // }
 
   property("Test unfold with computation that will stop when you take it too far") {
     val actual = Stream.unfold(100)(nextPositiveIntLT100).take(12).toList

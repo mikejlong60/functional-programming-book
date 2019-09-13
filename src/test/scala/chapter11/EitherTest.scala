@@ -13,7 +13,7 @@ class EitherTest extends PropSpec with PropertyChecks with Matchers {
   import chapter4.Right
 
   import Monad._
-  val mon = eitherMonad
+  val mon = eitherMonad[List[String]]
 
   property("Test Either map function for Ints") {
     forAll { x: Int =>
@@ -23,33 +23,30 @@ class EitherTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Test Map Law for Option Monad") {
-    val o = Right(1)
-    mon.mapLaw(o) should be (true)
-    //mon.mapLaw(Left(1)) should be (true)
+  property("Test Map Law for Either Monad") {
+    mon.mapLaw(Right(1)) should be (true)
+    mon.mapLaw(Left(List("heck"))) should be (true)
   }
 
   property("Test Either map function for left error") {
-    forAll { x: String =>
-     // val actual = mon.map(Left(x))(x => x + "hi")
-      //val expected = chapter4.Left(x + 1)
-      //actual should be (expected)
-    }
+    val actual = mon.map(Left(List("one")))((x:Int)  => x + 1000)
+    println(actual)
+    val expected = Left(List("one"))
+    actual should be (expected)
   }
 
-  ////////////
-  //////////
-    property("Test Associative Law for Option Monad") {
+
+  property("Test Associative Law for Either Monad") {
     forAll {x: Int  =>
       val f =  (x: Int) => Right(x.toString)
       val g = (y: String) => Right(s"the number was: $y")
 
       mon.associativeLaw(Right(x))(f)(g) should be (true)
-      //mon.associativeLaw(Left(""))(f)(g) should be (true)
+      mon.associativeLaw(Left(List("heck")))(f)(g) should be (true)
     }
   }
 
-  property("Test Kleisli Associative Law for Option Monad") {
+  property("Test Kleisli Associative Law for Either Monad") {
     forAll {x: Int  =>
       val f =  (x: Int) => Right(x.doubleValue)
       val g = (y: Double) => Right(y.toString)
@@ -74,7 +71,7 @@ class EitherTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Test Option flatmap function for Ints") {
+  property("Test Either flatmap function for Ints") {
     forAll { x: Int =>
       val actual = mon.flatMap(Right(x))(x => Right(x + 1))
       val expected = Right(x + 1)
@@ -82,48 +79,47 @@ class EitherTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Test Option flatmap function for None") {
+  property("Test Either flatmap function for Left") {
     forAll { x: Int =>
-      //val actual = mon.flatMap(Left)(x => None)
-      //val expected = None
-      //actual should be (expected)
+      val actual = mon.flatMap(Left(List("heck")))(x => x)
+      val expected = Left(List("heck"))
+      actual should be (expected)
     }
   }
 
-  property("Test Option map function for None") {
-    //val actual = mon.map(Left)(x => 1)
-    //val expected = Left
-    //actual should be (expected)
+  property("Test Either map function for Left") {
+    val actual = mon.map(Left(List("dude")))(x => 1)
+    val expected = Left
+    actual should be (Left(List("dude")))
   }
 
 
-val f: String => Either[String, Int] = (x: String) => 
-//val f  = (x: String) => 
+val f: String => Either[List[String], Int] = (x: String) => 
   try {
     Right(x.toInt)
   } catch {
-    case e: Exception => Left(e.getMessage)
+    case e: Exception => Left(List(s"$e"))
   }
   
   property("Test traverse over unparseable number") {
     val xs = List("12","13a")
-    //val expected = Left("dd")
-   // val actual = mon.traverse(xs)(f)
-    //actual should be (expected)
+    val expected = Left(List("java.lang.NumberFormatException: For input string: \"13a\""))
+    val actual = mon.traverse(xs)(f)
+    actual should be (expected)
   }
 
   property("Test traverse over empty list") {
     val xs = Nil
     val expected = Right(Nil)
-    //val actual = mon.traverse(xs)(f)
-    //actual should be (expected)
+    val actual = mon.traverse(xs)(f)
+    actual should be (expected)
   }
 
   property("Test traverse over list of one element") {
     val xs = List("12")
     val expected = Right(List(12))
-    //val actual = mon.traverse(xs)(f)
-    //actual should be (expected)
+    val actual = mon.traverse(xs)(f)
+    actual should be (expected)
   }
 
   property("Test sequence for non-empty list") {

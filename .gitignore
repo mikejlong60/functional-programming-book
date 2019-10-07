@@ -28,3 +28,9 @@ gen
 # Ensime files
 .ensime_cache
 .ensime
+
+# Other hidden files
+.*
+
+# Emacs scratch files
+\#*.*\#

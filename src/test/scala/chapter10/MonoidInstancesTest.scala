@@ -90,7 +90,7 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("contatenate test") {
-    forAll{ l: List[String] =>
+    forAll{ l: IndexedSeq[String] =>
       val actual = Monoid.concatenate(l)(stringMonoid)
       val expected = l.foldLeft("")(_ + _)
       actual should be (expected)
@@ -100,7 +100,7 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   val blubber = (x: Int) =>  s"We got ${(x  * .65)} pounds of whale oil from this whale which weighed in at $x pounds. \n"
 
   property("Make foldMap for type that does not have a monoid instance") {
-    forAll{whales: List[Int] =>
+    forAll{whales: IndexedSeq[Int] =>
       val expected = whales.foldLeft("")((b, a) => b +   blubber(a))
       val actual = Monoid.lFoldMap(whales)(stringMonoid)(blubber)
       actual should be (expected)
@@ -108,7 +108,7 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("Write foldLeft using foldMap") {
-    forAll{whales: List[Int] =>
+    forAll{whales: IndexedSeq[Int] =>
       val expected = whales.foldLeft("")((b, a) => b +   blubber(a))
       val actual = Monoid.foldLeft(whales)(stringMonoid)(blubber)
       actual should be (expected) 
@@ -116,10 +116,20 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
 
     property("Write foldRight using rFoldMap") {
-    forAll{whales: List[Int] =>
+    forAll{whales: IndexedSeq[Int] =>
       val expected = whales.foldRight("")((a, b) => b +   blubber(a))
       val actual = Monoid.foldRight(whales)(stringMonoid)(blubber)
       actual should be (expected) 
+    }
+    }
+
+  property("Write splitting foldMap") {
+    forAll{ xs: IndexedSeq[Int] =>
+
+      val expected = xs.foldLeft(0)((b, a) => (a * 10) + b)
+
+      val actual = Monoid.foldMapV(xs, intAddition)(a => a * 10)
+      actual should be (expected)
     }
   }
 }

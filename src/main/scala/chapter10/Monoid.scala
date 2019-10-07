@@ -18,14 +18,27 @@ object Monoid {
     val zero = m.zero
   }
 
-  def concatenate[A](as: List[A])(m: Monoid[A]): A = as.foldLeft(m.zero)(m.op)
+  def concatenate[A](as: IndexedSeq[A])(m: Monoid[A]): A = as.foldLeft(m.zero)(m.op)
 
-  def lFoldMap[A, B](as: List[A])(m: Monoid[B])(f: A => B): B = as.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
+  def lFoldMap[A, B](as: IndexedSeq[A])(m: Monoid[B])(f: A => B): B = as.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
 
-  def  foldLeft[A, B](as: List[A])(m: Monoid[B])(f: A => B): B = Monoid.lFoldMap(as)(m)(f)
+  def  foldLeft[A, B](as: IndexedSeq[A])(m: Monoid[B])(f: A => B): B = Monoid.lFoldMap(as)(m)(f)
 
-  def rFoldMap[A, B](as: List[A])(m: Monoid[B])(f: A => B): B = as.foldRight(m.zero)((a, b) => m.op(b, f(a)))
+  def rFoldMap[A, B](as: IndexedSeq[A])(m: Monoid[B])(f: A => B): B = as.foldRight(m.zero)((a, b) => m.op(b, f(a)))
 
-  def  foldRight[A, B](as: List[A])(m: Monoid[B])(f: A => B): B = Monoid.rFoldMap(as)(m)(f)
+  def  foldRight[A, B](as: IndexedSeq[A])(m: Monoid[B])(f: A => B): B = Monoid.rFoldMap(as)(m)(f)
+
+  def foldMapV[A, B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B = {
+    if (v.size == 0) m.zero
+    else if (v.size == 1) f(v(0))
+    else {
+      val (half1, half2) = v.splitAt(v.size / 2)
+      val fs = foldMapV(half1, m)(f)
+      val sn = foldMapV(half2, m)(f)
+      m.op(fs, sn)
+    }
+  }
 
 }
+
+

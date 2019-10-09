@@ -23,6 +23,23 @@ class EitherTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Test Either map2 function for Ints") {
+    forAll { (x: Int, y: Int) =>
+      val actual = mon.map2(Right(x), Right(y))((x, y) => x + y)
+      val expected = Right(x + y)
+      actual should be (expected)
+    }
+  }
+
+    property("Test Either map3 function for Ints") {
+    forAll { (x: Int, y: Int, z: Int) =>
+      val actual = mon.map3(Right(x), Right(y), Right(z))((x, y, z) => x + y + z)
+      val expected = Right(x + y + z)
+      actual should be (expected)
+    }
+  }
+
+
   property("Test Map Law for Either Monad") {
     mon.mapLaw(Right(1)) should be (true)
     mon.mapLaw(Left(List("heck"))) should be (true)

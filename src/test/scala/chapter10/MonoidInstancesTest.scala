@@ -132,4 +132,16 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (expected)
     }
   }
+
+  property("Make a parallel version of foldMap") {
+    import chapter7.nonblocking.Nonblocking.Par
+    val es = java.util.concurrent.Executors.newFixedThreadPool(5)
+
+    forAll {xs: IndexedSeq[Int] =>
+      val expected = chapter7.nonblocking.Try(xs.sum)
+      val actual = Par.run(es)(Monoid.parFoldMap(xs, intAddition)(a => a))
+      println(s"$actual :: $expected")
+      actual should be (expected)
+    }
+  }
 }

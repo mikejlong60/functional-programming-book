@@ -135,13 +135,40 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Make a parallel version of foldMap") {
     import chapter7.nonblocking.Nonblocking.Par
-    val es = java.util.concurrent.Executors.newFixedThreadPool(5)
+    val es = java.util.concurrent.Executors.newFixedThreadPool(8)
 
     forAll {xs: IndexedSeq[Int] =>
-      val expected = chapter7.nonblocking.Try(xs.sum)
-      val actual = Par.run(es)(Monoid.parFoldMap(xs, intAddition)(a => a))
-      println(s"$actual :: $expected")
+      val expected = chapter7.nonblocking.Try(xs.sum * 100)
+      val startTs = System.currentTimeMillis
+      val actual = Par.run(es)(Monoid.parFoldMap(xs, intAddition)(a => a * 100))
       actual should be (expected)
     }
   }
+
+  property("Show that the parellel version of foldMap produces much better throughput given the limitation on list size. See the comment on sequenceBalanced in chapter7.nonblocking.NonBlocking") {
+    import chapter7.nonblocking.Nonblocking.Par
+    val es = java.util.concurrent.Executors.newFixedThreadPool(8)
+
+    val xs =(1 to 100)
+    val start1 = System.currentTimeMillis
+    val actual = Par.run(es)(Monoid.parFoldMap(xs, intAddition)(a => {
+      Thread.sleep(1)
+      a * 100
+    }))
+    val actual1 = System.currentTimeMillis() - start1
+    println(s"Parallel foldMap took $actual1")
+
+    val expectedSlow = xs.foldLeft(0)((b, a) => (a * 10) + b)
+    val start2 = System.currentTimeMillis()
+
+    val actualSlow = Monoid.foldMapV(xs, intAddition)(a => {
+      Thread.sleep(1)
+      a * 100
+    })
+    val actual2 = System.currentTimeMillis() - start2
+    println(s"syncronous foldMap took $actual2")
+    actual1 should be <  (actual2)
+  }
+
+
 }

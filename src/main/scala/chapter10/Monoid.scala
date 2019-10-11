@@ -47,6 +47,7 @@ object Monoid {
   }
 
   def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] = Monoid.foldRight(v)(par(m))(Par.asyncF(f))
+
 }
 
 

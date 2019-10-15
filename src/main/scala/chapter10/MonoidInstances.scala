@@ -16,6 +16,14 @@ object MonoidInstances {
     def zero: Int = 0
   }
 
+  val intOrdered: Monoid[(Boolean, Int)]  = new Monoid[(Boolean, Int)] {
+    def op(a1: (Boolean, Int), a2: (Boolean, Int)): (Boolean, Int) =
+      if (a1._1 && a1._2 <= a2._2) (true, a2._2)
+      else a1
+
+    def zero: (Boolean, Int) = (true, Int.MinValue)
+  }
+
   val intMultiplication: Monoid[Int] = new Monoid[Int] {
     def op(a1: Int, a2: Int): Int = a1 * a2
     def zero: Int = 1

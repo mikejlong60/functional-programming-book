@@ -145,6 +145,30 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Int Ordered Monoid associative law") {
+    forAll{ (x1: Int, x2: Int, x3: Int) =>
+      val xs1 = (true, x1)
+      val xs2 = (true, x2)
+      val xs3 = (true, x3)
+        associativeLawTest(intOrdered)(xs1, xs2, xs3)
+    }
+  }
+
+  property("Int Ordered Monoid zero law") {
+    forAll{ (x: Int, o: Boolean) =>
+      zeroLawTest(intOrdered)((o,x))
+    }
+  }
+
+  property("Write a foldMap to detect if a given sequence is ordered") {
+    forAll {xs: IndexedSeq[Int] => //TODO
+
+  }
+
+  }
+
+
+
   property("Show that the parellel version of foldMap produces much better throughput given the limitation on list size. See the comment on sequenceBalanced in chapter7.nonblocking.NonBlocking") {
     import chapter7.nonblocking.Nonblocking.Par
     val es = java.util.concurrent.Executors.newFixedThreadPool(8)

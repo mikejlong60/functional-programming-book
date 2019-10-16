@@ -7,7 +7,6 @@ trait Monoid[A] {
   def associativeLaw(x: A, y: A, z: A): Boolean = op(op(x, y), z) == op(x, op(y, z))
   def zeroLaw(x: A): Boolean = op(x, zero) == x
 
-
 }
 
 object Monoid {

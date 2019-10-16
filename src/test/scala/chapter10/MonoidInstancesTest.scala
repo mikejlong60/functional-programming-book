@@ -146,12 +146,9 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("Int Ordered Monoid associative law") {
-    forAll{ (x1: Int, x2: Int, x3: Int) =>
-      val xs1 = (true, x1)
-      val xs2 = (true, x2)
-      val xs3 = (true, x3)
-        associativeLawTest(intOrdered)(xs1, xs2, xs3)
-    }
+   forAll{ (xs1: (Boolean, Int), xs2: (Boolean, Int), xs3: (Boolean, Int)) =>
+     associativeLawTest(intOrdered)(xs1, xs2, xs3)
+   }
   }
 
   property("Int Ordered Monoid zero law") {
@@ -161,10 +158,17 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("Write a foldMap to detect if a given sequence is ordered") {
-    forAll {xs: IndexedSeq[Int] => //TODO
+    forAll {xs: IndexedSeq[Int] =>
+      val xs = IndexedSeq(1,2,3,-12)
+      val sorted = xs.sorted
+      val alreadySorted = sorted == xs
 
-  }
+      val myIsSorted = Monoid.lFoldMap(xs)(intOrdered)(a => (true, a))
+      myIsSorted._1 should be (alreadySorted)
 
+      val myAlreadySorted = Monoid.lFoldMap(sorted)(intOrdered)(a => (true, a))
+      myAlreadySorted._1 should be (true)
+    }
   }
 
 

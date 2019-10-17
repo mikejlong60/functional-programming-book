@@ -16,15 +16,28 @@ object MonoidInstances {
     def zero: Int = 0
   }
 
-  val intOrdered: Monoid[(Boolean, Int)]  = new Monoid[(Boolean, Int)] {
+  val mySlightlyWrongintOrdered: Monoid[(Boolean, Int)]  = new Monoid[(Boolean, Int)] {
     def op(a1: (Boolean, Int), a2: (Boolean, Int)): (Boolean, Int) = {
       println(s"$a2 : $a1")//a2 is fresh parm, a1 is accum
     if (a1._1 && (a2._2 >= a1._2)) a2
-    else if (a2 == zero) a1
+    else if (a2 == zero) a2
     else (false, a1._2)
     }
     def zero: (Boolean, Int) = (true, Int.MinValue)
   }
+
+
+    val intOrdered = new Monoid[Option[(Int, Int, Boolean)]] {
+      def op(o1: Option[(Int, Int, Boolean)], o2: Option[(Int, Int, Boolean)]) =
+        (o1, o2) match {
+          // The ranges should not overlap if the sequence is ordered.
+          case (Some((x1, y1, p)), Some((x2, y2, q))) =>
+            Some((x1 min x2, y1 max y2, p && q && y1 <= x2))
+          case (x, None) => x
+          case (None, x) => x
+        }
+      val zero = None
+    }
   
   val intMultiplication: Monoid[Int] = new Monoid[Int] {
     def op(a1: Int, a2: Int): Int = a1 * a2

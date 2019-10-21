@@ -22,6 +22,22 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("WC Monoid associative law") {
+    forAll{(x: String, y: String, z: String) =>
+      val xx = Stub(x)
+      val yy = Stub(y)
+      val zz = Stub(z)
+      associativeLawTest(wcMonoid)(xx, yy, zz)
+    }
+  }
+
+  property("WC Monoid zero law") {
+    forAll{ x: String =>
+      val xx = Stub(x)
+      zeroLawTest(wcMonoid)(xx)
+    }
+  }
+
   property("Int Addition Monoid associative law") {
     forAll{(x: Int, y: Int, z: Int) =>
       associativeLawTest(intAddition)(x, y, z)

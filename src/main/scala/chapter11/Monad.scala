@@ -30,7 +30,14 @@ trait Monad[F[_]] extends Functor[F] {
 }
 
 object Monad {
-   val optionMonad = new Monad[chapter4.Option] {
+  def IOMonad = new Monad[IO] {
+    def unit[A](a: => A): IO[A] = new IO[A] { def run = a}
+    def flatMap[A, B](ma: IO[A])(f: A => IO[B]): IO[B] = new IO[B] {
+      def run = f(ma.run).run
+    }
+  }
+
+  val optionMonad = new Monad[chapter4.Option] {
     def unit[A](a: => A) = chapter4.Some(a)
     def flatMap[A,B](ma: chapter4.Option[A])(f: A => chapter4.Option[B]) = ma flatMap f
   }

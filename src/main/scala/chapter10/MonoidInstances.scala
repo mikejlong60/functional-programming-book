@@ -63,4 +63,21 @@ object MonoidInstances {
     def op(a1: Option[A], a2: Option[A]): Option[A] = a1 orElse a2
     def zero: Option[A] = None
   }
+
+  def wcMonoid: Monoid[WC] = new Monoid[WC] {//TODO this passes laws but is not correct because it does not yet know how to combine
+    def op(a1: WC, a2: WC): WC = (a1, a2) match {
+      case (Part(Stub(""), 0, Stub("")), r @ _) => r
+      case (l @ _ , Part(Stub(""), 0, Stub(""))) => l
+      case (Stub(""), r @ _) => r
+      case (l @_, Stub("")) => l
+      case (Part(Stub(ll), ln, Stub(lr)), Part(Stub(rl), rn, Stub(rr))) => Part(Stub(ll + lr), ln + rn, Stub(rl ++ rr))//TODO this is not correct  ... and you are missing some patterns.  Following is incorrect workaround
+      case _ => a1
+    }
+    def zero: WC = Part(Stub(""), 0, Stub(""))
+  }
+
 }
+
+sealed trait WC
+case class Stub(chars: String) extends WC
+case class Part(lStub: Stub, words: Int, rStub: Stub) extends WC

@@ -7,7 +7,11 @@ import MonoidInstances._
 
 class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
-  def zeroLawTest[A](m: Monoid[A])(x: A): org.scalatest.Assertion = m.zeroLaw(x) should be (true)
+  def zeroLawTest[A](m: Monoid[A])(x: A): org.scalatest.Assertion = {
+    val r=  m.zeroLaw(x)
+    if (!r) println(s"x failed and was: $x")
+    r should be (true)
+  }
   def associativeLawTest[A](m: Monoid[A])(x: A, y: A, z: A): org.scalatest.Assertion = m.associativeLaw(x, y, z) should be (true)
 
   property("String Monoid associative law") {
@@ -22,18 +26,34 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("WC Monoid associative law") {
-    forAll{(x: String, y: String, z: String) =>
-      val xx = Stub(x)
-      val yy = Stub(y)
-      val zz = Stub(z)
+  property("WC Monoid associative law with Part") {
+    forAll{ (b:(String, Int, String), c: (String, Int,  String), d: (String, Int,  String)) =>
+      val xx = Part(Stub(b._1), b._2, Stub(b._3))
+      val yy = Part(Stub(c._1), c._2, Stub(c._3))
+      val zz = Part(Stub(d._1), d._2, Stub(d._3))
       associativeLawTest(wcMonoid)(xx, yy, zz)
     }
   }
 
-  property("WC Monoid zero law") {
-    forAll{ x: String =>
-      val xx = Stub(x)
+  property("WC Monoid associative law with Stub") {
+    forAll{(a: (String, String, String)) =>
+      val x = Stub(a._1)
+      val y = Stub(a._2)
+      val z = Stub(a._3)
+      associativeLawTest(wcMonoid)(x, y, z)
+    }
+  }
+
+  property("WC Monoid zero law with Stub") {
+    forAll{ a: String =>
+      val x = Stub(a)
+      zeroLawTest(wcMonoid)(x)
+    }
+  }
+
+  property("WC Monoid zero law with Part") {
+    forAll{ b: (String, Int, String) =>
+      val xx = Part(Stub(b._1), b._2, Stub(b._3))
       zeroLawTest(wcMonoid)(xx)
     }
   }

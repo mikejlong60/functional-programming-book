@@ -64,13 +64,11 @@ object MonoidInstances {
     def zero: Option[A] = None
   }
 
-  def wcMonoid: Monoid[WC] = new Monoid[WC] {//TODO this passes laws but is not correct because it does not yet know how to combine
+  def wcMonoid: Monoid[WC] = new Monoid[WC] {
     def op(a1: WC, a2: WC): WC = (a1, a2) match {
-      case (Part(Stub(""), 0, Stub("")), r @ _) => r
-      case (l @ _ , Part(Stub(""), 0, Stub(""))) => l
-      case (Stub(""), r @ _) => r
-      case (l @_, Stub("")) => l
-      case (Part(Stub(ll), ln, Stub(lr)), Part(Stub(rl), rn, Stub(rr))) => Part(Stub(ll + lr), ln + rn, Stub(rl ++ rr))//TODO this is not correct  ... and you are missing some patterns.  Following is incorrect workaround
+      case (Part(_, _, _), Part(Stub(""), 0 , Stub(""))) => a1
+      case (Part(Stub(""), n1, Stub("")), Part(Stub(""), n2, Stub(""))) => Part(Stub(""), n1 + n2, Stub(""))
+      case (Part(ll, n1, Stub(lr)), Part(Stub(rl), n2, rr)) if lr.size > 0 || rl.size > 0 => Part(ll, n1 + n2 + 1, rr)
       case _ => a1
     }
     def zero: WC = Part(Stub(""), 0, Stub(""))

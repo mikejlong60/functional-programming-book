@@ -58,6 +58,34 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Count the number of words in a long list of words") {
+
+   // forAll{ w: List[String] =>
+      //val words = w.mkString(" ")
+      val words =" hello "//its me"
+      val count  = countWord(words)
+      count match {
+        case Part(_, count, _) => count should be (1)//3)//w.size)
+        case _ => fail
+      }
+    //}
+  }
+
+  val countWord:(String => WC) = (chunk: String)  =>   {
+    println(chunk)
+      chunk match {
+        case "" => wcMonoid.zero
+        case s  if s(0) == " " && s(s.size -1) == " "
+            && !(s.substring(1, s.size -2) contains " ") => Part(Stub(""), 1, Stub(""))//This is a pattern for a single word delimited by spaces at either end.  Not complete yet
+        case _ => {
+          val middle = chunk.size / 2
+          val l = chunk.slice(0, middle)
+          val r = chunk.slice(middle, chunk.size -1)
+          wcMonoid.op(countWord(l), countWord(r))
+        }
+      }
+    }
+
   property("Int Addition Monoid associative law") {
     forAll{(x: Int, y: Int, z: Int) =>
       associativeLawTest(intAddition)(x, y, z)

@@ -60,29 +60,38 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
   property("Count the number of words in a long list of words") {
 
-   // forAll{ w: List[String] =>
-      //val words = w.mkString(" ")
-      val words =" hello "//its me"
+    //forAll{ w: List[String] =>
+      val w = List("aadsfasf","adsfasdf","tryw","asdfafd")
+      val words = w.mkString(" ")
+     println(s"words: [$words]")
+    //  val words =" hello "//its me"
       val count  = countWord(words)
       count match {
-        case Part(_, count, _) => count should be (1)//3)//w.size)
+        case Part(_, count, _) => count should be (w.size)
         case _ => fail
       }
-    //}
+   // }
   }
 
   val countWord:(String => WC) = (chunk: String)  =>   {
-    println(chunk)
+    println(s"chunk was[$chunk]")
+    //println(s"last char[${chunk(chunk.size -1) == ' '}]")
+    //println(s"first char[${chunk(0) == ' '}]")
+   // println(s"word[${chunk.substring(1, chunk.size - 1)}]")
+   // println(s"has no spaces[${!(chunk.substring(1, chunk.size - 1) contains " ")} ]")
+   // println(s"delimited by spaces[${chunk(0) == ' ' && chunk(chunk.size -1) == ' '}]")
+    //println(s"full expression[${chunk(0) == ' ' && chunk(chunk.size -1) == ' ' && !(chunk.substring(1, chunk.size - 1) contains " ")}]")
       chunk match {
-        case "" => wcMonoid.zero
-        case s  if s(0) == " " && s(s.size -1) == " "
-            && !(s.substring(1, s.size -2) contains " ") => Part(Stub(""), 1, Stub(""))//This is a pattern for a single word delimited by spaces at either end.  Not complete yet
-        case _ => {
+        case _ if chunk.isEmpty => wcMonoid.zero
+        case s  if s(0) == ' ' && s(s.size -1) == ' '
+            && !(s.substring(1, s.size -1) contains " ") => Part(Stub(""), 1, Stub(""))
+        case _ if chunk.size > 2 => {
           val middle = chunk.size / 2
           val l = chunk.slice(0, middle)
-          val r = chunk.slice(middle, chunk.size -1)
+          val r = chunk.slice(middle, chunk.size)
           wcMonoid.op(countWord(l), countWord(r))
         }
+        case _ => wcMonoid.op(Stub(chunk), wcMonoid.zero)
       }
     }
 

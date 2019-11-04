@@ -64,16 +64,31 @@ object MonoidInstances {
     def zero: Option[A] = None
   }
 
-  def wcMonoid: Monoid[WC] = new Monoid[WC] {
+  def wcMonoidold: Monoid[WC] = new Monoid[WC] {
     def op(a1: WC, a2: WC): WC = (a1, a2) match {
       case (Part(_, _, _), Part(Stub(""), 0 , Stub(""))) => a1
       case (Part(Stub(""), n1, Stub("")), Part(Stub(""), n2, Stub(""))) => Part(Stub(""), n1 + n2, Stub(""))
       case (Part(ll, n1, Stub(lr)), Part(Stub(rl), n2, rr)) if lr.size > 0 || rl.size > 0 => Part(ll, n1 + n2 + 1, rr)
       case _ => a1
     }
-    def zero: WC = Part(Stub(""), 0, Stub(""))
+    def zero: WC = Stub("")
   }
 
+  def wcMonoid: Monoid[WC] = new Monoid[WC] {
+    def op(a1: WC, a2: WC): WC = (a1, a2) match {
+      case (Part(_, _, _), Part(Stub(""), 0 , Stub(""))) => a1
+      case (Part(Stub(""), n1, Stub("")), Part(Stub(""), n2, Stub(""))) => Part(Stub(""), n1 + n2, Stub(""))
+      case (Part(ll, n1, Stub(lr)), Part(Stub(rl), n2, rr)) if lr.size > 0 || rl.size > 0 => Part(ll, n1 + n2 + 1, rr)
+      case (Stub(l), Stub(r)) if !l.isEmpty && !r.isEmpty && (0) == ' ' && r(r.size-1) == ' ' => Part(Stub(""), 1, Stub(""))
+      case (Stub(l), Part(Stub(rl), n, Stub(rr))) => Part(Stub(""), n + 1, Stub(rr))
+      case (Part(Stub(ll), n, Stub(rr)), Stub(r)) => Part(Stub(ll), n + 1, Stub(""))
+      case (Stub(l), Stub(r)) => Part(Stub(l), 0, Stub(r))
+          
+
+      case _ => a1
+    }
+    def zero: WC = Stub("")
+  }
 }
 
 sealed trait WC

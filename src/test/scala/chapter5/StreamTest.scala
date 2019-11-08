@@ -444,4 +444,22 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (expected)
     }
   }
+
+  property("Test foldLeft") {
+    forAll{ xs: Seq[Int] =>
+      val xss = Stream(xs:_*)
+      val actual = xss.foldLeft(List.empty[Int])((b, a) => a :: b).reverse
+      actual should be (xs)
+    }
+  }
+
+  property("Test foldRight") {
+    forAll{ xs: Seq[Int] =>
+      val xss = Stream(xs:_*)
+      val actual = xss.foldRight(List.empty[Int])((a, b) => a  :: b)
+      actual should be (xs)
+    }
+  }
+
+
 }

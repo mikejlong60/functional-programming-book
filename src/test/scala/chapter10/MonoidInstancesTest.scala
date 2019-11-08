@@ -28,9 +28,9 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
   property("WC Monoid associative law with Part") {
     forAll{ (b:(String, Int, String), c: (String, Int,  String), d: (String, Int,  String)) =>
-      val xx = Part(Stub(b._1), b._2, Stub(b._3))
-      val yy = Part(Stub(c._1), c._2, Stub(c._3))
-      val zz = Part(Stub(d._1), d._2, Stub(d._3))
+      val xx = Part(b._1, b._2, b._3)
+      val yy = Part(c._1, c._2, c._3)
+      val zz = Part(d._1, d._2, d._3)
       associativeLawTest(wcMonoid)(xx, yy, zz)
     }
   }
@@ -53,47 +53,38 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
 
   property("WC Monoid zero law with Part") {
     forAll{ b: (String, Int, String) =>
-      val xx = Part(Stub(b._1), b._2, Stub(b._3))
+      val xx = Part(b._1, b._2, b._3)
       zeroLawTest(wcMonoid)(xx)
     }
   }
 
   property("Count the number of words in a long list of words") {
-
-    //forAll{ w: List[String] =>
-      val w = List("aadsfasf","adsfasdf","tryw","asdfafd")
+    forAll{ w: List[String] =>
       val words = w.mkString(" ")
-     println(s"words: [$words]")
-    //  val words =" hello "//its me"
-      val count  = countWord(words)
-      count match {
-        case Part(_, count, _) => count should be (w.size)
-        case _ => fail
-      }
-   // }
-  }
+      println("original:" + w)
+      println(s"words: [$words]")
+      val count  = countFromBook(words)
+      println(count)
+      println(w.size)
+      if (words.replaceAll("\\s", "").isEmpty) count should be (0) 
+      else count should be (w.size)
+  }}
 
-  val countWord:(String => WC) = (chunk: String)  =>   {
-    println(s"chunk was[$chunk]")
-    //println(s"last char[${chunk(chunk.size -1) == ' '}]")
-    //println(s"first char[${chunk(0) == ' '}]")
-   // println(s"word[${chunk.substring(1, chunk.size - 1)}]")
-   // println(s"has no spaces[${!(chunk.substring(1, chunk.size - 1) contains " ")} ]")
-   // println(s"delimited by spaces[${chunk(0) == ' ' && chunk(chunk.size -1) == ' '}]")
-    //println(s"full expression[${chunk(0) == ' ' && chunk(chunk.size -1) == ' ' && !(chunk.substring(1, chunk.size - 1) contains " ")}]")
-      chunk match {
-        case _ if chunk.isEmpty => wcMonoid.zero
-        case s  if s(0) == ' ' && s(s.size -1) == ' '
-            && !(s.substring(1, s.size -1) contains " ") => Part(Stub(""), 1, Stub(""))
-        case _ if chunk.size > 2 => {
-          val middle = chunk.size / 2
-          val l = chunk.slice(0, middle)
-          val r = chunk.slice(middle, chunk.size)
-          wcMonoid.op(countWord(l), countWord(r))
-        }
-        case _ => wcMonoid.op(Stub(chunk), wcMonoid.zero)
-      }
+  def countFromBook(s: String): Int = {//TODO Fix the bug in this
+    // A single character's count. Whitespace does not count,
+    // and non-whitespace starts a new Stub.
+    def wc(c: Char): WC =
+      if (c.isWhitespace)
+        Part("", 0, "")
+      else
+        Stub(c.toString)
+    // `unstub(s)` is 0 if `s` is empty, otherwise 1.
+    def unstub(s: String) = s.length min 1
+    Monoid.foldMapV(s.toIndexedSeq, wcMonoid)(wc) match {
+      case Stub(s) => unstub(s)
+      case Part(l, w, r) => unstub(l) + w + unstub(r)
     }
+  }
 
   property("Int Addition Monoid associative law") {
     forAll{(x: Int, y: Int, z: Int) =>

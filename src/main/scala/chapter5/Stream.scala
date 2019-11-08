@@ -8,10 +8,30 @@ sealed trait Stream[+A] {
     case  _ => this
   }
 
-  final def toList:List[A] = this match {
-     case Cons(h, t) => h() +: t().toList
-      case _ => Nil
+  //final def toList:List[A] = this match {
+  //   case Cons(h, t) => h() +: t().toList
+  //    case _ => Nil
+ // }
+
+
+  /*
+  In order to avoid the `reverse` at the end, we could write it using a
+  mutable list buffer and an explicit loop instead. Note that the mutable
+  list buffer never escapes our `toList` method, so this function is
+  still _pure_.   FROM answer key Mike Long 11/08/2019
+  */
+  def toList: List[A] = {
+    val buf = new collection.mutable.ListBuffer[A]
+    @annotation.tailrec
+    def go(s: Stream[A]): List[A] = s match {
+      case Cons(h,t) =>
+        buf += h()
+        go(t())
+      case _ => buf.toList
+    }
+    go(this)
   }
+
 
   /*
     Create a new Stream[A] from taking the n first elements from this. We can achieve that by recursively
@@ -32,10 +52,13 @@ sealed trait Stream[+A] {
     case _ => Stream.empty
   }
 
-  final  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
+  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
     case Cons(h, t) => f(h(), t().foldRight(z)(f))
     case _ => z
   }
+
+  def foldLeft[B](z: => B)(f: (=>B, A) => B): B = toList.foldLeft(chapter5.Stream.empty[A])((b, a) => chapter5.Stream.cons(a, b)).foldRight(z)((a, b) => f(b, a))
+  
 
   final def map[B](f: A => B): Stream[B] = foldRight(Stream.empty[B])((a, b) => Stream.cons(f(a), b))
 

@@ -103,4 +103,46 @@ class FoldableInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  //Fold tests
+
+  import chapter3.{Tree, Branch, NilNode, Leaf}
+  val f:(Int => Int) = b => b
+  val g:((Int,Int) => Int) = (b1: Int, b2: Int) => math.max(b1, b2)
+  val h:Int = Int.MinValue
+
+  property("Test foldLeft maximum on empty tree ") {
+    val t = Branch(NilNode, NilNode)
+    val actual = FoldableInstances.tree.foldLeft(t)(h)(g)
+    actual should be (Int.MinValue)
+  }
+
+  property("Test foldLeft maximum with Tree of 2 leaves of Ints") {
+    val t = Branch(Leaf(1200), Leaf(2))
+    val actual = FoldableInstances.tree.foldLeft(t)(h)(g)
+    actual should be (1200)
+  }
+
+  property("Test foldRight maximum on empty tree ") {
+    val t = Branch(NilNode, NilNode)
+    val actual = FoldableInstances.tree.foldRight(t)(h)(g)
+    actual should be (Int.MinValue)
+  }
+
+  property("Test foldRight maximum with Tree of 2 leaves of Ints") {
+    val t = Branch(Leaf(1200), Leaf(2))
+    val actual = FoldableInstances.tree.foldRight(t)(h)(g)
+    actual should be (1200)
+  }
+
+  property("Test foldMap stringMonoid on empty tree ") {
+    val t = Branch(NilNode, NilNode)
+    val actual = FoldableInstances.tree.foldMap(t)(_.toString)(stringMonoid)
+    actual should be ("")
+  }
+
+  property("Test foldMap stringMonoid with Tree of 2 leaves of Ints") {
+    val t = Branch(Leaf(1200), Leaf(2))
+    val actual = FoldableInstances.tree.foldMap(t)(_.toString)(stringMonoid)
+    actual should be ("12002")
+  }
 }

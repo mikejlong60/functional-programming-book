@@ -28,32 +28,18 @@ object FoldableInstances {
   }
 
   def tree: Foldable[chapter3.Tree] = new Foldable[chapter3.Tree] {
-    def foldLeft[A,B](as: chapter3.Tree[A])(z: B)(f: (B,A) => B):B = {
-      def curry[A, B](f: (B, A) => B): B => (A => B) = a => b =>  f(a, b)
-      def partial1[A, B](b: B, f: (B, A) => B): A => B = (a: A) => {
-        val c = curry(f)
-        val g = c(b)(_)
-        g(a)
-      }
-      val ff:(A=>B) = partial1(z, f)
-      val g:((B,B) => B) = ???
-      val h: () => B = () => z
-      chapter3.Tree.fold(as)(ff)(g)(h)
+    def foldLeft[A,B](as: chapter3.Tree[A])(z: B)(f: (B,A) => B):B = as match {
+      case chapter3.Leaf(a) => f(z, a)
+      case chapter3.Branch(la, ra) => foldLeft(ra)(foldLeft(la)(z)(f))(f)
+      case chapter3.NilNode => z
     }
-    def foldRight[A,B](as: chapter3.Tree[A])(z: B)(f: (A,B) => B):B = {
-      def curry[A, B](f: (A,B) => B): B => (A => B) = b => a =>  f(a,b)
-      def partial1[A, B](b: B, f: (A, B) => B): A => B = (a: A) => {
-        val c = curry(f)
-        val g = c(b)(_)
-        g(a)
-      }
-      val ff:(A=>B) = partial1(z, f)
-      val g:((B,B) => B) = ???
-      val h: () => B = () => z
-      chapter3.Tree.fold(as)(ff)(g)(h)
+    def foldRight[A,B](as: chapter3.Tree[A])(z: B)(f: (A,B) => B):B =  as match {
+      case chapter3.Leaf(a) => f(a, z)
+      case chapter3.Branch(la, ra) => foldRight(la)(foldRight(ra)(z)(f))(f) 
+      case chapter3.NilNode => z
     }
 
-    def foldMap[A,B](as: chapter3.Tree[A])(f: A => B)(mb: Monoid[B]): B = chapter3.Tree.fold(as)(f)(mb.op)(() => mb.zero)
+    override def foldMap[A,B](as: chapter3.Tree[A])(f: A => B)(mb: Monoid[B]): B = chapter3.Tree.fold(as)(f)(mb.op)(() => mb.zero)
   }
 }
 

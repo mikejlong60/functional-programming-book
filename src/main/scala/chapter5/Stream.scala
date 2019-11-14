@@ -57,8 +57,13 @@ sealed trait Stream[+A] {
     case _ => z
   }
 
-  def foldLeft[B](z: => B)(f: (=>B, A) => B): B = toList.foldLeft(chapter5.Stream.empty[A])((b, a) => chapter5.Stream.cons(a, b)).foldRight(z)((a, b) => f(b, a))
-  
+  @annotation.tailrec
+  final def foldLeft[B](z: => B)(f: (=>B, A) => B): B = this match {
+    case Cons(h, t) => t().foldLeft(f(z, h()))(f)
+    case _ => z
+  }
+
+  def reverse: Stream[A] = foldLeft(Stream.empty[A])((xs, x) => Stream.cons(x, xs))
 
   final def map[B](f: A => B): Stream[B] = foldRight(Stream.empty[B])((a, b) => Stream.cons(f(a), b))
 

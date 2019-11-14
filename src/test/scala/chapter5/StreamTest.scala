@@ -453,6 +453,14 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+    property("Test reverse") {
+    forAll{ xs: Seq[Int] =>
+      val xss = Stream(xs:_*)
+      val actual = xss.reverse
+      actual.toList should be (xs.reverse)
+    }
+  }
+
   property("Test foldRight") {
     forAll{ xs: Seq[Int] =>
       val xss = Stream(xs:_*)

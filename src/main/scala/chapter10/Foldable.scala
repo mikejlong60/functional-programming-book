@@ -33,6 +33,7 @@ object FoldableInstances {
       case chapter3.Branch(la, ra) => foldLeft(ra)(foldLeft(la)(z)(f))(f)
       case chapter3.NilNode => z
     }
+    
     def foldRight[A,B](as: chapter3.Tree[A])(z: B)(f: (A,B) => B):B =  as match {
       case chapter3.Leaf(a) => f(a, z)
       case chapter3.Branch(la, ra) => foldRight(la)(foldRight(ra)(z)(f))(f) 
@@ -40,6 +41,18 @@ object FoldableInstances {
     }
 
     override def foldMap[A,B](as: chapter3.Tree[A])(f: A => B)(mb: Monoid[B]): B = chapter3.Tree.fold(as)(f)(mb.op)(() => mb.zero)
+  }
+
+  def option: Foldable[Option] = new Foldable[Option] {
+    def foldLeft[A, B](as: Option[A])(z: B)(f: (B, A) => B):B = as match {
+      case Some(a) => f(z, a)
+      case None => z
+    }
+    def foldRight[A, B](as: Option[A])(z: B)(f: (A, B) => B):B = as match {
+      case Some(a) => f(a, z)
+      case None => z
+    }
+
   }
 }
 

@@ -103,7 +103,14 @@ class FoldableInstancesTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Option foldRight test") {
+  property("Stream toList test") {
+    forAll{ l: IndexedSeq[String] =>
+      val actual = FoldableInstances.stream.toList(chapter5.Stream(l:_*))
+      actual should be (l.toList)
+    }
+  }
+
+property("Option foldRight test") {
     forAll{ o: Option[String] =>
       val actual = FoldableInstances.option.foldRight(o)("fred")((b, a) => a)
       val expected = o.foldRight("fred")((b, a) => a)

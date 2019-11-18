@@ -2,13 +2,15 @@ package chapter10
 
 object MonoidInstances {
 
-  //def productMonoid[A, B] = new Monoid[(Monoid[A], Monoid[B])] {
-  //  def op(a: Monoid[A], b: Monoid[B]): Monoid[(Monoid[A], Monoid[B])] = ??? //{
-      //val av = Monoid.foldRight(IndexedSeq(a, b))(b)(a => a.op(a, a)
-     // av
-    //}
-  //  def zero: Monoid[(A, B)] =??? // op(a.zero, b.zero)
- // }
+  def productMonoid[A, B](a: Monoid[A], b: Monoid[B]) = new Monoid[(A, B)]  {
+
+    def op(aa:  (A, B), bb: (A, B)): (A, B) = {
+      val as = a.op(aa._1, bb._1)
+      val bs = b.op(aa._2, bb._2)
+      (as, bs)
+    }
+    def zero:(A, B) = (a.zero, b.zero)
+  }
 
   val stringMonoid: Monoid[String] = new Monoid[String] {
     def op(a1: String, a2: String): String = a1 + a2

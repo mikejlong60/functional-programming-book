@@ -13,6 +13,39 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     r should be (true)
   }
   def associativeLawTest[A](m: Monoid[A])(x: A, y: A, z: A): org.scalatest.Assertion = m.associativeLaw(x, y, z) should be (true)
+ 
+  property("Product Monoid associative law") {
+   forAll{(x1: (String, Int), x2: (String, Int), x3: (String, Int)) =>
+      val s1 = stringMonoid
+      val i1 = intMultiplication
+      val p1 = productMonoid(s1, i1)
+
+      associativeLawTest(p1)(x1, x2, x3)
+    }
+  }
+
+  property("Product Monoid zero law") {
+    forAll{ x: (String, Int) =>
+      val s1 = stringMonoid
+      val i1 = intMultiplication
+      val p1 = productMonoid(s1, i1)
+      zeroLawTest(p1)(x)
+    }
+  }
+
+  property("Understand concatenate with product monoid") {
+    forAll{ x: IndexedSeq[(String, Int)] =>
+      val s1 = stringMonoid
+      val i1 = intMultiplication
+      val p1 = productMonoid(s1, i1)
+
+      val (s, n) = x.unzip
+      val ss = s.foldRight("")(_ ++ _)
+      val nn = n.foldRight(1)((a, b) => a * b )
+      val r = Monoid.concatenate(x)(p1)
+      r should be ((ss, nn))
+    }
+  }
 
   property("String Monoid associative law") {
     forAll{(x: String, y: String, z: String) =>
@@ -61,11 +94,11 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   property("Count the number of words in a long list of words") {
     forAll{ w: List[String] =>
       val words = w.mkString(" ")
-      println("original:" + w)
-      println(s"words: [$words]")
+      //println("original:" + w)
+      //println(s"words: [$words]")
       val count  = countFromBook(words)
-      println(count)
-      println(w.size)
+      //println(count)
+      //println(w.size)
       if (words.replaceAll("\\s", "").isEmpty) count should be (0) 
       else count should be (w.size)
   }}

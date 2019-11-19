@@ -2,6 +2,11 @@ package chapter10
 
 object MonoidInstances {
 
+  def functionMonoid[A, B](m: Monoid[B]): Monoid[A => B] = new Monoid[A => B] {
+    def op(f1: A => B, f2: A => B): A => B = (a: A) => m.op(f1(a), f2(a))
+    def zero: A => B = (a: A) => m.zero
+  }
+    
   def productMonoid[A, B](a: Monoid[A], b: Monoid[B]) = new Monoid[(A, B)]  {
 
     def op(aa:  (A, B), bb: (A, B)): (A, B) = {

@@ -14,8 +14,45 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
   def associativeLawTest[A](m: Monoid[A])(x: A, y: A, z: A): org.scalatest.Assertion = m.associativeLaw(x, y, z) should be (true)
  
+  property("function Monoid associative law") {
+    forAll{ x: Int =>
+      val sm = stringMonoid
+      val f1 = (x: Int) => x.toString
+      val f2 = (x: Int) => (x-12).toString
+      val f3 = (x: Int) => (x + 12).toString
+      val fm: Monoid[Int => String] = functionMonoid(sm)
+
+      val op1= fm.op(fm.op(f1, f2) , f3)
+      val op2 = fm.op(f1, fm.op(f2, f3))
+      op1(x) should be (op2(x))
+    }
+  }
+
+  property("function Monoid zero law") {
+    forAll{ x: Int =>
+      val sm = stringMonoid
+      val f1: Int => String  = (x: Int) => x.toString
+      val fm: Monoid[Int=> String] = functionMonoid(sm)
+      val z = fm.op(f1, fm.zero)
+      z(x) should be (x.toString)
+    }
+  }
+
+  property("function monoid composition concatenate with string monoid") {
+    forAll{ x: Int =>
+      val s1 = stringMonoid
+      val fm: Monoid[Int => String] = functionMonoid(s1)
+      val f1: Int => String  = (x: Int) => x.toString
+      val f2: Int => String  = (x: Int) => (x-12).toString
+
+      val f: Int => String  = fm.op(f1, f2)
+      val actual = f(x)
+      actual should be (s"${x}${x-12}")
+    }
+  }
+
   property("Product Monoid associative law") {
-   forAll{(x1: (String, Int), x2: (String, Int), x3: (String, Int)) =>
+    forAll{(x1: (String, Int), x2: (String, Int), x3: (String, Int)) =>
       val s1 = stringMonoid
       val i1 = intMultiplication
       val p1 = productMonoid(s1, i1)

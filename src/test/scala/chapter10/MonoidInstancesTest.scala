@@ -14,6 +14,28 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
   }
   def associativeLawTest[A](m: Monoid[A])(x: A, y: A, z: A): org.scalatest.Assertion = m.associativeLaw(x, y, z) should be (true)
  
+  property("Map merge Monoid test") {
+    forAll{ (x: Map[String, Map[String, Int]], y: Map[String, Map[String, Int]]) =>
+      val m: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))
+      val actual = m.op(x, y)
+      actual.keySet should be (x.keySet ++ y.keySet)
+    }
+  }
+
+  property("Map merge monoid associative law test") {
+    forAll{ (x: Map[String, Map[String, Int]], y: Map[String, Map[String, Int]], z: Map[String, Map[String, Int]]) =>
+      val m: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))
+      associativeLawTest(m)(x, y, z)
+    }
+  }
+
+  property("Map merge monoid zero law test") {
+    forAll{ x: Map[String, Map[String, Int]] =>
+      val m: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))
+      zeroLawTest(m)(x)
+    }
+  }
+
   property("function Monoid associative law") {
     forAll{ x: Int =>
       val sm = stringMonoid
@@ -318,8 +340,6 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
       a * 100
     }))
     val actual1 = System.currentTimeMillis() - start1
-    println(s"Parallel foldMap took $actual1")
-
     val expectedSlow = xs.foldLeft(0)((b, a) => (a * 10) + b)
     val start2 = System.currentTimeMillis()
 
@@ -328,7 +348,6 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
       a * 100
     })
     val actual2 = System.currentTimeMillis() - start2
-    println(s"syncronous foldMap took $actual2")
     actual1 should be <  (actual2)
   }
 

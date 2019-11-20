@@ -2,6 +2,12 @@ package chapter10
 
 object MonoidInstances {
 
+  def mapMergeMonoid[K,V](V: Monoid[V]): Monoid[Map[K,V]] = new Monoid[Map[K,V]]  {
+    def zero = Map[K,V] ()
+    def op(a: Map[K,V], b: Map[K,V]) = (a.keySet ++ b.keySet).foldLeft(zero) ((acc, k) => acc.updated(k, V.op(a.getOrElse(k, V.zero),b.getOrElse(k, V.zero))))
+  }
+
+
   def functionMonoid[A, B](m: Monoid[B]): Monoid[A => B] = new Monoid[A => B] {
     def op(f1: A => B, f2: A => B): A => B = (a: A) => m.op(f1(a), f2(a))
     def zero: A => B = (a: A) => m.zero
@@ -34,7 +40,6 @@ object MonoidInstances {
 
   val mySlightlyWrongintOrdered: Monoid[(Boolean, Int)]  = new Monoid[(Boolean, Int)] {
     def op(a1: (Boolean, Int), a2: (Boolean, Int)): (Boolean, Int) = {
-      println(s"$a2 : $a1")//a2 is fresh parm, a1 is accum
     if (a1._1 && (a2._2 >= a1._2)) a2
     else if (a2 == zero) a2
     else (false, a1._2)

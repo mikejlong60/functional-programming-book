@@ -114,7 +114,6 @@ property("Option foldRight test") {
     forAll{ o: Option[String] =>
       val actual = FoldableInstances.option.foldRight(o)("fred")((b, a) => a)
       val expected = o.foldRight("fred")((b, a) => a)
-      println(actual)
       actual should be (expected)
     }
   }
@@ -123,7 +122,6 @@ property("Option foldRight test") {
     forAll{ o: Option[String] =>
       val actual = FoldableInstances.option.foldLeft(o)("")((b, a) => a ++ b)
       val expected = o.foldLeft("")((b, a) => a ++ b)
-      println(actual)
       actual should be (expected)
     }
   }
@@ -132,7 +130,6 @@ property("Option foldRight test") {
     forAll{ o: Option[String] =>
       val actual = FoldableInstances.option.foldMap(o)(a => a)(stringMonoid)
       val expected = o.foldLeft("")((b, a) => a ++ b)
-      println(actual)
       actual should be (expected)
     }
   }

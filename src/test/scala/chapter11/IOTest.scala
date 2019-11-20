@@ -38,8 +38,6 @@ class IOTest extends PropSpec with PropertyChecks with Matchers {
       val f =  (x: Int) => mon.unit(x.doubleValue)
       val li = mon.compose(f, (a: Double)=> mon.unit(a))
       val ri = mon.compose((a: Int)=> mon.unit(a), f)
-      println(li(a).run)
-      println(ri(a).run)
       li(a).run == ri(a).run
       li(a) == ri(a)
     }

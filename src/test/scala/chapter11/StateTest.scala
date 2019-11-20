@@ -30,20 +30,12 @@ class StateTest extends PropSpec with PropertyChecks with Matchers {
         val ii: (Int, chapter6.RNG) = mon.map(s)((x: Int) => x + 10).run(rng)
         val ii2: (Int, chapter6.RNG) = mon.map(s)((x: Int) => x + 11).run(rng)
         i1 should be  (i + 1200)
-        println(r1)//r2 should be (true)
-
-
-
         val l = List(ii,ii2)//s, s)//(i1, r1), (i2, r2))
         val kk = mon.traverse(l)(p  => {
-          println("p:"+p)
           val pp = State(run = (s: chapter6.RNG) => (p._1, p._2))
-          println("pp"+pp)
           pp
         })
-        println("dude:"+kk)
         mon.map(kk)(x => {
-          println("x:"+x)
           x
         }).run(rng)
       }

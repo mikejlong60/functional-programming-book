@@ -13,7 +13,19 @@ class MonoidInstancesTest extends PropSpec with PropertyChecks with Matchers {
     r should be (true)
   }
   def associativeLawTest[A](m: Monoid[A])(x: A, y: A, z: A): org.scalatest.Assertion = m.associativeLaw(x, y, z) should be (true)
- 
+
+  property("Compute a bag from an IndexedSeq") {
+    val  bag = (xs: IndexedSeq[String]) =>  {
+      val m:Monoid[Map[String, Int]]  = mapMergeMonoid(intAddition)
+      FoldableInstances.seq.foldLeft(xs)(m.zero)((b,a) =>m.op(Map(a -> 1),b))
+    }
+    forAll{ xs: IndexedSeq[String] =>
+      val actual = bag(xs)
+      val expected = xs.toSet
+      actual.keySet should be (expected)
+    }
+  }
+
   property("Map merge Monoid test") {
     forAll{ (x: Map[String, Map[String, Int]], y: Map[String, Map[String, Int]]) =>
       val m: Monoid[Map[String, Map[String, Int]]] = mapMergeMonoid(mapMergeMonoid(intAddition))

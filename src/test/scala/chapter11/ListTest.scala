@@ -50,78 +50,62 @@ class ListTest extends PropSpec with PropertyChecks with Matchers {
     }
  }
 
-//  property("Prove identity laws using Kleisli composition") {
-//    forAll {x: Int  =>
-//      val f =  (x: Int) => Some(x.doubleValue)
-//      mon.identityLawsUsingKleisli(x)(f) should be (true)
-//    }
- // /}
-//
-//  property("Test Option flatmap function for Ints") {
-//    forAll { x: Int =>
-//      val actual = mon.flatMap(Some(x))(x => Some(x + 1))
-//      val expected = Some(x + 1)
-//      actual should be (expected)
-//    }
-//  }
+  property("Prove identity laws using Kleisli composition") {
+    forAll {xs: List[Int]  =>
+      val f =  (xs: List[Int]) => xs.map(x => s"${x * 3}")
+      mon.identityLawsUsingKleisli(xs)(f) should be (true)
+    }
+  }
 
-//  property("Test Option flatmap function for None") {
-//    forAll { x: Int =>
-//      val actual = mon.flatMap(None)(x => None)
-//      val expected = None
-//      actual should be (expected)
-//    }
-//  }
-
-  property("Test Option map function for List of Ints") {
-    forAll{xs: List[Int] =>
-      val actual = mon.map(xs)(x => x + 1)
-      val expected = xs.map(x =>x + 1)
+  property("Test flatmap") {
+    forAll { xs: List[Int] =>
+      val actual = mon.flatMap(xs)(x => List(x + 1))
+      val expected = xs.flatMap(x => List(x + 1))
       actual should be (expected)
     }
   }
 
+  property("Test flatmap on unit value") {
+    val actual = mon.flatMap(List())(x => List())
+    val expected = List()
+    actual should be (expected)
+  }
 
-val f: String => Option[Int] = (x: String) => 
+  val f: String => List[Int] = (x: String) =>
   try {
-    Some(x.toInt)
+    List(x.toInt)
   } catch {
-    case e: Exception => None
+    case e: Exception => List()
   }
   
-  //  property("Test traverse over unparseable number") {
-  //    val xs = List("12","13a")
- //   val expected = None
-  //  val actual = mon.traverse(xs)(f)
- ///   actual should be (expected)
- // }
+  property("Test traverse over unparseable number") {
+    val xs = List("12","13a")
+    val expected =List()
+    val actual = mon.traverse(xs)(f)
+    actual should be (expected)
+  }
 
-//  property("Test traverse over empty list") {
-//    val xs = Nil
-//    val expected = Some(Nil)
-//    val actual = mon.traverse(xs)(f)
-//    actual should be (expected)
-//  }
+  property("Test traverse") {
+    forAll { xs: List[Int] =>
+      val xss = xs.map(_.toString)
+      val expected = List(xss.flatMap(f))
+      val actual = mon.traverse(xss)(f)
+      actual should be (expected)
+    }
+  }
 
-//  property("Test traverse over list of one element") {
-//    val xs = List("12")
-//    val expected = Some(List(12))
-//    val actual = mon.traverse(xs)(f)
-//    actual should be (expected)
-//  }
+  property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
+    forAll { l: List[Int] =>
+      val ll = l.map((List(_)))
+      val actual = mon.sequence(ll)
+      actual should be (List(l))
+    }
+  }
 
-//  property("Test sequence for non-empty list") {
-//    forAll { l: List[Int] =>
-//      val ll = l.map((Some(_)))
-//      val actual = mon.sequence(ll)
-//      actual should be (Some(l))
-//    }
-//  }
-
-//  property("Test sequence for empty list") {
-//    val l = List.empty[Option[Int]]
-//    val actual = mon.sequence(l)
-//    actual should be (Some(List.empty[Int]))
-//  }
+  property("Test sequence for empty list") {
+    val ll = List()
+    val actual = mon.sequence(ll)
+    actual should be (List(List()))
+  }
 }
 

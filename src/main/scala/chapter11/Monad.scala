@@ -37,7 +37,7 @@ object Monad {
     }
   }
 
-    def listMonad = new Monad[List] {
+  def listMonad = new Monad[List] {
     def unit[A](a: => A): List[A] = List[A](a)
     def flatMap[A, B](ma: List[A])(f: A => List[B]): List[B] = ma flatMap f
     

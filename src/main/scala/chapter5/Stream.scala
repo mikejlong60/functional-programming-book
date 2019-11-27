@@ -1,7 +1,7 @@
 package chapter5
 
 
-sealed trait Stream[+A] {
+trait Stream[+A] {
   @annotation.tailrec
   final def drop(n: Int): Stream[A] = this match {
     case Cons(_, t) if n > 0 => t(). drop(n - 1)
@@ -67,7 +67,7 @@ sealed trait Stream[+A] {
 
   final def map[B](f: A => B): Stream[B] = foldRight(Stream.empty[B])((a, b) => Stream.cons(f(a), b))
 
-  final def flatMap[B >: A](f: A => Stream[B]): Stream[B] = foldRight(Stream.empty[B])((a, b) => f(a) append(b))
+  final def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(Stream.empty[B])((a, b) => f(a) append(b))
 
   final def append[B >: A](l2: Stream[B]): Stream[B] = foldRight(l2)( (a, b) => Stream.cons(a, b))
 

@@ -468,6 +468,4 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (xs)
     }
   }
-
-
 }

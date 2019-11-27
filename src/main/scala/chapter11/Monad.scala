@@ -4,7 +4,7 @@ import scala.{Option => _, None => _,  Right => _, Left => _, Either => _, _}
 
 trait Functor[F[_]] {
   def map[A, B](fa: F[A])(f: A => B): F[B]
-  def mapLaw[A](fa: F[A]): Boolean = map(fa)(a => a)  == fa
+  def mapLaw[A](fa: F[A]): Boolean = map(fa)(a => a) == fa
 }
 
 trait Monad[F[_]] extends Functor[F] {
@@ -37,25 +37,30 @@ object Monad {
     }
   }
 
+  def streamMonad = new Monad[chapter5.Stream] {
+    def unit[A](a: => A): chapter5.Stream[A] = chapter5.Stream[A](a)
+    override def flatMap[A, B](ma: chapter5.Stream[A])(f: A => chapter5.Stream[B]): chapter5.Stream[B] = ma flatMap f
+  }
+
   def listMonad = new Monad[List] {
     def unit[A](a: => A): List[A] = List[A](a)
-    def flatMap[A, B](ma: List[A])(f: A => List[B]): List[B] = ma flatMap f
+    override def flatMap[A, B](ma: List[A])(f: A => List[B]): List[B] = ma flatMap f
     
   }
 
   val optionMonad = new Monad[chapter4.Option] {
     def unit[A](a: => A) = chapter4.Some(a)
-    def flatMap[A,B](ma: chapter4.Option[A])(f: A => chapter4.Option[B]) = ma flatMap f
+    override def flatMap[A,B](ma: chapter4.Option[A])(f: A => chapter4.Option[B]) = ma flatMap f
   }
 
   def eitherMonad[S] = new  Monad[({type f[x] = chapter4.Either[S, x]}) #f]  {
-    def flatMap[A,B](ma: chapter4.Either[S,A])(f: A => chapter4.Either[S,B]): chapter4.Either[S,B] = ma flatMap f
+    override def flatMap[A,B](ma: chapter4.Either[S,A])(f: A => chapter4.Either[S,B]): chapter4.Either[S,B] = ma flatMap f
      
     def unit[A](a: => A): chapter4.Either[S,A] = chapter4.Right(a)
   }
 
   def stateMonad[S] = new  Monad[({type s[x] = State[S, x]}) #s]  {
-    def flatMap[A,B](sa: State[S,A])(f: A => State[S,B]): State[S,B] = sa flatMap f
+    override def flatMap[A,B](sa: State[S,A])(f: A => State[S,B]): State[S,B] = sa flatMap f
       
     def unit[A](a: => A): State[S,A] = State(s => (a, s))
   }

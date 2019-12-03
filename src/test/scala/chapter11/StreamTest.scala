@@ -44,82 +44,85 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  /**
   property("Test Kleisli Associative Law") {
     forAll {xs: List[Int]  =>
-      val f =  (xs: List[Int]) => xs.map(x => x.doubleValue)
-      val g = (y: Double) => List(y.toString)
-      val h =   (z: String) => List(s"the element of the list was: $z")
-     mon.associativeLawUsingKleisli(xs)(f, g, h) should be (true)
+      val xxs = chapter5.Stream(xs:_*)
+
+      val f =  (x: Stream[Int]) => Stream.cons(x.toList.toString, Stream.empty)
+      val g = (y: String) => Stream.cons(y.toString, Stream.empty)
+      val h =   (z: String) => Stream.cons(s"the element of the list was: $z", Stream.empty)
+
+      val lf = mon.compose(mon.compose(f, g), h)
+      val rf = mon.compose(f,mon. compose(g, h))
+      lf(xxs).toList == rf(xxs).toList
     }
   }
 
- property("Show equivalence  of Kleisli Associative Law and flatMap associative law") {
-    forAll {xs: List[Int]  =>
-      val f =  (xs: List[Int]) => xs.map(x => x.doubleValue)
-      val g = (y: Double) => List(y.toString)
-      val h =   (z: String) => List(s"the number was: $z")
-      mon.associativeLawUsingKleisli(xs)(f, g, h) should be (true)
-   }
- }
-
+ 
   property("Prove identity laws using Kleisli composition") {
     forAll {xs: List[Int]  =>
-      val f =  (xs: List[Int]) => xs.map(x => s"${x * 3}")
-      mon.identityLawsUsingKleisli(xs)(f) should be (true)
+      val xxs = chapter5.Stream(xs:_*)
+      val f =  (xs: Stream[Int]) => xs.map(x => s"${x * 3}")
+      val li = mon.compose(f, (b: String) => mon.unit(b))
+      val ri = mon.compose((a: Stream[Int]) => mon.unit(a), f)
+      li(xxs).toList.toString == ri(xxs).toList.toString
     }
   }
 
   property("Test flatmap") {
     forAll { xs: List[Int] =>
-      val actual = mon.flatMap(xs)(x => List(x + 1))
+      val xxs = chapter5.Stream(xs:_*)
+
+      val actual = mon.flatMap(xxs)(x => Stream.cons(x + 1, Stream.empty))
       val expected = xs.flatMap(x => List(x + 1))
-      actual should be (expected)
+      actual.toList should be (expected)
     }
   }
 
   property("Test flatmap on unit value") {
-    val actual = mon.flatMap(List())(x => List())
-    val expected = List()
+    val actual = mon.flatMap(Stream.empty)(x => Stream.empty)
+    val expected = Stream.empty
     actual should be (expected)
   }
 
-  val f: String => List[Int] = (x: String) =>
+  val f: String => Stream[Int] = (x: String) =>
   try {
-    List(x.toInt)
+    val c = x.toInt
+    Stream.cons(c, Stream.empty)
   } catch {
-    case e: Exception => List()
+    case e: Exception => Stream.empty
   }
   
   property("Test traverse over unparseable number") {
-    val xs = List("12","13a")
-    val expected =List()
+    val xs = Stream.cons("12",Stream.cons("13a", Stream.empty)).toList
+    val expected = Stream.empty
     val actual = mon.traverse(xs)(f)
     actual should be (expected)
   }
 
   property("Test traverse") {
     forAll { xs: List[Int] =>
-      val xss = xs.map(_.toString)
-      val expected = List(xss.flatMap(f))
-      val actual = mon.traverse(xss)(f)
-      actual should be (expected)
+      val gx = xs.map(_.toString)
+      val xxs = chapter5.Stream(gx:_*)
+      val expected = xxs.flatMap(f)
+      val actual = mon.traverse(xxs.toList)(f)
+      actual.toList should be (List(expected.toList))
     }
   }
 
   property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
     forAll { l: List[Int] =>
-      val ll = l.map((List(_)))
-      val actual = mon.sequence(ll)
-      actual should be (List(l))
+      val ls = chapter5.Stream(l:_*)
+      val ll = ls.map(x => Stream.cons(x, Stream.empty))
+      val actual = mon.sequence(ll.toList)
+      actual.toList should be (List(l))
     }
   }
 
   property("Test sequence for empty list") {
-    val ll = List()
-    val actual = mon.sequence(ll)
-    actual should be (List(List()))
+    val ll = Stream.empty
+    val actual = mon.sequence(ll.toList)
+    actual.toList should be (List(List()))
   }
-    */
 }
 

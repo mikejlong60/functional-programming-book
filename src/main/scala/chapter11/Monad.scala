@@ -42,6 +42,13 @@ object Monad {
     override def flatMap[A, B](ma: chapter5.Stream[A])(f: A => chapter5.Stream[B]): chapter5.Stream[B] = ma flatMap f
   }
 
+  import chapter7.nonblocking.Nonblocking.Par
+
+  def parMonad = new Monad[Par] {
+    def unit[A](a: => A): Par[A] = Par.lazyUnit(a)
+    override def flatMap[A, B](ma: Par[A])(f: A => Par[B]): Par[B] =  Par.flatMap(ma)(f)
+  }
+
   def listMonad = new Monad[List] {
     def unit[A](a: => A): List[A] = List[A](a)
     override def flatMap[A, B](ma: List[A])(f: A => List[B]): List[B] = ma flatMap f

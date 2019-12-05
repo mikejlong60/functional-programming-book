@@ -35,86 +35,101 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
       val f =  (x: Int) => mon.unit(x.toString)
       val g = (y: String) => mon.unit(s"the number was: $y")
 
-      val a1 = mon.flatMap(mon.flatMap(mon.unit(x))(f))(g)// == flatMap(x)(a => flatMap(f(a))(g))
+      val a1 = mon.flatMap(mon.flatMap(mon.unit(x))(f))(g)
       val actual1 = Par.run(executor)(a1).get
 
-      val a2 = mon.flatMap(mon.unit(x))(a => mon.flatMap(f(a))(g))// == flatMap(x)(a => flatMap(f(a))(g))
+      val a2 = mon.flatMap(mon.unit(x))(a => mon.flatMap(f(a))(g))
       val actual2 = Par.run(executor)(a2).get
 
       actual1 should be (actual2)
     }
   }
- /**
+
   property("Test Kleisli Associative Law") {
-    forAll {xs: List[Int]  =>
-      val f =  (xs: List[Int]) => xs.map(x => x.doubleValue)
-      val g = (y: Double) => List(y.toString)
-      val h =   (z: String) => List(s"the element of the list was: $z")
-     mon.associativeLawUsingKleisli(xs)(f, g, h) should be (true)
+    forAll {x: Int  =>
+      val f =  (x: Int) => mon.unit(x.toString)
+      val g = (y: String) => mon.unit(s"the number was: $y")
+      val h =   (z: String) => mon.unit(s"the element of the list was: $z")
+      val lf = mon.compose(mon.compose(f, g), h)
+      val rf = mon.compose(f, mon.compose(g, h))
+      val lfe = Par.run(executor)(lf(x)).get
+      val rfe = Par.run(executor)(rf(x)).get
+      lfe should be (rfe)
     }
   }
 
- property("Show equivalence  of Kleisli Associative Law and flatMap associative law") {
-    forAll {xs: List[Int]  =>
-      val f =  (xs: List[Int]) => xs.map(x => x.doubleValue)
-      val g = (y: Double) => List(y.toString)
-      val h =   (z: String) => List(s"the number was: $z")
-      mon.associativeLawUsingKleisli(xs)(f, g, h) should be (true)
-    }
- }
-
   property("Prove identity laws using Kleisli composition") {
     forAll {xs: List[Int]  =>
-      val f =  (xs: List[Int]) => xs.map(x => s"${x * 3}")
-      mon.identityLawsUsingKleisli(xs)(f) should be (true)
+      val a = mon.map(mon.unit(xs))(a => a.map(aa => aa + 12))
+      val f =  (xs: List[Int]) => mon.map(mon.unit(xs))(a => a.map(x => s"${x * 3}"))
+      val li = mon.compose(f, (b: List[String])=> mon.unit(b))
+      val ri = mon.compose((a: List[Int]) => mon.unit(a), f)
+      val lfe = Par.run(executor)(li(xs)).get
+      val rfe = Par.run(executor)(ri(xs)).get
+      lfe should be (rfe)
     }
   }
 
   property("Test flatmap") {
     forAll { xs: List[Int] =>
-      val actual = mon.flatMap(xs)(x => List(x + 1))
+      val a = mon.flatMap(mon.unit(xs))(x => mon.unit(x.map(xx => xx + 1)))
+      val actual = Par.run(executor)(a).get
       val expected = xs.flatMap(x => List(x + 1))
       actual should be (expected)
     }
   }
 
   property("Test flatmap on unit value") {
-    val actual = mon.flatMap(List())(x => List())
+    val a = mon.flatMap(mon.unit(List()))(x => mon.unit(List()))
+    val actual = Par.run(executor)(a).get
     val expected = List()
     actual should be (expected)
   }
 
-  val f: String => List[Int] = (x: String) =>
+  val ff: String => List[Int] = (x: String) =>
   try {
     List(x.toInt)
   } catch {
     case e: Exception => List()
   }
-  
-  property("Test traverse over unparseable number") {
-    val xs = List("12","13a")
-    val expected =List()
-    val actual = mon.traverse(xs)(f)
-    actual should be (expected)
+
+  val f = (x: String) =>
+  try {
+    mon.unit(x.toInt)
+  } catch {
+    case e: Exception => mon.unit(1)//List())
   }
 
-  property("Test traverse") {
-    forAll { xs: List[Int] =>
-      val xss = xs.map(_.toString)
-      val expected = List(xss.flatMap(f))
-      val actual = mon.traverse(xss)(f)
-      actual should be (expected)
-    }
-  }
+
+  //property("Test traverse over unparseable number") {
+  //  val xs = List("12","13a")
+ //   val expected =List()
+ //   val a = mon.traverse(xs)(f)
+ //   val actual = Par.run(executor)(a).get
+ //   actual should be (expected)
+//  }
+
+ 
+ // property("Test traverse") {
+ //   forAll { xs: List[Int] =>
+ //     val xss = xs.map(_.toString)
+ //     val expected = List(xss.flatMap(f))
+ //     val actual = mon.traverse(xss)(f)
+ //     actual should be (expected)
+  //  }
+ // }
 
   property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
     forAll { l: List[Int] =>
-      val ll = l.map((List(_)))
-      val actual = mon.sequence(ll)
+     val ll = l.map(x => mon.unit((List(x))))
+//      val ll = mon.unit(l)
+      val a = mon.sequence(ll)
+      val actual = Par.run(executor)(a).get
       actual should be (List(l))
     }
   }
 
+/**
   property("Test sequence for empty list") {
     val ll = List()
     val actual = mon.sequence(ll)

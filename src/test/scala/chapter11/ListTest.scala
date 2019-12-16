@@ -8,6 +8,15 @@ class ListTest extends PropSpec with PropertyChecks with Matchers {
   import Monad._
   val mon = listMonad
 
+  property("Test replicateM") {
+    forAll{  (xX: List[Int], nn: Int) =>
+      val x = List(1,2,3)
+      val n = 3
+      val actual = mon.replicateM(n, x)
+      val expected = List.fill(n)(x)
+      actual should be (expected)
+    }
+  }
   property("Test map") {
     forAll { x: List[Int] =>
       val actual = mon.flatMap(x)(x => List(x + 1))

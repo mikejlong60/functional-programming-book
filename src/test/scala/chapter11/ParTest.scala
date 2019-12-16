@@ -2,6 +2,7 @@ package chapter11
 
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
+import chapter7.nonblocking.Nonblocking.Par
 
 class ParTest extends PropSpec with PropertyChecks with Matchers {
 
@@ -86,55 +87,46 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
     actual should be (expected)
   }
 
-  val ff: String => List[Int] = (x: String) =>
-  try {
-    List(x.toInt)
-  } catch {
-    case e: Exception => List()
+  val f = (x: Par[String]) =>
+  //try
+  {
+    println("1")
+    val r = Par.map(x)(xx => xx.toInt)
+    println("2")
+    r
+  //} catch {
+   // case e: Exception => {
+    //  println("crap")
+    //  mon.unit(e)//-1)
+   // }
   }
 
-  val f = (x: String) =>
-  try {
-    mon.unit(x.toInt)
-  } catch {
-    case e: Exception => mon.unit(1)//List())
-  }
 
-
-  //property("Test traverse over unparseable number") {
-  //  val xs = List("12","13a")
- //   val expected =List()
- //   val a = mon.traverse(xs)(f)
- //   val actual = Par.run(executor)(a).get
- //   actual should be (expected)
-//  }
-
- 
- // property("Test traverse") {
- //   forAll { xs: List[Int] =>
- //     val xss = xs.map(_.toString)
- //     val expected = List(xss.flatMap(f))
- //     val actual = mon.traverse(xss)(f)
- //     actual should be (expected)
-  //  }
+  //TODO this blocks forever.  Figure out why.
+ // property("Test traverse over unparseable number") {
+ //   val xs = List("12","13a").map(x => mon.unit(x))
+ //   val expected =List(-1)
+  //  val a = mon.traverse(xs)(f)
+  //  val actual = Par.run(executor)(a).get
+    //actual should be (expected)
  // }
-
-  property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
-    forAll { l: List[Int] =>
-     val ll = l.map(x => mon.unit((List(x))))
-//      val ll = mon.unit(l)
-      val a = mon.sequence(ll)
+ 
+ property("Test traverse") {
+    forAll { xs: List[Int] =>
+      val xss = xs.map(x => mon.unit(x.toString))
+      val a = mon.traverse(xss)(f)
       val actual = Par.run(executor)(a).get
-      actual should be (List(l))
+      actual should be (xs)
     }
   }
 
-/**
-  property("Test sequence for empty list") {
-    val ll = List()
-    val actual = mon.sequence(ll)
-    actual should be (List(List()))
+  property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
+    forAll { l: List[Int] =>
+      val ll = l.map(x => mon.unit(x))
+      val a = mon.sequence(ll)
+      val actual = Par.run(executor)(a).get
+      actual should be (l)
+    }
   }
-    */
 }
 

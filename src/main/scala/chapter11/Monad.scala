@@ -27,6 +27,15 @@ trait Monad[F[_]] extends Functor[F] {
     val ri = compose((a: A) => unit(a), f)
     li(a) == ri(a)
   }
+
+  //TODO This is not quite right .  See ListTest
+  def replicateM[A](n: Int, ma: F[A]): F[List[A]] = {
+    def inner(i: Int, accum: List[F[A]]): List[F[A]] =  {
+      if (i > n) accum
+      else inner(i + 1, map(ma)(a => a)  :: accum)
+    }
+    sequence(inner(1, List.empty))
+  }
 }
 
 object Monad {

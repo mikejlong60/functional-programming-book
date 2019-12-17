@@ -14,6 +14,18 @@ class OptionTest extends PropSpec with PropertyChecks with Matchers {
   import chapter4.Some
 
 
+  property("Test replicateM") {
+    forAll{  (x: Int, n: Short) =>
+      val xx = Some(x)
+      val actual = mon.replicateM(n, xx)
+      val expected = Some(List.fill(n)(x))
+      println("poooooooooooo:"+expected)
+      actual should be (expected)
+    }
+  }
+
+
+
   property("Test Option map function for Ints") {
     forAll { x: Int =>
       val actual = mon.map(Some(x))(x => x + 1)

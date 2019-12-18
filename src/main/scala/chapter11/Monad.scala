@@ -34,7 +34,16 @@ trait Monad[F[_]] extends Functor[F] {
       if (i > n) accum
       else inner(i + 1, map(ma)(a => a)  :: accum)
     }
-    sequence(inner(1, List.empty))
+    sequence(List.fill(n)(ma))
+    //sequence(inner(1, List.empty))
+  }
+
+  def filterM[A](ms: List[A])(f: A => F[Boolean]): F[List[A]] = {
+    val b: F[List[Boolean]] = traverse(ms)(f)
+    val a: F[List[A]] = sequence(ms.map(a => unit(a)))
+    val c = map2(b, a)((bools, aas) => aas.zip(bools).filter(pair => pair._2))
+    val d = map(c)(e => e.map(f => f._1))
+    d
   }
 }
 

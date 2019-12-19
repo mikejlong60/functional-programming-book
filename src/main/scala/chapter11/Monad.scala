@@ -10,12 +10,13 @@ trait Functor[F[_]] {
 trait Monad[F[_]] extends Functor[F] {
   def unit[A](a: => A): F[A]
   def flatMap[A,B](ma: F[A])(f: A => F[B]): F[B]
+  def flaaatMap[A,B](ma: F[A])(f: A => F[B]): F[B] = ???
   def map[A,B](ma: F[A])(f: A => B): F[B] = flatMap(ma)(a => unit(f(a)))
   def map2[A,B,C](ma: F[A], mb: F[B])(f: (A, B) => C): F[C] = flatMap(ma)(a => map(mb)(b => f(a, b)))
   def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A, B, C) => D): F[D] = flatMap(ma)(a => flatMap(mb)(b => map(mc)(c => f(a, b, c))))
   def sequence[A](lma: List[F[A]]): F[List[A]] = lma.foldRight(unit(List[A]()))((ma, mla) => map2(ma, mla)(_ :: _))
   def traverse[A,B](la: List[A])(f: A => F[B]): F[List[B]] = sequence(la.map(a => f(a)))
-  def compose[A,B,C](f: A => F[B], g: B => F[C] ): A => F[C] = a => flatMap(f(a))(g)
+  def compose[A,B,C](f: A => F[B], g: B => F[C]): A => F[C] = a => flatMap(f(a))(g)
   def associativeLaw[A,B](x: F[A])(f: A => F[B])(g: B => F[B]): Boolean  = flatMap(flatMap(x)(f))(g) == flatMap(x)(a => flatMap(f(a))(g))
   def associativeLawUsingKleisli[A,B,C,D](a: A)(f: A => F[B], g: B => F[C], h: C => F[D]): Boolean  = {
     val lf = compose(compose(f, g), h)

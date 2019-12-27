@@ -10,7 +10,10 @@ trait Functor[F[_]] {
 trait Monad[F[_]] extends Functor[F] {
   def unit[A](a: => A): F[A]
   def flatMap[A,B](ma: F[A])(f: A => F[B]): F[B]
-  def flaaatMap[A,B](ma: F[A])(f: A => F[B]): F[B] = ???
+  def _flatMap[A,B](ma: F[A])(f: A => F[B]): F[B] = {
+    val hh = compose((s: Unit) => ma, f)(())
+    hh
+  }
   def map[A,B](ma: F[A])(f: A => B): F[B] = flatMap(ma)(a => unit(f(a)))
   def map2[A,B,C](ma: F[A], mb: F[B])(f: (A, B) => C): F[C] = flatMap(ma)(a => map(mb)(b => f(a, b)))
   def map3[A,B,C,D](ma: F[A], mb: F[B], mc: F[C])(f: (A, B, C) => D): F[D] = flatMap(ma)(a => flatMap(mb)(b => map(mc)(c => f(a, b, c))))
@@ -51,7 +54,7 @@ trait Monad[F[_]] extends Functor[F] {
 object Monad {
   def IOMonad = new Monad[IO] {
     def unit[A](a: => A): IO[A] = new IO[A] { def run = a}
-    def flatMap[A, B](ma: IO[A])(f: A => IO[B]): IO[B] = new IO[B] {
+    override def flatMap[A, B](ma: IO[A])(f: A => IO[B]): IO[B] = new IO[B] {
       def run = f(ma.run).run
     }
   }

@@ -80,6 +80,16 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Test flatmap that uses compose") {
+    forAll { xs: List[Int] =>
+      val a = mon._flatMap(mon.unit(xs))(x => mon.unit(x.map(xx => xx + 1)))
+      val actual = Par.run(executor)(a).get
+      val expected = xs.flatMap(x => List(x + 1))
+      actual should be (expected)
+    }
+  }
+
+
   property("Test flatmap on unit value") {
     val a = mon.flatMap(mon.unit(List()))(x => mon.unit(List()))
     val actual = Par.run(executor)(a).get

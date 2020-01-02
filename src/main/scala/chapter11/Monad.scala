@@ -57,6 +57,13 @@ trait Monad[F[_]] extends Functor[F] {
 }
 
 object Monad {
+  case class Id[A](value: A)
+
+  def idMonad = new Monad[Id] {
+    def unit[A](a: => A): Id[A]  = Id(a)
+    override def flatMap[A, B](ma: Id[A])(f: A => Id[B]) = f(ma.value)
+  }
+
   def IOMonad = new Monad[IO] {
     def unit[A](a: => A): IO[A] = new IO[A] { def run = a}
     override def flatMap[A, B](ma: IO[A])(f: A => IO[B]): IO[B] = new IO[B] {

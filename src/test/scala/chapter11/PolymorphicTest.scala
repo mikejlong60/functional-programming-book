@@ -81,12 +81,9 @@ class PolymorphicTest extends PropSpec with PropertyChecks with Matchers {
     import chapter7.nonblocking.Nonblocking.Par
     forAll{  (x: Int) =>
       val f =  (a: Int) => if (a > 1000) parMonad.unit(true) else parMonad.unit(false)
-      while (true) {
       val actual = Par.run(ex)(parMonad.flatMapWithJoin(parMonad.unit(x))(f))
-        val expected = Par.run(ex)(f(x))
-      
+      val expected = Par.run(ex)(f(x))
       actual should be (expected)
-      }
     }
   }
 

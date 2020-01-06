@@ -100,10 +100,28 @@ object Monad {
     def unit[A](a: => A): chapter4.Either[S,A] = chapter4.Right(a)
   }
 
+  val F = stateMonad[Int]
   def stateMonad[S] = new  Monad[({type s[x] = State[S, x]}) #s]  {
     override def flatMap[A,B](sa: State[S,A])(f: A => State[S,B]): State[S,B] = sa flatMap f
-      
+
     def unit[A](a: => A): State[S,A] = State(s => (a, s))
   }
 
+  def getState[S]: State[S,S] = State(s => (s,s))
+  def setState[S](s: S): State[S,Unit] = State(_ => ((),s))
+  def zipWithIndex[A](as: List[A]): List[(Int, A)] =
+    as.foldLeft(F.unit(List[(Int, A)]()))((acc, a) => for {
+      xs <- acc
+      hh = println(s"a: $a")
+      f = println(s"acc:$acc")
+      g = println(s"xs: $xs")
+      h = println("==============")
+      n <- getState
+      //val sf = println(n)
+      d <- setState({
+        println(s"n is:$n")
+        n + 1
+      })
+
+    } yield (n, a) :: xs).run(0)._1.reverse
 }

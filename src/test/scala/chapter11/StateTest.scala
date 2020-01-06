@@ -2,12 +2,10 @@ package chapter11
 
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
-//import scala.{Option => _, None => _, Some => _,  Right => _, Left => _, Either => _, _}
 
 class StateTest extends PropSpec with PropertyChecks with Matchers {
 
   import Monad._
-
 
   property("Test State map function for Ints") {
     val mon = stateMonad[Int]
@@ -30,7 +28,7 @@ class StateTest extends PropSpec with PropertyChecks with Matchers {
         val ii: (Int, chapter6.RNG) = mon.map(s)((x: Int) => x + 10).run(rng)
         val ii2: (Int, chapter6.RNG) = mon.map(s)((x: Int) => x + 11).run(rng)
         i1 should be  (i + 1200)
-        val l = List(ii,ii2)//s, s)//(i1, r1), (i2, r2))
+        val l = List(ii,ii2)
         val kk = mon.traverse(l)(p  => {
           val pp = State(run = (s: chapter6.RNG) => (p._1, p._2))
           pp
@@ -42,6 +40,11 @@ class StateTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-
+  property("Understand getState and setState") {
+     val xs = List(11,22,33)
+     val actual = zipWithIndex(xs)
+    val expected = List((0,11),(1,22),(2,33))
+    actual should be (expected)
+  }
 }
 

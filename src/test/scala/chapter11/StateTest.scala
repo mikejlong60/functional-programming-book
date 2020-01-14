@@ -41,10 +41,11 @@ class StateTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   property("Understand getState and setState") {
-     val xs = List(11,22,33)
-     val actual = zipWithIndex(xs)
-    val expected = List((0,11),(1,22),(2,33))
-    actual should be (expected)
+    forAll {xs: List[Int] =>
+      val actual = zipWithIndex(xs)
+      val expected = xs.zipWithIndex.map(x => (x._2, x._1))
+      actual should be (expected)
+    }
   }
 }
 

@@ -100,6 +100,15 @@ object Monad {
     def unit[A](a: => A): chapter4.Either[S,A] = chapter4.Right(a)
   }
 
+  def readerMonad[R] = new Monad[({type f[x] = Reader[R,x]}) #f] {
+    def unit[A](a: => A): Reader[R,A] = Reader(_ => a)
+    override def flatMap[A,B](st: Reader[R,A])(f: A => Reader[R,B]): Reader[R,B] = Reader(r =>{
+      val o: Reader[R, B] =  f(st.run(r))
+      val k: B = o.run(r)
+      k
+    })
+  }
+
   val F = stateMonad[Int]
   def stateMonad[S] = new  Monad[({type s[x] = State[S, x]}) #s]  {
     override def flatMap[A,B](sa: State[S,A])(f: A => State[S,B]): State[S,B] = sa flatMap f
@@ -115,4 +124,6 @@ object Monad {
       n <- getState
       _ <- setState(n + 1)
     } yield (n, a) :: xs).run(0)._1.reverse
+
+
 }

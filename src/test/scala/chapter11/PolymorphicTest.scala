@@ -46,7 +46,7 @@ class PolymorphicTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Test flatMap built using map and join") {
+ property("Test flatMap built using map and join") {
     flatMapWithJoinTest(listMonad)
     flatMapWithJoinTest(optionMonad)
 //    flatMapWithJoinTest(parMonad)

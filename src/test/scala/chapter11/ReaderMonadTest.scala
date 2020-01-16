@@ -73,88 +73,92 @@ class ReaderMonadTest extends PropSpec with PropertyChecks with Matchers {
       left should be(right)
     }
   }
-/**
-  property("Show equivalence  of Kleisli Associative Law and flatMap associative law") {
-    forAll {x: Int  =>
-      val f =  (x: Int) => Right(x.doubleValue)
-      val g = (y: Double) => Right(y.toString)
-      val h =   (z: String) => Right(s"the number was: $z")
-      mon.associativeLawUsingKleisli(x)(f, g, h) should be (true)
-    }
-  }
 
   property("Prove identity laws using Kleisli composition") {
     forAll {x: Int  =>
-      val f =  (x: Int) => Right(x.doubleValue)
-      mon.identityLawsUsingKleisli(x)(f) should be (true)
+      val f = (x:Int)  => mon.unit(x)
+      val li = mon.compose(f, (b: Int) => mon.unit(b))
+      val ri = mon.compose((a: Int) => mon.unit(a), f)
+      val left = li(x)
+      val right = ri(x)
+      left.run(x) should be (right.run(x))
     }
   }
 
-  property("Test Either flatmap function for Ints") {
-    forAll { x: Int =>
-      val actual = mon.flatMap(Right(x))(x => Right(x + 1))
-      val expected = Right(x + 1)
-      actual should be (expected)
-    }
-  }
-
-  property("Test Either flatmap function for Left") {
-    forAll { x: Int =>
-      val actual = mon.flatMap(Left(List("heck")))(x => x)
-      val expected = Left(List("heck"))
-      actual should be (expected)
-    }
-  }
-
-  property("Test Either map function for Left") {
-    val actual = mon.map(Left(List("dude")))(x => 1)
-    val expected = Left
-    actual should be (Left(List("dude")))
-  }
-
-
-val f: String => Either[List[String], Int] = (x: String) => 
+  val specialMon = chapter11.Monad.readerMonad[List[String]]
+  val f: String => Reader[List[String], Int] = (xs: String) =>
   try {
-    Right(x.toInt)
+    val x = xs.toInt
+    specialMon.unit(x)
   } catch {
-    case e: Exception => Left(List(s"$e"))
+    case e: Exception => specialMon.unit(-1)
   }
   
   property("Test traverse over unparseable number") {
-    val xs = List("12","13a")
-    val expected = Left(List("java.lang.NumberFormatException: For input string: \"13a\""))
-    val actual = mon.traverse(xs)(f)
+    val xs = List("11","13a")
+    val expected = List(11,-1)
+    val r = specialMon.traverse(xs)(f)
+    val actual = r.run(xs)
     actual should be (expected)
   }
 
   property("Test traverse over empty list") {
     val xs = Nil
-    val expected = Right(Nil)
-    val actual = mon.traverse(xs)(f)
+    val expected = Nil
+    val actual = specialMon.traverse(xs)(f).run(xs)
     actual should be (expected)
   }
 
   property("Test traverse over list of one element") {
     val xs = List("12")
-    val expected = Right(List(12))
-    val actual = mon.traverse(xs)(f)
+    val expected = List(12)
+    val actual = specialMon.traverse(xs)(f).run(xs)
     actual should be (expected)
   }
 
-  property("Test sequence for non-empty list") {
-    forAll { l: List[Int] =>
-      val ll = l.map((Right(_)))
-      val actual = mon.sequence(ll)
-      actual should be (Right(l))
+  property("Test replicateM") {
+    val mon = chapter11.Monad.readerMonad[Int ]
+    forAll { x: Int =>
+      val f = (x:Int)  => x  - 3
+      val lll = mon.replicateM(12, Reader(f))
+      val actual = lll.run(x)
+      val expected = List.fill(12)(x).map(f)
+      actual should be (expected)
     }
   }
 
-  property("Test sequence for empty list") {
-    val l = List()
-    val actual = mon.sequence(l)
-    actual should be (Right(List.empty[Int]))
-  }
+
+/**
+replicateM allows you to apply the same function n times to the same argument.  So you can 
+make replicateM apply the function only once instead of calling it many times by overrideing it 
+in the Reader Monad.  You have not done that yet but you could.
+
+The sequence function takes a list of functions and takes the one argument and passes it
+to every function in the list and returns the resulting list.
 
   */
+
+  property("Test sequence for list of functions") {
+    val mon = chapter11.Monad.readerMonad[Int ]
+    forAll { (x: Int) =>
+      val x = 13
+      val y = 100
+      val f = (x:Int)  => x  - 3
+      val xs = List.fill(y)(Reader(f))
+      val actual = mon.sequence(xs).run(x)
+      actual should be (List.fill(y)(x -3))
+    }
+  }
+
+  property("Test sequence for empty list of functions") {
+    val mon = chapter11.Monad.readerMonad[Int ]
+    forAll { (x: Int) =>
+      val f = (x:Int)  => x  - 3
+      val r: Reader[Int, Int] = Reader(f)
+      val xs = List.empty[Reader[Int, Int]]
+      val actual = mon.sequence(xs).run(x)
+      actual should be (List())
+    }
+  }
 }
 

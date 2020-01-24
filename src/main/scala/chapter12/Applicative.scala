@@ -29,9 +29,36 @@ trait Applicative[F[_]] extends chapter11.Functor[F] {
   def replicateM[A](n: Int, fa: F[A]): F[List[A]] = sequence(List.fill(n)(fa))
 
   def product[A,B](fa: F[A], fb: F[B]): F[(A, B)] = map2(fa, fb)((a, b) => (a, b))
+
+  def associativeLaw[A,B,C](fa: F[A])(fb: F[B])(fc: F[C]): Boolean  = {
+    def assoc[A,B,C](p: (A, (B, C))): ((A,B),C) = p match {
+      case (a, (b, c)) => ((a, b), c)
+    }
+    product(product(fa, fb), fc) == map(product(fa, product(fb, fc)))(assoc)
+  }
+
 }
 
 object ApplicativeInstances {
+    def validation[S] = new Applicative[({type f[x] = Validation[S, x]}) #f] {
+    def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = fa match {
+      case Success(a) => fb match {
+        case Success(b) => Success(f(a, b))
+        case Failure(h, t) => Failure(h, t)
+      }
+      case Failure(h, t) => fb match {
+        case Success(b) => Failure(h, t)
+        case Failure(hh, tt) => Failure(hh, (h +: t) ++ tt) 
+      }
+    }
+    def unit[A](a: => A): Validation[S ,A] = Success(a)
+  }
+
+  def list = new Applicative[List] {
+    def map2[A,B,C](fa: List[A], fb: List[B])(f: (A,B) => C): List[C] = fa zip fb map f.tupled    
+    def unit[A](a: => A): List[A] = List(a)
+  }
+
   def option = new Applicative[Option] {
     def map2[A,B,C](fa: Option[A], fb: Option[B])(f: (A,B) => C): Option[C] = fa match {
       case Some(a) => fb.map(b => f(a, b))

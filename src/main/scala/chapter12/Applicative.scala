@@ -37,10 +37,24 @@ trait Applicative[F[_]] extends chapter11.Functor[F] {
     product(product(fa, fb), fc) == map(product(fa, product(fb, fc)))(assoc)
   }
 
+  def leftAndRightIdentityLaw[A](fa: F[A]): Boolean = {
+    val li = map2(unit(()), fa)((_, a) => a)
+    val ri = map2(fa, unit(()))((a, _) => a)
+    ri == li && ri == fa
+  }
+
+  def naturalityOfProductLaw[A, B, A2, B2](fa: F[A], fb: F[A2])(f: A => B)(g: A2 => B2) = {
+
+    def productF(f: A=> B)(g: A2 => B2): (A,  A2) => (B,B2) = (a, a2) => (f(a), g(a2))
+
+    val l = map2(fa, fb)(productF(f)(g))
+    val r = product(map(fa)(f), map(fb)(g))
+    l == r
+  }
 }
 
 object ApplicativeInstances {
-    def validation[S] = new Applicative[({type f[x] = Validation[S, x]}) #f] {
+  def validation[S] = new Applicative[({type f[x] = Validation[S, x]}) #f] {
     def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = fa match {
       case Success(a) => fb match {
         case Success(b) => Success(f(a, b))
@@ -48,7 +62,7 @@ object ApplicativeInstances {
       }
       case Failure(h, t) => fb match {
         case Success(b) => Failure(h, t)
-        case Failure(hh, tt) => Failure(hh, (h +: t) ++ tt) 
+        case Failure(hh, tt) => Failure(hh, (h +: t) ++ tt)
       }
     }
     def unit[A](a: => A): Validation[S ,A] = Success(a)

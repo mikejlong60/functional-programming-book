@@ -124,6 +124,8 @@ object Stream {
 
   def empty[A]: Stream[A] = Empty
 
+  def continually[A](a: => A): Stream[A] = Stream.cons(a, continually(a))
+  
 
   //Latest additions on 6/08/2019.  There were no exercises for this so I stole them from answer key for use with later exercises.
   def zipWith[A, B,C](s1 :Stream[A], s2: Stream[B])(f: (A,B) => C): Stream[C] =

@@ -54,6 +54,13 @@ trait Applicative[F[_]] extends chapter11.Functor[F] {
 }
 
 object ApplicativeInstances {
+
+  def stream = new Applicative[chapter5.Stream] {
+    def unit[A](a: => A): chapter5.Stream[A] = chapter5.Stream.continually(a)
+
+    def map2[A, B, C](a: chapter5.Stream[A], b: chapter5.Stream[B])(f: (A,B) => C): chapter5.Stream[C] = chapter5.Stream.zip(a,b).map(f.tupled)
+  }
+
   def validation[S] = new Applicative[({type f[x] = Validation[S, x]}) #f] {
     def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = fa match {
       case Success(a) => fb match {

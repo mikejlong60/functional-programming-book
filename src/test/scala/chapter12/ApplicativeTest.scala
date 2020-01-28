@@ -82,7 +82,7 @@ class ApplicativeTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-    property("Verify left and right identity law for validator") {
+  property("Verify left and right identity law for validator") {
     forAll{ (ln: List[Int]) =>
       val fln = validation.unit(ln)
       val r = validation.leftAndRightIdentityLaw(fln)
@@ -90,4 +90,10 @@ class ApplicativeTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("Understand stream mapN") {
+    forAll{(a: Int, b: Int, c: String) =>
+      val actual = stream.map3(stream.unit(a), stream.unit(b), stream.unit(c))((a, b, c) => (a, b, c)).take(300).toList
+      actual.size should be (300)
+    }
+  }
 }

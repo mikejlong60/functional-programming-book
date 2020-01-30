@@ -87,7 +87,7 @@ object ApplicativeInstances {
        case (Failure(h, t), Failure(hh,tt)) => Failure(hh, (h +: t) ++ tt)
     }
 
-    //Switch back the ugnderscore and non-underscore versions to see the tests pass with the map2 definition based upon map2 versus the one based on apply
+    //Switch back the underscore and non-underscore versions to see the tests pass with the map2 definition based upon map2 versus the one based on apply
     def _map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = (fa, fb) match {
       case (Success(a), Success(b)) => Success(f(a, b))
       case (Success(_), fail @ Failure(h, t)) => fail

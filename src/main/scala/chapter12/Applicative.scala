@@ -1,6 +1,7 @@
 package chapter12
 
 trait Applicative[F[_]] extends chapter11.Functor[F] {
+ // def apply[A,B](fab: F[A => B])(fa: F[A]): F[B]
   def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C]
   def unit[A](a: => A): F[A]
 
@@ -62,16 +63,38 @@ object ApplicativeInstances {
   }
 
   def validation[S] = new Applicative[({type f[x] = Validation[S, x]}) #f] {
-    def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = fa match {
-      case Success(a) => fb match {
-        case Success(b) => Success(f(a, b))
-        case Failure(h, t) => Failure(h, t)
-      }
-      case Failure(h, t) => fb match {
-        case Success(b) => Failure(h, t)
-        case Failure(hh, tt) => Failure(hh, (h +: t) ++ tt)
-      }
+    def apply[A,B](fab: Validation[S, A => B])(fa: Validation[S, A]): Validation[S, B] = (fab, fa) match {
+      case (Success(f), Success(a)) =>
+        val ffab = (a:A, _: Unit) => f(a)
+        _map2(fa, unit(()))(ffab)
+      case (Success(f), Failure(h, t)) =>
+        val ffab = (a:A, _: Unit) => f(a)
+        _map2(fa, unit(()))(ffab)
+      case (fail @ Failure(h, t), _) => fail
+      case (Failure(h, t), Failure(hh,tt)) => Failure(hh, (h +: t) ++ tt)
     }
+
+    def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = (fa, fb) match {
+      case (Success(a), Success(b)) =>
+        val aaf = unit(f.tupled)
+        apply(aaf)(unit(a,b))
+      case (Success(a), fail @ Failure(h, t)) =>
+        val aaf = unit(f.tupled)
+        apply(aaf)(fail)
+      case (fail @ Failure(h, t), Success(a)) =>
+        val aaf = unit(f.tupled)
+        apply(aaf)(fail)
+       case (Failure(h, t), Failure(hh,tt)) => Failure(hh, (h +: t) ++ tt)
+    }
+
+    //Switch back the ugnderscore and non-underscore versions to see the tests pass with the map2 definition based upon map2 versus the one based on apply
+    def _map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = (fa, fb) match {
+      case (Success(a), Success(b)) => Success(f(a, b))
+      case (Success(_), fail @ Failure(h, t)) => fail
+      case (fail @ Failure(h, t), Success(_)) => fail
+      case (Failure(h, t), Failure(hh,tt)) => Failure(hh, (h +: t) ++ tt)
+    }
+
     def unit[A](a: => A): Validation[S ,A] = Success(a)
   }
 

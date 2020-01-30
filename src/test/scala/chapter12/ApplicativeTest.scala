@@ -96,4 +96,14 @@ class ApplicativeTest extends PropSpec with PropertyChecks with Matchers {
       actual.size should be (300)
     }
   }
+
+  property("Understand stream sequence") {
+    forAll{(a: Int, b: Int, c: Long) =>
+      val s = List(stream.unit(a), stream.unit(b), stream.unit(c))
+      val actual = stream.sequence(s).take(3).toList
+      actual should be (List.fill(3)(List(a, b, c)))
+    }
+  }
+
+
 }

@@ -1,8 +1,15 @@
 package chapter12
 
 trait Applicative[F[_]] extends chapter11.Functor[F] {
- // def apply[A,B](fab: F[A => B])(fa: F[A]): F[B]
-  def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C]
+  def apply[A,B](fab: F[A => B])(fa: F[A]): F[B] = map2(fab, fa)(_(_))
+
+   // `map2` is implemented by first currying `f` so we get a function
+  // of type `A => B => C`. This is a function that takes `A` and returns
+  // another function of type `B => C`. So if we map `f.curried` over an
+  // `F[A]`, we get `F[B => C]`. Passing that to `apply` along with the
+  // `F[B]` will give us the desired `F[C]`.
+  def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] = apply(map(fa)(f.curried))(fb)
+ // def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C]
   def unit[A](a: => A): F[A]
 
   def map3[A,B,C,D](fa: F[A], fb: F[B], fc: F[C])(f: (A,B,C) => D): F[D] = {
@@ -31,6 +38,24 @@ trait Applicative[F[_]] extends chapter11.Functor[F] {
 
   def product[A,B](fa: F[A], fb: F[B]): F[(A, B)] = map2(fa, fb)((a, b) => (a, b))
 
+ def productG[G[_]](G: Applicative[G]) : Applicative[({type f[x] = (F[x], G[x])}) #f] = {
+    val self = this
+    new Applicative[({type f[x] = (F[x], G[x])}) #f] {
+      def unit[A](a: => A) = (self.unit(a), G.unit(a))
+
+      override def apply[A, B](fs: (F[A => B], G[A => B]))(p: (F[A], G[A])): (F[B], G[B]) = (self.apply(fs._1)(p._1), G.apply(fs._2)(p._2))
+   }
+ }
+
+  def composeG[G[_]](G: Applicative[G]) : Applicative[({type f[x] = (F[G[x]])}) #f] = {
+    val self = this
+    new Applicative[({type f[x] = (F[G[x]])}) #f]  {
+      def unit[A](a: => A): F[G[A]] = self.unit(G.unit(a))
+
+      override def map2[A, B, C](fa: F[G[A]], fb: (F[G[B]]))(f: (A, B) => C): F[G[C]] = self.map2(fa, fb)(G.map2(_,_)(f))
+    }
+ }
+
   def associativeLaw[A,B,C](fa: F[A])(fb: F[B])(fc: F[C]): Boolean  = {
     def assoc[A,B,C](p: (A, (B, C))): ((A,B),C) = p match {
       case (a, (b, c)) => ((a, b), c)
@@ -57,24 +82,26 @@ trait Applicative[F[_]] extends chapter11.Functor[F] {
 object ApplicativeInstances {
 
   def stream = new Applicative[chapter5.Stream] {
+    override def apply[A,B](fab: chapter5.Stream[A => B])(fa: chapter5.Stream[A]): chapter5.Stream[B] = chapter5.Stream.zip(fab,fa).map(t => (t._1(t._2)))
+
     def unit[A](a: => A): chapter5.Stream[A] = chapter5.Stream.continually(a)
 
-    def map2[A, B, C](a: chapter5.Stream[A], b: chapter5.Stream[B])(f: (A,B) => C): chapter5.Stream[C] = chapter5.Stream.zip(a,b).map(f.tupled)
+    override def map2[A, B, C](a: chapter5.Stream[A], b: chapter5.Stream[B])(f: (A,B) => C): chapter5.Stream[C] = chapter5.Stream.zip(a,b).map(f.tupled)
   }
 
   def validation[S] = new Applicative[({type f[x] = Validation[S, x]}) #f] {
-    def apply[A,B](fab: Validation[S, A => B])(fa: Validation[S, A]): Validation[S, B] = (fab, fa) match {
+    override def apply[A,B](fab: Validation[S, A => B])(fa: Validation[S, A]): Validation[S, B] = (fab, fa) match {
       case (Success(f), Success(a)) =>
         val ffab = (a:A, _: Unit) => f(a)
         _map2(fa, unit(()))(ffab)
       case (Success(f), Failure(h, t)) =>
         val ffab = (a:A, _: Unit) => f(a)
         _map2(fa, unit(()))(ffab)
-      case (fail @ Failure(h, t), _) => fail
+      case (fail @ Failure(h, t), Success(_)) => fail
       case (Failure(h, t), Failure(hh,tt)) => Failure(hh, (h +: t) ++ tt)
     }
 
-    def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = (fa, fb) match {
+    override def map2[A, B, C](fa: Validation[S, A], fb: Validation[S, B])(f: (A, B) => C): Validation[S, C] = (fa, fb) match {
       case (Success(a), Success(b)) =>
         val aaf = unit(f.tupled)
         apply(aaf)(unit(a,b))
@@ -99,12 +126,17 @@ object ApplicativeInstances {
   }
 
   def list = new Applicative[List] {
-    def map2[A,B,C](fa: List[A], fb: List[B])(f: (A,B) => C): List[C] = fa zip fb map f.tupled    
+    override def apply[A,B](fab: List[A => B])(fa: List[A]): List[B] = fab zip fa map(t => t._1(t._2))
+    override def map2[A,B,C](fa: List[A], fb: List[B])(f: (A,B) => C): List[C] = fa zip fb map f.tupled    
     def unit[A](a: => A): List[A] = List(a)
   }
 
   def option = new Applicative[Option] {
-    def map2[A,B,C](fa: Option[A], fb: Option[B])(f: (A,B) => C): Option[C] = fa match {
+    override def apply[A,B](fab: Option[A => B])(fa: Option[A]): Option[B] = (fab, fa) match {
+      case (Some(f), Some(a)) => Some(f(a))
+      case _ => None
+    }
+    override def map2[A,B,C](fa: Option[A], fb: Option[B])(f: (A,B) => C): Option[C] = fa match {
       case Some(a) => fb.map(b => f(a, b))
       case None => None
     }
@@ -112,7 +144,14 @@ object ApplicativeInstances {
   }
 
   def either[S] = new Applicative[({type f[x] = chapter4.Either[S, x]}) #f] {
-    def map2[A,B,C](fa: chapter4.Either[S, A], fb: chapter4.Either[S, B])(f: (A,B) => C): chapter4.Either[S, C] = fa match {
+    override def apply[A,B](fab: chapter4.Either[S, A => B])(fa: chapter4.Either[S, A]): chapter4.Either[S, B] = (fab, fa) match {
+      case (chapter4.Right(f), chapter4.Right(a)) => chapter4.Right(f(a))
+      case (chapter4.Right(f), ea @ chapter4.Left(a)) => ea
+      case (ef @ chapter4.Left(f), chapter4.Right(a)) => ef
+      case (ef @ chapter4.Left(f), chapter4.Left(a)) => ef
+    }
+
+    override def map2[A,B,C](fa: chapter4.Either[S, A], fb: chapter4.Either[S, B])(f: (A,B) => C): chapter4.Either[S, C] = fa match {
       case chapter4.Right(a) => fb.map(b => f(a, b))
       case l @ chapter4.Left(_) => l
     }

@@ -17,20 +17,22 @@ trait Monad[F[_]] extends Applicative[F] {
 object MonadInstances {
 
   def stream = new Monad[chapter5.Stream] {
+    override def apply[A,B](fab: chapter5.Stream[A => B])(fa: chapter5.Stream[A]): chapter5.Stream[B] = chapter5.Stream.zip(fab,fa).map(t => (t._1(t._2)))
+
     def unit[A](a: => A): chapter5.Stream[A] = chapter5.Stream.continually(a)
 
     override def map2[A, B, C](a: chapter5.Stream[A], b: chapter5.Stream[B])(f: (A,B) => C): chapter5.Stream[C] = chapter5.Stream.zip(a,b).map(f.tupled)
   }
 
   def validation[S] = new Monad[({type f[x] = Validation[S, x]}) #f] {
-    def apply[A,B](fab: Validation[S, A => B])(fa: Validation[S, A]): Validation[S, B] = (fab, fa) match {
+    override def apply[A,B](fab: Validation[S, A => B])(fa: Validation[S, A]): Validation[S, B] = (fab, fa) match {
       case (Success(f), Success(a)) =>
         val ffab = (a:A, _: Unit) => f(a)
         _map2(fa, unit(()))(ffab)
       case (Success(f), Failure(h, t)) =>
         val ffab = (a:A, _: Unit) => f(a)
         _map2(fa, unit(()))(ffab)
-      case (fail @ Failure(h, t), _) => fail
+      case (fail @ Failure(h, t), Success(_)) => fail
       case (Failure(h, t), Failure(hh,tt)) => Failure(hh, (h +: t) ++ tt)
     }
 
@@ -59,11 +61,18 @@ object MonadInstances {
   }
 
   def list = new Monad[List] {
+    override def apply[A,B](fab: List[A => B])(fa: List[A]): List[B] = fab zip fa map(t => t._1(t._2))
+
     override def map2[A,B,C](fa: List[A], fb: List[B])(f: (A,B) => C): List[C] = fa zip fb map f.tupled
     def unit[A](a: => A): List[A] = List(a)
   }
 
   def option = new Monad[Option] {
+    override def apply[A,B](fab: Option[A => B])(fa: Option[A]): Option[B] = (fab, fa) match {
+      case (Some(f), Some(a)) => Some(f(a))
+      case _ => None
+    }
+
     override def map2[A,B,C](fa: Option[A], fb: Option[B])(f: (A,B) => C): Option[C] = fa match {
       case Some(a) => fb.map(b => f(a, b))
       case None => None
@@ -72,6 +81,13 @@ object MonadInstances {
   }
 
   def either[S] = new Monad[({type f[x] = chapter4.Either[S, x]}) #f] {
+    override def apply[A,B](fab: chapter4.Either[S, A => B])(fa: chapter4.Either[S, A]): chapter4.Either[S, B] = (fab, fa) match {
+      case (chapter4.Right(f), chapter4.Right(a)) => chapter4.Right(f(a))
+      case (chapter4.Right(f), ea @ chapter4.Left(a)) => ea
+      case (ef @ chapter4.Left(f), chapter4.Right(a)) => ef
+      case (ef @ chapter4.Left(f), chapter4.Left(a)) => ef
+    }
+
     override def map2[A,B,C](fa: chapter4.Either[S, A], fb: chapter4.Either[S, B])(f: (A,B) => C): chapter4.Either[S, C] = fa match {
       case chapter4.Right(a) => fb.map(b => f(a, b))
       case l @ chapter4.Left(_) => l

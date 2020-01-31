@@ -105,5 +105,62 @@ class ApplicativeTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("goof around with product of two applicatives") {
+    forAll{(a: Int)=>
+      val o: (Option[Int], Option[Int]) = (option.unit(a), option.unit(a))
+      val of = (option.unit((a: Int) => a + 1), option.unit((b: Int) => b  - 1))
+      val g = option.productG(option)
+      val actual = g.apply(of)(o)
+      actual should be ((Some(a+1), (Some(a-1))))
+    }
+  }
+
+  property("goof around with other composition of two applicatives") {
+    forAll{(a: Int)=>
+      //val o = (option.unit(a), option.unit(a))
+     // val of = (option.unit((a: Int) => a + 1), option.unit((b: Int) => b  - 1))
+      val g = option.composeG(option)
+      val actual: Option[Option[Option[Int]]] = g.unit(option.unit(a))
+      //val gg = actual.apply(g)
+//      val actual = g.apply(of)(o)
+      println("fred"+actual)
+ //     actual should be ((Some(a+1), (Some(a-1))))
+    }
+  }
+
+    property("Verify associative law for composeG") {
+      forAll{ (a: Int, b: Int, c: Int) =>
+        val g = option.composeG(option)
+        val a1: Option[Option[Option[Int]]] = g.unit(option.unit(a))
+        val a2: Option[Option[Option[Int]]] = g.unit(option.unit(b))
+        val a3: Option[Option[Option[Int]]] = g.unit(option.unit(c))
+
+        g.associativeLaw(a1)(a2)(a3) should be (true)
+      }
+    }
+
+  property("Verify left and right identity law for composeG") {
+    forAll{ (ln: Int) =>
+      val g = option.composeG(option)
+       val i: Option[Option[Int]] = g.unit(ln)
+      val r = g.leftAndRightIdentityLaw(i)
+      r should be (true)
+    }
+  }
+
+  property("Verify naturality law for composeG") {
+    forAll{ (ln: Int, ln2: Int) =>
+      val g = option.composeG(option)
+      val fln = option.unit(ln)
+      val fls = option.unit(ln2.toString)
+      val ts = (n: Int) => n.toString
+      val tn = (sn: String) => sn.toInt
+
+      val r = option.naturalityOfProductLaw(fln, fls)(ts)(tn)
+      println("dude:"+r)
+      r should be (true)
+    }
+  }
+
 
 }

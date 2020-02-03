@@ -162,5 +162,15 @@ class ApplicativeTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-
+  property("Test sequenceMap for option applicative") {
+    forAll{mk: Map[Int, Option[String]] =>
+      val actual: Option[Map[Int, String]] = option.sequenceMap(mk)
+      (mk.exists(kv => kv._2.isEmpty), mk.isEmpty, actual) match {
+        case (true, _, _) => actual should be (empty)
+        case (false, true, _) => actual  should be (Some(Map()))
+        case (false, false, Some(a))  => a.size should be (mk.size)
+        case _ => fail("'fell through")
+      }
+    }
+  }
 }

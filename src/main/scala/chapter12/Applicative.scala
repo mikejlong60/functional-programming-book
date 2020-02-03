@@ -36,6 +36,11 @@ trait Applicative[F[_]] extends chapter11.Functor[F] {
 
   def replicateM[A](n: Int, fa: F[A]): F[List[A]] = sequence(List.fill(n)(fa))
 
+  def sequenceMap[K,V](ofa: Map[K,F[V]]): F[Map[K, V]] = {
+    val keys = ofa.keys
+    keys.foldRight(unit(Map[K, V]()))((key, fas) =>  map2(ofa(key), fas)((v, accum) => accum + (key -> v)))
+  }
+
   def product[A,B](fa: F[A], fb: F[B]): F[(A, B)] = map2(fa, fb)((a, b) => (a, b))
 
  def productG[G[_]](G: Applicative[G]) : Applicative[({type f[x] = (F[x], G[x])}) #f] = {
@@ -124,6 +129,12 @@ object ApplicativeInstances {
 
     def unit[A](a: => A): Validation[S ,A] = Success(a)
   }
+
+  def map[S] =  new Applicative[({type f[x] = Map[S, x]}) #f] { 
+    override def apply[A,B](fab: Map[S, A => B])(fa: Map[S, A]):  Map[S, B] = ???
+    override def map2[A,B,C](fa: Map[S, A], fb: Map[S, B])(f: (A,B) => C): Map[S, C] = ???
+    def unit[A](a: => A): Map[S, A] = ??? //chapter4.Right(a)
+   }
 
   def list = new Applicative[List] {
     override def apply[A,B](fab: List[A => B])(fa: List[A]): List[B] = fab zip fa map(t => t._1(t._2))

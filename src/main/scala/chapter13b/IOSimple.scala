@@ -32,7 +32,6 @@ object Converter {
 
   def main(args: Array[String]): Unit = {
     converter.run
-
   }
 }
 

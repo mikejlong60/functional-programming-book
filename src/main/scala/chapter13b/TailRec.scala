@@ -26,4 +26,4 @@ object TailRec {
       case FlatMap(y, g) => run(y flatMap(a => g(a) flatMap f))
     }
   }
-xs}
+}

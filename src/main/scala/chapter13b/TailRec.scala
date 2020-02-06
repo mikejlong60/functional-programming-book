@@ -5,7 +5,7 @@ import language.postfixOps
 
 object TailRec {
   sealed trait TailRec[A] { self =>
-    def flatMap[B](f: A => TailRec[B]): TailRec[B] = FlatMap(this, f)
+    def flatMap[B](f: A => TailRec[B]): TailRec[B] = FlatMap(self, f)
     def map[B](f: A => B): TailRec[B] = flatMap(f andThen (Return(_)))
   }
 

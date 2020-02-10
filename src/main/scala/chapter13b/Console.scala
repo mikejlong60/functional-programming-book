@@ -54,7 +54,7 @@ object Console {
 
   def main(args: Array[String]) = {
 
-    val f1: Free.Free[Console, Option[String]] = for {
+   val f1: Free.Free[Console, Option[String]] = for {
       _  <- printLn("I can only interact with the console.")
       ln <- readLn
     } yield ln

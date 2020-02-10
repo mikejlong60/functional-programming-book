@@ -46,4 +46,17 @@ object Free {
       case _  => sys.error("Impossible: `step` eliminates these case")
     }
   }
+
+  import Console.~>
+
+  def runFree[F[_], G[_], A](free: Free[F, A])(t: F ~> G)(implicit G: chapter11.Monad[G]): G[A] = step(free) match {
+    case Return(a) => G.unit(a)
+    case Suspend(r) => t(r) 
+    case FlatMap(x, f) => x match {
+      case Suspend(r) => G.flatMap(t(r))(a => runFree(f(a))(t))
+      case _  => sys.error("Impossible: `step` eliminates these case")
+    }
+  }
+
+
 }

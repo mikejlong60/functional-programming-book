@@ -42,7 +42,7 @@ object Console {
   def runFree[F[_], G[_], A](free: Free.Free[F, A])(t: F ~> G)(implicit G: chapter11.Monad[G]): G[A] = step(free) match {
     case Free.Pure(a) => G.unit(a)
     case Free.Suspend(r) => t(r)
-    case Free.FlatMap(Free.Suspend(r), f) => G.flatMap(t(r))(a => runFree(f(a))(t))
+    case Free.FlatMapped(Free.Suspend(r), f) => G.flatMap(t(r))(a => runFree(f(a))(t))
     case _ => sys.error("Impossible; `step` eliminates these cases")
   }
 

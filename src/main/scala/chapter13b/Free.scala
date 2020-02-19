@@ -12,7 +12,7 @@ object Free {
     def map[B](f: A => B): Free[F, B] = flatMap(f andThen (Pure(_)))
   }
 
-  def freeMonad[F[_], A]: chapter11.Monad[({type f[a] = Free[F, a]}) #f] = new chapter11.Monad[({type f[a] = Free[F, a]}) #f] {
+  def freeMonad[F[_]]: chapter11.Monad[({type f[a] = Free[F, a]}) #f] = new chapter11.Monad[({type f[a] = Free[F, a]}) #f] {
     def flatMap[A,B](ma: Free[F, A])(f: A => Free[F, B]): Free[F, B] = ma flatMap f
     def unit[A](a: => A): Free[F,A] = Pure(a)
   }
@@ -22,13 +22,13 @@ object Free {
   case class FlatMapped[S[_], B, C](c: Free[S, C], f: C => Free[S, B]) extends Free[S, B]
 
   @annotation.tailrec
-  def runTrampoline[F[_], A](a: Free[Function0, A]): A = a match {
+  def runTrampoline[A](a: Free[Function0,A]): A = (a) match {
     case Pure(a) => a
     case Suspend(r) => r()
-    case FlatMapped(x, f) => x match {
-      case Pure(a) => runTrampoline (f(a))
-      case FlatMapped(s, g) => runTrampoline(s.flatMap(ss => g(ss).flatMap(f)))
-      case Suspend(r) => runTrampoline(f(r()))
+    case FlatMapped(x,f) => x match {
+      case Pure(a) => runTrampoline { f(a) }
+      case Suspend(r) => runTrampoline { f(r()) }
+      case FlatMapped(a0,g) => runTrampoline { a0 flatMap { a0 => g(a0) flatMap f } }
     }
   }
 
@@ -37,15 +37,6 @@ object Free {
     case FlatMapped(FlatMapped(x, f), g) => step(x flatMap (a => f(a) flatMap g))
     case FlatMapped(Pure(x), f) => step(f(x))
     case _ => a
-  }
-
-  def run[F[_], A](free: Free[F, A])(implicit F: chapter11.Monad[F]): F[A] = step(free) match {
-    case Pure(a) => F.unit(a)
-    case Suspend(r) => r 
-    case FlatMapped(x, f) => x match {
-      case Suspend(r) => F.flatMap(r)(a => run(f(a)))
-      case _  => sys.error("Impossible: `step` eliminates these case")
-    }
   }
 
   import Console.~>

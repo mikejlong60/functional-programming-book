@@ -27,6 +27,11 @@ trait Translate[F[_], G[_]] {
 
 
 object Console {
+  val function0Monad = new chapter11.Monad[Function0] {
+    def unit[A](a: => A) = () => a
+    def flatMap[A, B](a: Function0[A])(f: A => Function0[B]) = () => f(a())()
+  }
+
   type ~>[F[_], G[_]] = Translate[F, G]
 
   val consoleToFunction0 = new (Console ~> Function0) {
@@ -37,26 +42,32 @@ object Console {
     def apply[A](a: Console[A]) = a.toPar
   }
 
-  def step[F[_], G[_], A](free: Free.Free[F, A]): Free.Free[F,A] = ???
 
-  def runFree[F[_], G[_], A](free: Free.Free[F, A])(t: F ~> G)(implicit G: chapter11.Monad[G]): G[A] = step(free) match {
-    case Free.Pure(a) => G.unit(a)
-    case Free.Suspend(r) => t(r)
-    case Free.FlatMapped(Free.Suspend(r), f) => G.flatMap(t(r))(a => runFree(f(a))(t))
-    case _ => sys.error("Impossible; `step` eliminates these cases")
+  //Exercise 13.4
+  def runConsole[A](a: Free.Free[Console,A]): A = Free.runTrampoline(translate(a)(consoleToFunction0))
+  def translate[F[_], G[_], A](f: Free.Free[F, A])(fg: F ~> G): Free.Free[G, A] = {
+    type FreeG[A] = Free.Free[G,A]
+    val t = new (F ~> FreeG) {
+      def apply[A](a: F[A]): Free.Free[G, A] = Free.Suspend {fg(a)}
+    }
+    Free.runFree(f)(t)(Free.freeMonad[G])
   }
 
   type ConsoleIO[A] = Free.Free[Console, A]
 
   def readLn: ConsoleIO[Option[String]] = Free.Suspend(ReadLine)
 
-  def printLn(line: String): ConsoleIO[Unit] = Free.Suspend(PrintLine(line))
+  def writeLn(line: String): ConsoleIO[Unit] = Free.Suspend(PrintLine(line))
 
   def main(args: Array[String]) = {
 
    val f1: Free.Free[Console, Option[String]] = for {
-      _  <- printLn("I can only interact with the console.")
+      _  <- writeLn("I can only interact with the console.")
       ln <- readLn
     } yield ln
+
+      val actual: () => Option[String] = Free.runFree(f1)(consoleToFunction0)(function0Monad)
+      val result = actual()
+      println(result)
   }
 }

@@ -39,7 +39,7 @@ object Free {
     case _ => a
   }
 
-  import Console.~>
+  type ~>[F[_], G[_]] = Translate[F, G]
 
   def runFree[F[_], G[_], A](free: Free[F, A])(t: F ~> G)(implicit G: chapter11.Monad[G]): G[A] = step(free) match {
     case Pure(a) => G.unit(a)

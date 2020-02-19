@@ -1,6 +1,7 @@
 package chapter13b
 
 import chapter7.nonblocking.Nonblocking.Par
+import Free.~>
 
 sealed trait Console[A] {
   def toPar: Par[A]
@@ -32,7 +33,7 @@ object Console {
     def flatMap[A, B](a: Function0[A])(f: A => Function0[B]) = () => f(a())()
   }
 
-  type ~>[F[_], G[_]] = Translate[F, G]
+  //type ~>[F[_], G[_]] = Translate[F, G]
 
   val consoleToFunction0 = new (Console ~> Function0) {
     def apply[A](a: Console[A]) = a.toThunk
@@ -41,7 +42,6 @@ object Console {
   val consoleToPar = new (Console ~> Par) {
     def apply[A](a: Console[A]) = a.toPar
   }
-
 
   //Exercise 13.4
   def runConsole[A](a: Free.Free[Console,A]): A = Free.runTrampoline(translate(a)(consoleToFunction0))

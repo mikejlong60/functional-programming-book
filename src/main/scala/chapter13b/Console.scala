@@ -7,12 +7,14 @@ sealed trait Console[A] {
   def toPar: Par[A]
   def toThunk: () => A
   def toReader: ConsoleReader[A]
+  def toState: ConsoleState[A]
 }
 
 case object ReadLine extends Console[Option[String]] {
   def toPar = Par.lazyUnit(run)
   def toThunk = () => run
   def toReader: ConsoleReader[Option[String]] = ConsoleReader( s => Some(s))
+  def toState: ConsoleState[Option[String]] = ???
 
   def run: Option[String] =
     try Some(readLine())
@@ -23,6 +25,7 @@ case class PrintLine(line: String) extends Console[Unit] {
   def toPar = Par.lazyUnit(println(line))
   def toThunk = () => println(line)
   def toReader: ConsoleReader[Unit] = ConsoleReader(s => ())
+  def toState: ConsoleState[Unit] = ???
 }
 
 trait Translate[F[_], G[_]] {

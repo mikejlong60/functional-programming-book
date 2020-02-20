@@ -6,11 +6,13 @@ import Free.~>
 sealed trait Console[A] {
   def toPar: Par[A]
   def toThunk: () => A
+  def toReader: ConsoleReader[A]
 }
 
 case object ReadLine extends Console[Option[String]] {
   def toPar = Par.lazyUnit(run)
   def toThunk = () => run
+  def toReader: ConsoleReader[Option[String]] = ConsoleReader( s => Some(s))
 
   def run: Option[String] =
     try Some(readLine())
@@ -20,6 +22,7 @@ case object ReadLine extends Console[Option[String]] {
 case class PrintLine(line: String) extends Console[Unit] {
   def toPar = Par.lazyUnit(println(line))
   def toThunk = () => println(line)
+  def toReader: ConsoleReader[Unit] = ConsoleReader(s => ())
 }
 
 trait Translate[F[_], G[_]] {
@@ -28,6 +31,12 @@ trait Translate[F[_], G[_]] {
 
 
 object Console {
+  def runConsoleReader[A](io: ConsoleIO[A]): ConsoleReader[A] = Free.runFree[Console, ConsoleReader, A](io)(consoleToReader)
+
+  val consoleToReader = new (Console ~> ConsoleReader) {
+    def apply[A](a: Console[A]) = a.toReader
+  }
+
   val function0Monad = new chapter11.Monad[Function0] {
     def unit[A](a: => A) = () => a
     def flatMap[A, B](a: Function0[A])(f: A => Function0[B]) = () => f(a())()

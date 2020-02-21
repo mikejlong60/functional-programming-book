@@ -1,5 +1,4 @@
 package chapter13b
-
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, PropSpec}
 

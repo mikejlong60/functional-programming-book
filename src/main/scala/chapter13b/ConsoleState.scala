@@ -24,4 +24,15 @@ object ConsoleState {
   type ConsoleIO[A] = Free.Free[Console, A]
 
   def runConsoleState[A](io: ConsoleIO[A]): ConsoleState[A] = Free.runFree[Console, ConsoleState, A](io)(consoleToState)
+
+  def main(args: Array[String]): Unit = {
+    def printLn(line: String): ConsoleIO[Unit] = Free.Suspend(PrintLine(line))
+
+    val b = Buffers(List("crap"), List("dude"))
+    val result = runConsoleState(printLn("yi")).run(b)
+    println(result)
+
+    
+
+  }
 }

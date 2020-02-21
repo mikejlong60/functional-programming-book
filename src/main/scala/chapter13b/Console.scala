@@ -25,7 +25,7 @@ case class PrintLine(line: String) extends Console[Unit] {
   def toPar = Par.lazyUnit(println(line))
   def toThunk = () => println(line)
   def toReader: ConsoleReader[Unit] = ConsoleReader(s => ())
-  def toState: ConsoleState[Unit] = ???
+  def toState: ConsoleState[Unit] = ConsoleState(s => ((), s))
 }
 
 trait Translate[F[_], G[_]] {

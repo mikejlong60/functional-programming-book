@@ -34,8 +34,6 @@ trait Translate[F[_], G[_]] {
 
 
 object Console {
-  def runConsoleReader[A](io: ConsoleIO[A]): ConsoleReader[A] = Free.runFree[Console, ConsoleReader, A](io)(consoleToReader)
-
   val consoleToReader = new (Console ~> ConsoleReader) {
     def apply[A](a: Console[A]) = a.toReader
   }
@@ -45,7 +43,16 @@ object Console {
     def flatMap[A, B](a: Function0[A])(f: A => Function0[B]) = () => f(a())()
   }
 
+  implicit val parMonad = new chapter11.Monad[Par] {
+    def unit[A](a: => A) = Par.unit(a)
+    def flatMap[A, B](a: Par[A])(f: A => Par[B]) = Par.fork {Par.flatMap(a)(f)}
+  }
+
   //type ~>[F[_], G[_]] = Translate[F, G]
+  def runConsoleReader[A](io: ConsoleIO[A]): ConsoleReader[A] = Free.runFree[Console, ConsoleReader, A](io)(consoleToReader)
+
+  def runConsolePar[A](a: Free.Free[Console, A]): Par[A] = Free.runFree[Console, Par, A](a)(consoleToPar)
+
 
   val consoleToFunction0 = new (Console ~> Function0) {
     def apply[A](a: Console[A]) = a.toThunk
@@ -80,6 +87,7 @@ object Console {
 
       val actual: () => Option[String] = Free.runFree(f1)(consoleToFunction0)(function0Monad)
       val result = actual()
-      println(result)
+    println(result)
+
   }
 }

@@ -14,8 +14,8 @@ object Nonblocking {
 
   object Par {
 
-    def async[A](f: (A => Unit) => Unit): Par[A] = es => new Future[A] {
-      def apply(k: A => Unit) = f(k)
+    def async[A](run: (A => Unit) => Unit): Par[A] = es => new Future[A] {
+      def apply(k: A => Unit) = run(k)
     }
 
     def lazyUnit[A](a: => A): Par[A] = fork(unit(a))

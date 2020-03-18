@@ -120,6 +120,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+/**
   property("Reveal a bug in your new SGen version of Prop.forAll. Max of an empty list throws an exception") {
     val rng = SimpleRNG(System.currentTimeMillis())
     val a = Gen.choose(-10, 10)
@@ -137,7 +138,7 @@ class PropTest extends PropSpec with PropertyChecks with Matchers {
     //This illustrates what happens on a failing test in the UI, just for illustrative purposes as Prop.run returns Unit.
     Prop.run(maxProp)
   }
-
+  */
     property("Fix the bug you showed previously.") {
     val a = Gen.choose(-10, 10)
     val b = a.unsized

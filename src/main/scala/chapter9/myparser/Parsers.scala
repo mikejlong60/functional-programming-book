@@ -193,7 +193,7 @@ case class Location(input: String, offset: Int = 0) {
 
   //Returns the line corresponding to this location
   def currentLine: String =
-    if (input.length > 1) input.lines.drop(line -1).next
+    if (input.length > 1) "" // input.lines.drop(line -1).next
     else ""
 
   def columnCaret: String = (" " *  (col -1)) + "^"

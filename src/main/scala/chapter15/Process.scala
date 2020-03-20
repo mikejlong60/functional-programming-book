@@ -30,17 +30,47 @@ sealed trait Process[I, O] {
 
 object Process {
 
-    def take[I](n: Int): Process[I, I] = {
+  def takeWhile[I](f: I => Boolean): Process[I, I] = {
+      def go: Process[I, I] = 
+        Await {
+          case Some(d) if f(d) => Emit(d, go)
+          case _ => Halt()
+        }
+
+    go
+  }
+
+  def dropWhile[I](f: I => Boolean): Process[I, I] = {
+      def go(firstFailure: Boolean): Process[I, I] = 
+        Await {
+          case Some(d) if f(d) => if (firstFailure) Emit(d, go(true)) else go(false)
+          case Some(d)  => Emit(d, go(true))
+          case _ => Halt()
+        }
+ 
+    go(false)
+  }
+
+  def drop[I](n: Int): Process[I, I] = {
+      def go(cnt: Int): Process[I, I] = 
+        Await {
+          case Some(d) if cnt < n => go(cnt + 1)
+          case Some(d)  => Emit(d, go(cnt  + 1))
+          case _ => Halt()
+        }
+
+    go(0)
+  }
+
+  def take[I](n: Int): Process[I, I] = {
       def go(cnt: Int): Process[I, I] = 
         Await {
           case Some(d) if cnt < n => Emit(d, go(cnt + 1))
           case _ => Halt()
         }
 
-      go(0)
+    go(0)
   }
-
-
 
   def sum: Process[Double, Double] = {
     def go(acc: Double): Process[Double, Double] =

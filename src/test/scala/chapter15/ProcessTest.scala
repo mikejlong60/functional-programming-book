@@ -63,4 +63,36 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
       }
     }
   }
+
+  property("make a Process that drops the first n elements from a Stream") {
+    forAll{l: List[Double] =>
+      whenever (l.size > 10) {
+        val drop = l.size - 5
+        val all: Stream[Double] = Stream(l:_*)
+        val p: Process[Double, Double] = Process.drop(drop)
+        val actual = p(all)
+        actual.toList should be (l.drop(drop))
+      }
+    }
+  }
+
+  property("make a Process that takes elements from a Stream as long as the given predicate remains true") {
+    forAll {l: List[Double] => 
+      val takeP = (x: Double) => x > 12.0
+      val all: Stream[Double] = Stream(l:_*)
+      val p: Process[Double, Double] = Process.takeWhile(takeP)
+      val actual = p(all)
+      actual.toList should be (l.takeWhile(takeP))
+    }
+  }
+
+  property("make a Process that starts adding elements to a Stream as soon as the given predicate fails") {
+   forAll {l: List[Int] =>
+     val dropP = (x: Int) => x > 12
+     val all: Stream[Int] = Stream(l:_*)
+     val p: Process[Int, Int] = Process.dropWhile(dropP)
+     val actual = p(all)
+     actual.toList should be (l.dropWhile(dropP))
+   }
+  }
 }

@@ -24,9 +24,23 @@ sealed trait Process[I, O] {
 
     go(this)
   }
+
+
 }
 
 object Process {
+
+    def take[I](n: Int): Process[I, I] = {
+      def go(cnt: Int): Process[I, I] = 
+        Await {
+          case Some(d) if cnt < n => Emit(d, go(cnt + 1))
+          case _ => Halt()
+        }
+
+      go(0)
+  }
+
+
 
   def sum: Process[Double, Double] = {
     def go(acc: Double): Process[Double, Double] =

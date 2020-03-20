@@ -27,7 +27,24 @@ sealed trait Process[I, O] {
 }
 
 object Process {
-  def liftOne[I, O](f: I => O): Process[I, O] = Await  { 
+
+  def sum: Process[Double, Double] = {
+    def go(acc: Double): Process[Double, Double] =
+      Await {
+        case Some(d) => Emit (d + acc, go(d + acc))
+        case None => Halt()
+      }
+
+    go(0.0)
+  }
+
+  def filter[I](p: I => Boolean): Process[I, I] =
+    Await[I, I] {
+      case Some(i)  if p(i) => Emit(i)
+      case _ => Halt()
+    }.repeat
+
+  def liftOne[I, O](f: I => O): Process[I, O] = Await  {
     case Some(i) => Emit(f(i))
     case None => Halt()
   }

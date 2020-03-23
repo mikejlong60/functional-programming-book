@@ -80,16 +80,6 @@ object Process {
     go(0.0)
   }
 
-  def count[I]: Process[I, Int] = {
-    def go(acc: Int): Process[I, Int] =
-      Await {
-        case Some(d) => Emit (acc + 1, go(acc + 1))
-        case None => Halt()
-      }
-
-    go(0)
-  }
-
   def mean: Process[Double, Double] = {
     def go(currentTotal: Double, count: Int): Process[Double, Double] =
       Await {
@@ -100,7 +90,33 @@ object Process {
     go(0, 1)
   }
 
+  def emit[I, O](head: O, tail: Process[I, O] = Halt[I,O]()): Process[I, O] = Emit(head, tail)
 
+   def await[I,O](f: I => Process[I,O], fallback: Process[I,O] = Halt[I,O]()): Process[I,O] =
+     Await[I,O] {
+       case Some(i) => f(i)
+       case None => fallback
+     }
+
+  def loop[S, I, O](z: S)(f: (I, S) => (O, S)): Process[I, O] =
+    await((i: I) => f(i, z) match {
+      case (o, z2) => emit(o, loop(z2)(f))
+    })
+
+  def sumLoop: Process[Double, Double] = loop(0.0)((i: Double, s: Double) => (i + s, i + s))
+  
+  def count[I]: Process[I, Int] = {
+    def go(acc: Int): Process[I, Int] =
+      Await {
+        case Some(d) => Emit (acc + 1, go(acc + 1))
+        case None => Halt()
+      }
+
+    go(0)
+  }
+
+  def countLoop[I]: Process[I, Int] = loop(0)((_: I, s: Int) => (s + 1, s + 1))
+  
   def filter[I](p: I => Boolean): Process[I, I] =
     Await[I, I] {
       case Some(i)  if p(i) => Emit(i)

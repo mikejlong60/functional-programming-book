@@ -117,4 +117,26 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property ("make a Process that sums a Stream using generic loop") {
+    forAll{l: List[Double] =>
+      val all = Stream(l:_*)
+      val actual = Process.sumLoop(all).toList
+      val expected = l.foldLeft(List.empty[Double])((acc, x) => acc match {
+        case y :: xs => (x + y) +: acc
+        case _ => x +: acc
+      }).reverse
+      actual.toList should be (expected)
+    }
+  }
+
+  property("make a Process that emits a running count of the number of elements in a Stream using generc loop") {
+    forAll{l: List[String] =>
+      val all = Stream(l:_*)
+      val actual = Process.countLoop(all).toList
+      val expected = 1 to l.size
+      actual should be (expected)
+    }
+  }
+
+
 }

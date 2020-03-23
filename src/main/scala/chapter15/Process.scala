@@ -24,8 +24,6 @@ sealed trait Process[I, O] {
 
     go(this)
   }
-
-
 }
 
 object Process {
@@ -82,18 +80,30 @@ object Process {
     go(0.0)
   }
 
+  def count[I]: Process[I, Int] = {
+    def go(acc: Int): Process[I, Int] =
+      Await {
+        case Some(d) => Emit (acc + 1, go(acc + 1))
+        case None => Halt()
+      }
+
+    go(0)
+  }
+
+
   def filter[I](p: I => Boolean): Process[I, I] =
     Await[I, I] {
       case Some(i)  if p(i) => Emit(i)
       case _ => Halt()
     }.repeat
 
-  def liftOne[I, O](f: I => O): Process[I, O] = Await  {
+  def liftOne[I, O](f: I => O): Process[I, O] = Await {
     case Some(i) => Emit(f(i))
     case None => Halt()
   }
 
   def lift[I, O](f: I => O): Process[I, O] = liftOne(f).repeat
+
 }
 
 case class Emit[I, O](head: O, tail:  Process[I, O] = Halt[I, O]()) extends Process[I, O]

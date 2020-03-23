@@ -96,13 +96,24 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
    }
   }
 
-  property("make a Process that counts the number of elements in a Stream") {
+  property("make a Process that emits a running count of the number of elements in a Stream") {
     forAll{l: List[String] =>
       val all = Stream(l:_*)
-      val actual = Process.count(all).take(20).toList
-      println(actual)
-      val expected = 1 to l.size take(20)
+      val actual = Process.count(all).toList
+      val expected = 1 to l.size
       actual should be (expected)
+    }
+  }
+
+  property("make a Process that emits a running mean  of the elements in a Stream") {
+    forAll{l: List[Double] =>
+      val all = Stream(l:_*)
+      val actual = Process.mean(all).toList
+     val expected = l.sum/l.size
+      if (l.size  == 0) actual should be (empty)
+      else if (l.size ==1) actual.head should be (expected)
+      else actual(l.size-1) should be (expected)
+      actual.size should be (l.size)
     }
   }
 

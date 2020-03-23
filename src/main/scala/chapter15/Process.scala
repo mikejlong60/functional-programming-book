@@ -90,6 +90,16 @@ object Process {
     go(0)
   }
 
+  def mean: Process[Double, Double] = {
+    def go(currentTotal: Double, count: Int): Process[Double, Double] =
+      Await {
+        case Some(d) => Emit ((currentTotal+ d)/ count, go(currentTotal + d, count + 1))
+        case None => Halt()
+      }
+
+    go(0, 1)
+  }
+
 
   def filter[I](p: I => Boolean): Process[I, I] =
     Await[I, I] {

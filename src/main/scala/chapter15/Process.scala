@@ -2,14 +2,21 @@ package chapter15
 
 import chapter5.{Stream, Cons, Empty}
 
+
+case class Emit[I, O](head: O, tail:  Process[I, O] = Halt[I, O]()) extends Process[I, O]
+
+case class Await[I, O](recv: Option[I] => Process[I, O]) extends Process[I, O]
+
+case class Halt[I, O]() extends Process[I, O]
+
 sealed trait Process[I, O] {
   def apply(s: Stream[I]): Stream[O] = this match {
     case Halt() => Stream.empty
     case Await(recv) => s match {
       case Cons(h, t) => recv(Some(h()))(t())
-      case Empty => recv(None)(Stream.empty)
+      case Empty =>  recv(None)(Stream.empty)
     }
-    case Emit(h, t) => Stream.cons(h, t(s))
+    case Emit(h, t) =>  Stream.cons(h, t(s))
   }
 
   def repeat: Process[I, O] = {
@@ -23,6 +30,17 @@ sealed trait Process[I, O] {
     }
 
     go(this)
+  }
+
+  //I cheated on this
+  def |>[O2](p2: Process[O, O2]): Process[I, O2] = p2 match {
+    case Halt() => Halt()
+    case Emit(h1, t1) => Emit(h1, this |> t1)
+    case Await(recv) => this match {
+      case Emit(h,t) => t |> recv(Some(h))
+      case Halt() => Halt() |> recv(None)
+      case Await(g) => Await((i: Option[I]) => g(i) |> p2)
+    }
   }
 }
 
@@ -115,7 +133,7 @@ object Process {
     go(0)
   }
 
-  def countLoop[I]: Process[I, Int] = loop(0)((_: I, s: Int) => (s + 1, s + 1))
+  def countLoop[I]: Process[I, Int] = loop(0)((_: I, s: Int) => (1 + s, 1 + s))
   
   def filter[I](p: I => Boolean): Process[I, I] =
     Await[I, I] {
@@ -131,9 +149,3 @@ object Process {
   def lift[I, O](f: I => O): Process[I, O] = liftOne(f).repeat
 
 }
-
-case class Emit[I, O](head: O, tail:  Process[I, O] = Halt[I, O]()) extends Process[I, O]
-
-case class Await[I, O](recv: Option[I] => Process[I, O]) extends Process[I, O]
-
-case class Halt[I, O]() extends Process[I, O]

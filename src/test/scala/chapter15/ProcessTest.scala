@@ -32,11 +32,11 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
 
   property("make a Process that filters a stream using some predicate") {
     forAll{l: List[Int] =>
-      val even = Process.filter((x: Int) => x % 3 == 0)
+      val even = Process.filter((x: Int) => x % 2 == 0)
       val all = Stream(l:_*)
 
       val actual = even(all)
-      actual.toList should be (l.filter(_ % 3 == 0))
+      actual.toList should be (l.filter(_ % 2 == 0))
     }
   }
 
@@ -109,7 +109,7 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     forAll{l: List[Double] =>
       val all = Stream(l:_*)
       val actual = Process.mean(all).toList
-     val expected = l.sum/l.size
+      val expected = l.sum/l.size
       if (l.size  == 0) actual should be (empty)
       else if (l.size ==1) actual.head should be (expected)
       else actual(l.size-1) should be (expected)
@@ -117,7 +117,7 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property ("make a Process that sums a Stream using generic loop") {
+  property ("make a Process that sums a Stream using a generic loop") {
     forAll{l: List[Double] =>
       val all = Stream(l:_*)
       val actual = Process.sumLoop(all).toList
@@ -129,7 +129,7 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("make a Process that emits a running count of the number of elements in a Stream using generc loop") {
+  property("make a Process that emits a running count of the number of elements in a Stream using a generic loop") {
     forAll{l: List[String] =>
       val all = Stream(l:_*)
       val actual = Process.countLoop(all).toList
@@ -138,5 +138,18 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("make a fused Process that emits even integers multiplied by 1000") {
+    forAll{l: List[Int] =>
+      val all = Stream(l:_*)
 
+      val filt  =(x: Int) => x % 2 == 0
+      val times1000 = (x: Int) => x * 1000
+      val minus3 = (x: Int) => x - 3
+      val plus3 = (x: Int) => x + 3
+      val expected = l.filter(filt).map(times1000).map(minus3).map(plus3)
+      val evenTimes1000 = Process.filter(filt) |> Process.lift(times1000) |> Process.lift(minus3) |> Process.lift(plus3)
+      val actual = evenTimes1000(all).take(10).toList
+      actual should be (expected.take(10))
+    }
+  }
 }

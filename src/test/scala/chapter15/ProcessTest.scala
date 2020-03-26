@@ -138,6 +138,15 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("make a Process that emits a running count of the number of elements emitted along with each value. This is also known as zipWithIndex") {
+    forAll{l: List[String] =>
+      val all = Stream(l:_*)
+      val actual = Process.zipWithIndex(all).toList
+      val expected = l zip (0 to l.size-1)
+      actual should be (expected)
+    }
+  }
+
   property("make a fused Process that emits even integers multiplied by 1000") {
     forAll{l: List[Int] =>
       val all = Stream(l:_*)
@@ -152,4 +161,20 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
       actual should be (expected.take(10))
     }
   }
+
+  property("make Process a functor that emits even integers multiplied by 1000 with three added to them") {
+    forAll{l: List[Int] =>
+      val all = Stream(l:_*)
+      val filt  =(x: Int) => x % 2 == 0
+      val times1000 = (x: Int) => x * 1000
+      //val minus3 = (x: Int) => x - 3
+      val plus3 = (x: Int) => x + 3
+      val expected = l.filter(filt).map(times1000).map(plus3)
+      val evenTimes1000 = Process.filter(filt) |> Process.lift(times1000).map(plus3)
+      val actual = evenTimes1000(all).take(10).toList
+      actual should be (expected.take(10))
+    }
+  }
+
+
 }

@@ -16,6 +16,11 @@ trait Monad[F[_]] extends Applicative[F] {
 
 object MonadInstances {
 
+  def process[I]: Monad[({ type f[x] = chapter15.Process[I, x]}) #f] = new Monad[({ type f[x] = chapter15.Process[I, x]}) #f] {
+    def unit[O](o: => O): chapter15.Process[I, O] = chapter15.Emit(o)
+    override def flatMap[O, O2](p: chapter15.Process[I, O]) (f: O => chapter15.Process[I, O2]): chapter15.Process[I, O2] = p flatMap f
+  }
+
   def stream = new Monad[chapter5.Stream] {
     override def apply[A,B](fab: chapter5.Stream[A => B])(fa: chapter5.Stream[A]): chapter5.Stream[B] = chapter5.Stream.zip(fab,fa).map(t => (t._1(t._2)))
 

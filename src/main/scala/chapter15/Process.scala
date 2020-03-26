@@ -42,6 +42,22 @@ sealed trait Process[I, O] {
       case Await(g) => Await((i: Option[I]) => g(i) |> p2)
     }
   }
+
+  def map[O2](f: O => O2): Process[I, O2] = this |> Process.lift(f)
+
+  def ++(p: => Process[I, O]): Process[I, O] = this match {
+    case Halt() => p
+    case Emit(h, t) => Emit(h, t ++ p)
+    case Await(recv) => Await(recv andThen (_ ++ p))
+  }
+
+  def flatMap[O2](f: O => Process[I, O2]): Process[I, O2] = this match {
+    case Halt() => Halt()
+    case Emit(h, t) => f(h) ++ t.flatMap(f)
+    case Await(recv) => Await(recv andThen (_  flatMap f))
+  }
+
+
 }
 
 object Process {
@@ -122,7 +138,10 @@ object Process {
     })
 
   def sumLoop: Process[Double, Double] = loop(0.0)((i: Double, s: Double) => (i + s, i + s))
+
+  def zipWithIndex[I]: Process[I, (I, Int)] = loop(-1)((i: I, s: Int) => ((i, 1 + s), (1 + s)))
   
+
   def count[I]: Process[I, Int] = {
     def go(acc: Int): Process[I, Int] =
       Await {

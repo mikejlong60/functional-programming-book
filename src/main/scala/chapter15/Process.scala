@@ -124,6 +124,17 @@ object Process {
     go(0, 1)
   }
 
+  def zip: Process[Double, Double] = {//not done yet. I am moving toward a variation on zipWithindex
+    def go(currentTotal: Double, count: Int): Process[Double, Double] =
+      Await {
+        case Some(d) => Emit ((currentTotal+ d)/ count, go(currentTotal + d, count + 1))
+        case None => Halt()
+      }
+
+    go(0, 1)
+    mean |> sum
+  }
+
   def emit[I, O](head: O, tail: Process[I, O] = Halt[I,O]()): Process[I, O] = Emit(head, tail)
 
    def await[I,O](f: I => Process[I,O], fallback: Process[I,O] = Halt[I,O]()): Process[I,O] =

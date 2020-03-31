@@ -124,24 +124,33 @@ object Process {
     go(0, 1)
   }
 
-  def zip: Process[Double, Double] = {//not done yet. I am moving toward a variation on zipWithindex
-    def go(currentTotal: Double, count: Int): Process[Double, Double] =
-      Await {
-        case Some(d) => Emit ((currentTotal+ d)/ count, go(currentTotal + d, count + 1))
-        case None => Halt()
-      }
-
-    go(0, 1)
-    mean |> sum
-  }
-
+//  def zip: Process[Double, Double] = {//not done yet. I am moving toward a variation on zipWithindex
+//    def go(currentTotal: Double, count: Int): Process[Double, Double] =
+//      Await {
+//        case Some(d) => Emit ((currentTotal+ d)/ count, go(currentTotal + d, count + 1))
+//        case None => Halt()
+//      }
+//
+//    go(0, 1)
+//    (mean, sum)
+//  }
+//
+//  def zipWith[A, B,C](s1 :Stream[A], s2: Stream[B])(f: (A,B) => C): Stream[C] =
+//    unfold((s1, s2)) {
+//      case (Cons(h1,t1), Cons(h2,t2)) =>
+//        Some((f(h1(), h2()), (t1(), t2())))
+//      case _ => None
+//    }
+//
+//  def zipWith2[I, O]: Process[(I, I), ((I, I), (O, O))] = loop(Stream.empty[(I, I)])((i: (I, I), s: (O, O)) => ((i, s), (s)))
+//
   def emit[I, O](head: O, tail: Process[I, O] = Halt[I,O]()): Process[I, O] = Emit(head, tail)
 
-   def await[I,O](f: I => Process[I,O], fallback: Process[I,O] = Halt[I,O]()): Process[I,O] =
-     Await[I,O] {
-       case Some(i) => f(i)
-       case None => fallback
-     }
+  def await[I,O](f: I => Process[I,O], fallback: Process[I,O] = Halt[I,O]()): Process[I,O] =
+    Await[I,O] {
+     case Some(i) => f(i)
+     case None => fallback
+   }
 
   def loop[S, I, O](z: S)(f: (I, S) => (O, S)): Process[I, O] =
     await((i: I) => f(i, z) match {
@@ -151,7 +160,6 @@ object Process {
   def sumLoop: Process[Double, Double] = loop(0.0)((i: Double, s: Double) => (i + s, i + s))
 
   def zipWithIndex[I]: Process[I, (I, Int)] = loop(-1)((i: I, s: Int) => ((i, 1 + s), (1 + s)))
-  
 
   def count[I]: Process[I, Int] = {
     def go(acc: Int): Process[I, Int] =

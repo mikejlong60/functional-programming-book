@@ -56,11 +56,25 @@ sealed trait Process[I, O] {
     case Emit(h, t) => f(h) ++ t.flatMap(f)
     case Await(recv) => Await(recv andThen (_  flatMap f))
   }
-
-
 }
 
 object Process {
+
+  //I cheated on this too.
+  def zip[I, O1, O2](p1:Process[I, O1])(p2: Process[I,O2]): Process[I,(O1,O2)] = (p1, p2) match {
+    case (Halt() , _) => Halt()
+    case (_, Halt()) => Halt()
+    case (Emit(b, t1), Emit(c, t2)) => Emit((b,c), zip(t1)(t2))
+    case (Await(recv), _) => Await((i: Option[I]) => zip(recv(i))(feed(i)(p2)))
+    case (_, Await(recv)) => Await((i: Option[I]) => zip(feed(i)(p1))(recv(i)))
+
+  }
+  //Same. Too hard for now
+  def feed[I, O](oa: Option[I])(p: Process[I, O]): Process[I, O] = p match {
+    case Halt() => p
+    case Emit(h, t) => Emit(h, feed(oa)(t))
+    case Await(recv) => recv(oa)
+  }
 
   def takeWhile[I](f: I => Boolean): Process[I, I] = {
       def go: Process[I, I] = 
@@ -124,26 +138,6 @@ object Process {
     go(0, 1)
   }
 
-//  def zip: Process[Double, Double] = {//not done yet. I am moving toward a variation on zipWithindex
-//    def go(currentTotal: Double, count: Int): Process[Double, Double] =
-//      Await {
-//        case Some(d) => Emit ((currentTotal+ d)/ count, go(currentTotal + d, count + 1))
-//        case None => Halt()
-//      }
-//
-//    go(0, 1)
-//    (mean, sum)
-//  }
-//
-//  def zipWith[A, B,C](s1 :Stream[A], s2: Stream[B])(f: (A,B) => C): Stream[C] =
-//    unfold((s1, s2)) {
-//      case (Cons(h1,t1), Cons(h2,t2)) =>
-//        Some((f(h1(), h2()), (t1(), t2())))
-//      case _ => None
-//    }
-//
-//  def zipWith2[I, O]: Process[(I, I), ((I, I), (O, O))] = loop(Stream.empty[(I, I)])((i: (I, I), s: (O, O)) => ((i, s), (s)))
-//
   def emit[I, O](head: O, tail: Process[I, O] = Halt[I,O]()): Process[I, O] = Emit(head, tail)
 
   def await[I,O](f: I => Process[I,O], fallback: Process[I,O] = Halt[I,O]()): Process[I,O] =
@@ -161,8 +155,8 @@ object Process {
 
   def zipWithIndex[I]: Process[I, (I, Int)] = loop(-1)((i: I, s: Int) => ((i, 1 + s), (1 + s)))
 
-  def count[I]: Process[I, Int] = {
-    def go(acc: Int): Process[I, Int] =
+  def count[I]: Process[I, Double] = {
+    def go(acc: Double): Process[I, Double] =
       Await {
         case Some(d) => Emit (acc + 1, go(acc + 1))
         case None => Halt()

@@ -120,9 +120,7 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
   property("make a generic combinator(zip) that lets you express a running mean in terms of sum and count") {
     forAll{l: List[Double] =>
       val all = Stream(l:_*)
-      val a = Process.zip(Process.sum)(Process.count)
-      val b = a.map(t=> t._1/ t._2)
-      val actual = b(all).toList
+      val actual = Process.mean2(all).toList
       val expected = l.sum/l.size
       if (l.size  == 0) actual should be (empty)
       else if (l.size ==1) actual.head should be (expected)

@@ -76,6 +76,8 @@ object Process {
     case Await(recv) => recv(oa)
   }
 
+  val mean2 = Process.zip(Process.sum)(Process.count).map(t=> t._1 / t._2)
+
   def takeWhile[I](f: I => Boolean): Process[I, I] = {
       def go: Process[I, I] = 
         Await {

@@ -129,6 +129,28 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("make exists, a function that returns true as soon as an element of a Stream meets the predicate") {
+    forAll{l: List[Int] =>
+      val all = Stream(l:_*)
+      val positive = (x: Int) => x % 2 == 0
+      val actual = Process.exists(positive)(all).toList
+      val expected = l.map(x => positive(x))
+      actual should be (expected)
+    }
+  }
+
+  property("use exists and filter out all the false guys using the fusion operator |>") {
+    forAll{l: List[Int] =>
+      val all = Stream(l:_*)
+      val positive = (x: Int) => x % 2 == 0
+      val onlyTrue = (p: Boolean) => p == true
+      val fused = Process.exists(positive) |> Process.filter(onlyTrue)
+      val actual = fused(all).take(1).toList
+      val expected = if (l.exists(x => positive(x))) List(true) else List()
+      actual should be (expected)
+    }
+  }
+
   property ("make a Process that sums a Stream using a generic loop") {
     forAll{l: List[Double] =>
       val all = Stream(l:_*)

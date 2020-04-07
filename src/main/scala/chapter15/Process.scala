@@ -76,7 +76,9 @@ object Process {
     case Await(recv) => recv(oa)
   }
 
-  val mean2 = Process.zip(Process.sum)(Process.count).map(t=> t._1 / t._2)
+  val mean3 = Process.zip(Process.sum)(Process.count).map(t=> t._1 / t._2)
+
+  val mean2 = Process.zip(Process.sumLoop)(Process.countLoop).map(t=> t._1 / t._2)
 
   def takeWhile[I](f: I => Boolean): Process[I, I] = {
       def go: Process[I, I] = 
@@ -172,6 +174,12 @@ object Process {
   def filter[I](p: I => Boolean): Process[I, I] =
     Await[I, I] {
       case Some(i)  if p(i) => Emit(i)
+      case _ => Halt()
+    }.repeat
+
+  def exists[I](p: I => Boolean): Process[I, Boolean] =
+    Await[I, Boolean] {
+      case Some(i) => Emit(p(i))
       case _ => Halt()
     }.repeat
 

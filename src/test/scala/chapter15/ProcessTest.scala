@@ -151,6 +151,16 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
+  property("buid the original program to tell you whether or not a file exceeds a given number of lines by fusing count and exists(and drop and take to cull it)") {
+    forAll{l: List[String] =>
+      val all = Stream(l:_*)
+      val fused: Process[String, Boolean] = Process.countLoop[String] |> Process.exists((x: Int) => x > 10) |> Process.drop(10) |> Process.take(1)
+      val actual = fused(all).toList
+      if (l.size <= 10)  actual should be (List())
+      else actual should be (List(true))
+    }
+  }
+
   property ("make a Process that sums a Stream using a generic loop") {
     forAll{l: List[Double] =>
       val all = Stream(l:_*)

@@ -1,5 +1,7 @@
 package chapter15
 
+import java.io.{BufferedWriter, FileWriter}
+
 import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.PropertyChecks
 import chapter5.Stream
@@ -151,13 +153,28 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("buid the original program to tell you whether or not a file exceeds a given number of lines by fusing count and exists(and drop and take to cull it)") {
+  property("build the original program to tell you whether or a list of strings exceeds a given number of lines by fusing count and exists(and drop and take to cull it)") {
     forAll{l: List[String] =>
       val all = Stream(l:_*)
       val fused: Process[String, Boolean] = Process.countLoop[String] |> Process.exists((x: Int) => x > 10) |> Process.drop(10) |> Process.take(1)
       val actual = fused(all).toList
       if (l.size <= 10)  actual should be (List())
       else actual should be (List(true))
+    }
+  }
+
+  property("build the original program that reads from a file and tell you whether or not the file has greater than some number of lines") {
+    forAll{l: List[Int] =>
+      val writeFile = (l: List[Int]) => {
+        val file = new java.io.File("temperatures.txt")
+        val bw = new BufferedWriter(new FileWriter(file, false))
+        l.foreach(x => bw.write(s"$x\n"))
+        bw.close()
+      }
+      writeFile(l)
+      val fused: Process[String, Boolean] = Process.countLoop[String] |> Process.exists((x: Int) => x > 10)
+      val actual = FileProcess.processFile(new java.io.File("temperatures.txt"))(fused)(false)(_ || _)
+      (actual.run) should be (l.size > 10)
     }
   }
 

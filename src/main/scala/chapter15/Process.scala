@@ -1,5 +1,7 @@
 package chapter15
 
+import java.io.{BufferedWriter, FileWriter}
+
 import chapter13.IO
 import chapter5.{Cons, Empty, Stream}
 
@@ -194,6 +196,7 @@ object Process {
 }
 
 object FileProcess {
+
   def processFile[A, B](f: java.io.File)(p: Process[String, A])(z: B)(g: (B, A) => B): IO[B] = IO {
 
     @annotation.tailrec

@@ -1,7 +1,10 @@
 package chapter15
 
 import java.io.{BufferedWriter, FileWriter}
+import java.util
+import java.util.{Set, TreeMap, TreeSet}
 
+import chapter13.IO
 import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.PropertyChecks
 import chapter5.Stream
@@ -163,40 +166,52 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  val writeFile = (l: List[Int]) => {
-    val file = new java.io.File("temperatures.txt")
+  val createFahrenheitFile = (l: List[Int]) => {
+    val file = new java.io.File("fahrenheit.txt")
     val bw = new BufferedWriter(new FileWriter(file, false))
     (1 to 10).foreach((a: Int) => bw.write("#\n"))
-    l.foreach(x => bw.write(s"$x\n"))
+    l.foreach(x => bw.write(s"$x\n\n\n"))
     bw.close()
   }
 
-  property("build the original program that reads from a file and tell you whether or not the file has greater than some number of lines") {
+  val createCelsiusFile = (l: String) => {
+    val file = new java.io.File("celsius.txt")
+    val bw = new BufferedWriter(new FileWriter(file, false))
+    bw.write(l)
+    bw.close()
+  }
+
+  property("build the original program that reads from a file and tells you whether or not the file has greater than some number of lines.  And do it using the IO monad from chapter13.") {
     forAll{l: List[Int] =>
       val gtLines = 10
-      writeFile(l)
-      val fused: Process[String, Boolean] = Process.countLoop[String] |> Process.exists((x: Int) => x > gtLines)
-      val actual = FileProcess.processFile(new java.io.File("temperatures.txt"))(fused)(false)(_ || _)
+      val writeFile = (l: List[Int]) => IO {
+        val file = new java.io.File("temp.txt")
+        val bw = new BufferedWriter(new FileWriter(file, false))
+        l.foreach(x => bw.write(s"$x\n"))
+        bw.close()
+      }
+
+      val actual = writeFile(l).flatMap { _ =>
+        val fused: Process[String, Boolean] = Process.countLoop[String] |> Process.exists((x: Int) => x > gtLines)
+        FileProcess.processFile(new java.io.File("temp.txt"))(fused)(false)(_ || _)
+      }
       (actual.run) should be (l.size > gtLines)
     }
   }
 
   property("read fahrenheit double values from a file and convert them to celsius and write them to another file") {
     forAll{l: List[Int] =>
-      val gtLines = 10
-      writeFile(l)
+      createFahrenheitFile(l)
       val toDouble = (d: String) => d.toDouble
       val toCelsius = (fahrenheit: Double) => (5.0 / 9.0) * (fahrenheit - 32.0)
-      val toString = (celsius: Double) => {println(s"converting $celsius to string"); celsius.toString}
+      val toString = (celsius: Double) => celsius.toString
 
-      val fused = Process.filter((x: String) => ! x.startsWith("#")) |> Process.lift(toDouble) |> Process.lift(toCelsius) |> Process.lift(toString)
-      val actual = FileProcess.processFile(new java.io.File("temperatures.txt"))(fused)("")(_ + "," + _)
-      println(actual.run)
-      val expected = l.map((x: Int) => toCelsius(x)).mkString(",")
-      actual.run  should be (expected)
-      //(actual.run) should be (l.size > gtLines)
+      val fused = Process.filter((x: String) => ! x.startsWith("#")) |> Process.filter((x: String) => x.trim.nonEmpty) |> Process.lift(toDouble) |> Process.lift(toCelsius) |> Process.lift(toString)
+      val actual = FileProcess.processFile(new java.io.File("fahrenheit.txt"))(fused)("")((a, b) => a + "\n" + b)
+      createCelsiusFile(actual.run)
     }
   }
+
   property ("make a Process that sums a Stream using a generic loop") {
     forAll{l: List[Double] =>
       val all = Stream(l:_*)

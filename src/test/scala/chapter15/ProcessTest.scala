@@ -174,24 +174,17 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
     bw.close()
   }
 
-  val createCelsiusFile = (l: String) => {
-    val file = new java.io.File("celsius.txt")
+  val writeFile = (fName: String, l: List[String]) => IO {
+    val file = new java.io.File(fName)
     val bw = new BufferedWriter(new FileWriter(file, false))
-    bw.write(l)
+    l.foreach(x => bw.write(s"$x\n"))
     bw.close()
   }
 
   property("build the original program that reads from a file and tells you whether or not the file has greater than some number of lines.  And do it using the IO monad from chapter13.") {
-    forAll{l: List[Int] =>
+    forAll{l: List[String] =>
       val gtLines = 10
-      val writeFile = (l: List[Int]) => IO {
-        val file = new java.io.File("temp.txt")
-        val bw = new BufferedWriter(new FileWriter(file, false))
-        l.foreach(x => bw.write(s"$x\n"))
-        bw.close()
-      }
-
-      val actual = writeFile(l).flatMap { _ =>
+      val actual = writeFile("temp.txt", l).flatMap { _ =>
         val fused: Process[String, Boolean] = Process.countLoop[String] |> Process.exists((x: Int) => x > gtLines)
         FileProcess.processFile(new java.io.File("temp.txt"))(fused)(false)(_ || _)
       }
@@ -207,8 +200,12 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
       val toString = (celsius: Double) => celsius.toString
 
       val fused = Process.filter((x: String) => ! x.startsWith("#")) |> Process.filter((x: String) => x.trim.nonEmpty) |> Process.lift(toDouble) |> Process.lift(toCelsius) |> Process.lift(toString)
-      val actual = FileProcess.processFile(new java.io.File("fahrenheit.txt"))(fused)("")((a, b) => a + "\n" + b)
-      createCelsiusFile(actual.run)
+      val celsius = FileProcess.processFile(new java.io.File("fahrenheit.txt"))(fused)("")((a, b) => a + "\n" + b)
+
+      val fn = s"celsius${System.currentTimeMillis()}.txt"
+      celsius.flatMap(s => writeFile(fn, s.split("\n").toList)).run
+      val actual = new java.io.File(fn)
+      actual.exists() should be (true)
     }
   }
 

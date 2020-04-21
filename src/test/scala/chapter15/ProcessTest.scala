@@ -1,9 +1,6 @@
 package chapter15
 
 import java.io.{BufferedWriter, FileWriter}
-import java.util
-import java.util.{Set, TreeMap, TreeSet}
-
 import chapter13.IO
 import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.PropertyChecks
@@ -265,6 +262,14 @@ class ProcessTest extends PropSpec with PropertyChecks with Matchers {
       val evenTimes1000 = Process.filter(filt) |> Process.lift(times1000).map(plus3)
       val actual = evenTimes1000(all).take(10).toList
       actual should be (expected.take(10))
+    }
+  }
+
+  property("enumerate all the lines in a file using runLog") {
+    forAll { l: List[String] =>
+      writeFile("temp.txt", l).run
+      val actual = chapter15.generic.Process.runLog(chapter15.generic.Process.p).run
+      actual should be (l)
     }
   }
 

@@ -1,24 +1,24 @@
 package chapter3
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class SetHeadTest extends PropSpec with PropertyChecks with Matchers {
+object SetHeadTest extends Properties("List set head") {
 
-  property("Test setHead function for Ints") {
+  property("Test setHead function for Ints") = {
     forAll { (xs: Array[Int], newHead: Int) =>
-      whenever(xs.size > 1) {
+      (xs.size > 1) ==> {
         val r = List.apply(xs: _*)
-        List.setHead(newHead, r) should be(Cons(newHead, List.apply(xs.tail: _*)))
+        List.setHead(newHead, r) == (Cons(newHead, List.apply(xs.tail: _*)))
       }
     }
   }
 
-  property("Test setHead function for Strings") {
+  property("Test setHead function for Strings") = {
     forAll { (xs: Array[String], newHead: String) =>
-      whenever(xs.size > 1) {
+      (xs.size > 1) ==> {
         val r = List.apply(xs: _*)
-        List.setHead(newHead, r) should be(Cons(newHead, List.apply(xs.tail: _*)))
+        List.setHead(newHead, r) == (Cons(newHead, List.apply(xs.tail: _*)))
       }
     }
   }

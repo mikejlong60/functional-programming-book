@@ -17,7 +17,7 @@ case object ReadLine extends Console[Option[String]] {
   def toState: ConsoleState[Option[String]] = ???
 
   def run: Option[String] =
-    try Some(readLine())
+    try Some(scala.io.StdIn.readLine())
     catch { case e: Exception => None}
 }
 

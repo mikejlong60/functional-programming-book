@@ -20,7 +20,7 @@ object IOSimple extends chapter11.Monad[IOSimple]  {
 
 object Converter {
 
-  def ReadLine: IOSimple[String] = IOSimple { readLine() }
+  def ReadLine: IOSimple[String] = IOSimple { scala.io.StdIn.readLine() }
   def PrintLine(msg: String): IOSimple[Unit] = IOSimple {println(msg)}
   def fahrenheitToCelsius(f: Double) =  (f - 32) * 5.0/9.0
 

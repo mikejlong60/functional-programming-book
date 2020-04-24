@@ -1,14 +1,13 @@
 package chapter14
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class QuickSortTest extends PropSpec with PropertyChecks with Matchers {
+object QuicksortTest extends Properties("Quicksort tests") {
 
-  property("test first imperative version from book") {
+  property("test first imperative version from book") =
     forAll {xs: List[Int] =>
       val actual = QuickSort.quickSort(xs)
-      actual should be (xs.sorted)
+      actual == xs.sorted
     }
-  }
 }

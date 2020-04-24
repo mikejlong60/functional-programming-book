@@ -4,7 +4,7 @@ object IOOps {
 
   def fahrenheitToCelsius(f: Double): Double = (f - 32) * 5.0/9.0
 
-  def ReadLine: IO[String] = IO { readLine }
+  def ReadLine: IO[String] = IO { scala.io.StdIn.readLine }
 
   def PrintLine(msg: String): IO[Unit] = IO {println(msg)}
 

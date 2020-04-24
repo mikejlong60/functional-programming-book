@@ -1,120 +1,107 @@
 package chapter6
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
-import org.scalactic.TypeCheckedTripleEquals._ 
 import RNG._
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
+object SimpleRNGTest extends Properties("RNG tests") {
 
-  property("Generating two random numbers using the same generator produces the same number ") {
+  property("Generating two random numbers using the same generator produces the same number ") =
     forAll { x: Int =>
       val rng = SimpleRNG(x)
       val (n1, rng2) = rng.nextInt
       val (n2, rng3) = rng.nextInt
-      n1 should be (n2)
+      n1 ==n2
     }
-  }
 
-  property("Generate a non-negative random number") {
+  property("Generate a non-negative random number") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val actual = nonNegativeInt(rng: RNG)
-      actual._1 should be >= (0)
+      actual._1 >= 0
     }
-  }
 
-
-  property("Generate a non-negative double between 0 and 1") {
+  property("Generate a non-negative double between 0 and 1") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val actual = double(rng: RNG)
-      actual._2 should not be (rng)
-      actual._1.toInt should be  (0)//Just truncate the Double. I am having trouble getting Scalacheck to deal with doubles.  Should instead use bigdecimal or a precise type for rational numbers.  But that would complicate too much.
+      actual._2 != rng
+      actual._1.toInt ==  0
     }
-  }
 
-  property("Generate pairs of random numbers") {
+  property("Generate pairs of random numbers") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val actual = intDouble(rng)
-      actual._2 should not be (rng)
-      actual._1._1 should be >= (0) 
-      actual._1._2.toInt should be  (0)
+      actual._2 != rng
+      actual._1._1 >= 0
+      actual._1._2.toInt == 0
     }
-  }
 
-  property("Generate pairs of random numbers in opposite order") {
+  property("Generate pairs of random numbers in opposite order") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val actual = doubleInt(rng)
-      actual._2 should not be (rng)
-      actual._1._2 should be >= (0) 
-      actual._1._1.toInt should be  (0)
+      actual._2 != rng
+      actual._1._2 >= 0
+      actual._1._1.toInt == 0
     }
-  }
 
-  property("Generate triple of random numbers") {
+  property("Generate triple of random numbers") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val actual = double3(rng)
-      actual._2 should not be (rng)
-      actual._1._1.toInt should be  (0)
-      actual._1._2.toInt should be  (0)
-      actual._1._3.toInt should be  (0)
+      actual._2 != rng
+      actual._1._1.toInt == 0
+      actual._1._2.toInt == 0
+      actual._1._3.toInt == 0
     }
-  }
 
-  property("Generate list of random Ints") {
+  property("Generate list of random Ints") =
     forAll {x: Short =>
-      whenever(x > 0 && x < 4000) {
+      (x > 0 && x < 4000) ==> {
         val rng = SimpleRNG(x)
         val actual = ints(x)(rng)//Because this is not tail recursive it blows up.  The book solution shows a tail-recursive version with an inner function.
-        actual._1.size should be (x)
+        actual._1.size == x
       }
     }
-  }
 
-  property("Generate a non-negative double between 0 and 1 with map") {
+  property("Generate a non-negative double between 0 and 1 with map") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val actual = doubleMap(rng)
-      actual._2 should not be (rng)
-      actual._1.toInt should be  (0)
+      actual._2 != rng
+      actual._1.toInt == 0
     }
-  }
  
-  property("Generate an Int and  Double pair using map2") {
+  property("Generate an Int and  Double pair using map2") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val fff = map2(nonNegativeInt, doubleMap)((_,_))
       val actual = fff(rng)
-      actual._2 should not be (rng)
-      actual._1._1 should be >= (0)
-      actual._1._2.toInt should be  (0)
+      actual._2 != rng
+      actual._1._1 >= 0
+      actual._1._2.toInt == 0
     }
-  }
 
-  property("Generate a Double  Double pair using map2") {
+  property("Generate a Double  Double pair using map2") =
     forAll {x: Int =>
       val rng = SimpleRNG(x)
       val fff = map2(doubleMap, doubleMap)((_, _))
       val actual = fff(rng)
-      actual._2 should not be (rng)
-      actual._1._1.toInt should be (0)
-      actual._1._2.toInt should be  (0)
+      actual._2 != rng
+      actual._1._1.toInt == 0
+      actual._1._2.toInt == 0
     }
-  }
 
-  property("Generate a sequence of random doubles") {
+  property("Generate a sequence of random doubles") =
     forAll{(xs: List[Int], x: Int) =>
       val rng = SimpleRNG(x)
       val xxs = xs.map(x => doubleMap)
       val fff = sequence(xxs)
       val actual = fff(rng)
-      actual._1.size should be (xs.size)
+      actual._1.size == (xs.size)
     }
-  }
 
   def nonNegativeLessThan(n: Int): Rand[Int] = { rng =>
     val (i, rng2) = nonNegativeInt(rng)
@@ -126,24 +113,23 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
   def nonNegativeLessThanFm(n: Int): Rand[Int] = {
      flatMap(nonNegativeInt)(i => {
        val mod = i % n
-       if (i  +  (n - 1) - mod >= 0) unit(mod) //rng =>  (mod, rng) 
+       if (i  +  (n - 1) - mod >= 0) unit(mod) //rng =>  (mod, rng)
        else  nonNegativeLessThanFm(n)
     })
   }
 
-  property("Use flatMap for nonNegativeLessThan") {
+  property("Use flatMap for nonNegativeLessThan") =
     forAll{x: Int =>
-      whenever(x > 0) {
+      (x > 0) ==> {
       val rng = SimpleRNG(x)
       val result = nonNegativeLessThanFm(x)
       val actual = result(rng)
-      actual._1 should be >= (0)
-      actual._1 should be < (x)
+      actual._1 >= 0
+      actual._1  < x
       }
     }
-  }
 
-  property("Use flatMap") {
+  property("Use flatMap") =
     forAll{(xs: List[Int], x: Int) =>
      val rng = SimpleRNG(x)
      val xxs = xs.map(x => {
@@ -153,26 +139,26 @@ class SimpleRNGTest extends PropSpec with PropertyChecks with Matchers {
      })
      val fff = sequence(xxs)
      val actual = fff(rng)
-     actual._1.size should be (xs.size)
+     actual._1.size == (xs.size)
     }
-  }
 
-  property("Reveal bug in roll die. This should fail") {
+  property("Reveal bug in roll die. This should fail") = {
     def rollDie: Rand[Int] = nonNegativeLessThan(6)
-    forAll(minSuccessful(10000)){x: Int =>
+
+    forAll { x: Int =>
       val actual = rollDie(SimpleRNG(x))
-      actual._1 should be > (0)
-      actual._1 should be <= (6)
+      actual._1 > 0
+      actual._1 <= 6
     }
   }
 
-    property("Fix bug in roll die") {
+  property("Fix bug in roll die") = {
     def rollDie: Rand[Int] = map(nonNegativeLessThan(6))(x => x + 1)
-    forAll(minSuccessful(10000)){x: Int =>
+
+    forAll { x: Int =>
       val actual = rollDie(SimpleRNG(x))
-      actual._1 should be > (0)
-      actual._1 should be <= (6)
+      actual._1 > 0
+      actual._1 <= 6
     }
   }
-
 }

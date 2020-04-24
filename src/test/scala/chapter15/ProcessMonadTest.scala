@@ -1,11 +1,10 @@
 package chapter15
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
 import chapter5.Stream
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-
-class ProcessMonadTest extends PropSpec with PropertyChecks with Matchers {
+object ProcessMonadTest extends Properties("ProcessMonad tests") {
 
   import chapter12.MonadInstances._
 
@@ -13,7 +12,7 @@ class ProcessMonadTest extends PropSpec with PropertyChecks with Matchers {
 
 
 
-  property("Verify associative law for Process") {
+  property("Verify associative law for Process") =
     forAll{ (l: Int) =>
      // val all = Stream(l:_*)
 
@@ -40,9 +39,10 @@ class ProcessMonadTest extends PropSpec with PropertyChecks with Matchers {
 
       //mon.associativeLaw(Process.lift(plus3))(Process.lift(minus3))(Process.lift(plus3)) should be (true)
       //mon.associativeLaw("heck")(f)(g) should be (true)
-  
+
+      true
     }
-  }
+
 
   /**
   property("Verify associative law for validator") {

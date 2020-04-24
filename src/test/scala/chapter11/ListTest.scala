@@ -1,84 +1,76 @@
 package chapter11
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class ListTest extends PropSpec with PropertyChecks with Matchers {
+object  ListTest extends Properties("List test") {
 
   import Monad._
   val mon = listMonad
 
-  property("Test replicateM") {
+  property("Test replicateM") =
     forAll{  (xx: List[Int], n: Short) =>
       val x = List(1,2,3)
       val nn = 3
       val actual = mon.replicateM(nn, x)
       val expected = List.fill(nn)(x)
-      println("poooooooooooo:"+actual)
-      actual should be (expected)
+      actual == expected
     }
-  }
-  property("Test map") {
+
+  property("Test map") =
     forAll { x: List[Int] =>
       val actual = mon.flatMap(x)(x => List(x + 1))
       val expected = x.flatMap(x => List(x + 1))
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test Map Law") {
+  property("Test Map Law") = {
     val o = List(1,2,3)
-    mon.mapLaw(o) should be (true)
-    mon.mapLaw(List()) should be (true)
+    mon.mapLaw(o) & mon.mapLaw(List())
   }
 
-  property("Test Associative Law") {
+  property("Test Associative Law") =
     forAll {xs: List[Int]  =>
       val f =  (x: List[Int]) => List(x.toString)
       val g = (y: String) => List(s"the number was: $y")
 
-      mon.associativeLaw(List(xs))(f)(g) should be (true)
-      mon.associativeLaw(List())(f)(g) should be (true)
+      mon.associativeLaw(List(xs))(f)(g) & mon.associativeLaw(List())(f)(g)
     }
-  }
 
-  property("Test Kleisli Associative Law") {
+  property("Test Kleisli Associative Law") =
     forAll {xs: List[Int]  =>
       val f =  (xs: List[Int]) => xs.map(x => x.doubleValue)
       val g = (y: Double) => List(y.toString)
       val h =   (z: String) => List(s"the element of the list was: $z")
-     mon.associativeLawUsingKleisli(xs)(f, g, h) should be (true)
+     mon.associativeLawUsingKleisli(xs)(f, g, h)
     }
-  }
 
- property("Show equivalence  of Kleisli Associative Law and flatMap associative law") {
+ property("Show equivalence  of Kleisli Associative Law and flatMap associative law") =
     forAll {xs: List[Int]  =>
       val f =  (xs: List[Int]) => xs.map(x => x.doubleValue)
       val g = (y: Double) => List(y.toString)
       val h =   (z: String) => List(s"the number was: $z")
-      mon.associativeLawUsingKleisli(xs)(f, g, h) should be (true)
+      mon.associativeLawUsingKleisli(xs)(f, g, h)
     }
- }
 
-  property("Prove identity laws using Kleisli composition") {
+
+  property("Prove identity laws using Kleisli composition") =
     forAll {xs: List[Int]  =>
       val f =  (xs: List[Int]) => xs.map(x => s"${x * 3}")
-      mon.identityLawsUsingKleisli(xs)(f) should be (true)
+      mon.identityLawsUsingKleisli(xs)(f)
     }
-  }
 
-  property("Test flatmap") {
+  property("Test flatmap") =
     forAll { xs: List[Int] =>
       val actual = mon.flatMap(xs)(x => List(x + 1))
       val expected = xs.flatMap(x => List(x + 1))
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test flatmap on unit value") {
+  property("Test flatmap on unit value") = {
     val actual = mon.flatMap(List())(x => List())
     val expected = List()
-    actual should be (expected)
+    actual == expected
   }
 
   val f: String => List[Int] = (x: String) =>
@@ -88,34 +80,32 @@ class ListTest extends PropSpec with PropertyChecks with Matchers {
     case e: Exception => List()
   }
   
-  property("Test traverse over unparseable number") {
+  property("Test traverse over unparseable number") = {
     val xs = List("12","13a")
     val expected =List()
     val actual = mon.traverse(xs)(f)
-    actual should be (expected)
+    actual == expected
   }
 
-  property("Test traverse") {
+  property("Test traverse") =
     forAll { xs: List[Int] =>
       val xss = xs.map(_.toString)
       val expected = List(xss.flatMap(f))
       val actual = mon.traverse(xss)(f)
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
+  property("Test sequence for non-empty list. Sequence flattens the list by one level.") =
     forAll { l: List[Int] =>
       val ll = l.map((List(_)))
       val actual = mon.sequence(ll)
-      actual should be (List(l))
+      actual == List(l)
     }
-  }
 
-  property("Test sequence for empty list") {
+  property("Test sequence for empty list") = {
     val ll = List()
     val actual = mon.sequence(ll)
-    actual should be (List(List()))
+    actual == List(List())
   }
 }
 

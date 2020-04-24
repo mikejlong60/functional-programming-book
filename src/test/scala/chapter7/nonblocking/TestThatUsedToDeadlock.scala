@@ -1,12 +1,11 @@
 package chapter7.nonblocking
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
-import org.scalactic.TypeCheckedTripleEquals._ 
 import Nonblocking.Par._
 import java.util.concurrent._
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class TestThatUsedToDeadlock extends PropSpec with PropertyChecks with Matchers {
+object TestThatUsedToDeadlock extends Properties("Non-blocking Par test that used to deadlock") {
 
   def sumInParallel[A](ints: List[Int])(es: ExecutorService): Nonblocking.Par[Int] = {
     if (ints.size <= 1) {
@@ -18,13 +17,13 @@ class TestThatUsedToDeadlock extends PropSpec with PropertyChecks with Matchers 
     }
   }
 
-  property("prove that you don't have a deadlock as in exercise 7.9") {
+  property("prove that you don't have a deadlock as in exercise 7.9") = {
     val executor = Executors.newFixedThreadPool(1)
-    forAll {xs: List[Int] =>
+    forAll { xs: List[Int] =>
       val a = sumInParallel(xs)(executor)
       val actual = Nonblocking.Par.run(executor)(a)
       val expected = xs.sum
-      actual.get should be (expected)
+      actual.get == expected
     }
   }
 }

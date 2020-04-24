@@ -4,7 +4,7 @@ import language.higherKinds
 import language.implicitConversions
 
 object TestIO {
-  def ReadLine: IO[String] = IO { readLine()}
+  def ReadLine: IO[String] = IO { scala.io.StdIn.readLine()}
   def PrintLine(msg: String): IO[Unit] = IO {println(msg)}
   def fahrenheitToCelsius(f: Double) = (f - 32) * 5.0 / 9.0
   def converter: IO[Unit] = for {

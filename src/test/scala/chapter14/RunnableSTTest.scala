@@ -1,12 +1,12 @@
 package chapter14
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class RunnableSTTest extends PropSpec with PropertyChecks with Matchers {
+object RunnableSTTest extends Properties("Runnable ST tests") {
 
-  property("test running first program to produce something") {
-    forAll {(x:  Int, y: Int) =>
+  property("test running first program to produce something") = {
+    forAll { (x: Int, y: Int) =>
       val swapper: RunnableST[(Int, Int)] = new RunnableST[(Int, Int)] {
         def apply[S] = for {
           r1 <- STRef(x)
@@ -21,7 +21,7 @@ class RunnableSTTest extends PropSpec with PropertyChecks with Matchers {
       }
 
       val actual: (Int, Int) = ST.runST(swapper)
-      actual should be ((y + 1, x + 1))
+      actual == (y + 1, x + 1)
     }
   }
 
@@ -75,14 +75,14 @@ class RunnableSTTest extends PropSpec with PropertyChecks with Matchers {
   }
 
     */
-  property ("Verify that RunnableST with a wildcard type will not typecheck. ") {
-    """
-             val ref = ST.runST(new RunnableST[STRef[_, Int]]) {
-               def apply[S] = for {
-                 r1 <- STRef(1)
-               } yield r1 
-             }
-""" shouldNot typeCheck
-  }
+//  property ("Verify that RunnableST with a wildcard type will not typecheck. ") {
+//    """
+//             val ref = ST.runST(new RunnableST[STRef[_, Int]]) {
+//               def apply[S] = for {
+//                 r1 <- STRef(1)
+//               } yield r1
+//             }
+//""" shouldNot typeCheck
+//  }
 
 }

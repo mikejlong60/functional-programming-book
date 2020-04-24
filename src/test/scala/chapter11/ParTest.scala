@@ -1,10 +1,10 @@
 package chapter11
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
 import chapter7.nonblocking.Nonblocking.Par
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class ParTest extends PropSpec with PropertyChecks with Matchers {
+object  ParTest extends Properties("Par Monad test") {
 
   import Monad._
   val mon = parMonad
@@ -12,26 +12,22 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
 
   import chapter7.nonblocking.Nonblocking.Par
 
-  property("Test map") {
+  property("Test map") =
     forAll { xs: List[Int] =>
       val a = mon.map(mon.unit(xs))(a => a.map(aa => aa + 12))
       val actual = Par.run(executor)(a).get
       val expected = xs.map(x => x + 12)
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test Map Law") {
+  property("Test Map Law") =
     forAll  {xs : List[Int] =>
       val actual = Par.run(executor)(mon.map(mon.unit(xs))(a => a)).get
-      actual should be (xs)
       val actual2 = Par.run(executor)(mon.map(mon.unit(List()))(a => a)).get
-      actual2 should be (List())
+      actual == xs & actual2 == List()
     }
-  }
 
-
-  property("Test Associative Law") {
+  property("Test Associative Law") =
     forAll {x: Int  =>
       val f =  (x: Int) => mon.unit(x.toString)
       val g = (y: String) => mon.unit(s"the number was: $y")
@@ -42,11 +38,10 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
       val a2 = mon.flatMap(mon.unit(x))(a => mon.flatMap(f(a))(g))
       val actual2 = Par.run(executor)(a2).get
 
-      actual1 should be (actual2)
+      actual1 == actual2
     }
-  }
 
-  property("Test Kleisli Associative Law") {
+  property("Test Kleisli Associative Law") =
     forAll {x: Int  =>
       val f =  (x: Int) => mon.unit(x.toString)
       val g = (y: String) => mon.unit(s"the number was: $y")
@@ -55,11 +50,10 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
       val rf = mon.compose(f, mon.compose(g, h))
       val lfe = Par.run(executor)(lf(x)).get
       val rfe = Par.run(executor)(rf(x)).get
-      lfe should be (rfe)
+      lfe == rfe
     }
-  }
 
-  property("Prove identity laws using Kleisli composition") {
+  property("Prove identity laws using Kleisli composition") =
     forAll {xs: List[Int]  =>
       val a = mon.map(mon.unit(xs))(a => a.map(aa => aa + 12))
       val f =  (xs: List[Int]) => mon.map(mon.unit(xs))(a => a.map(x => s"${x * 3}"))
@@ -67,34 +61,30 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
       val ri = mon.compose((a: List[Int]) => mon.unit(a), f)
       val lfe = Par.run(executor)(li(xs)).get
       val rfe = Par.run(executor)(ri(xs)).get
-      lfe should be (rfe)
+      lfe == rfe
     }
-  }
 
-  property("Test flatmap") {
+  property("Test flatmap") =
     forAll { xs: List[Int] =>
       val a = mon.flatMap(mon.unit(xs))(x => mon.unit(x.map(xx => xx + 1)))
       val actual = Par.run(executor)(a).get
       val expected = xs.flatMap(x => List(x + 1))
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test flatmap that uses compose") {
+  property("Test flatmap that uses compose") =
     forAll { xs: List[Int] =>
       val a = mon._flatMap(mon.unit(xs))(x => mon.unit(x.map(xx => xx + 1)))
       val actual = Par.run(executor)(a).get
       val expected = xs.flatMap(x => List(x + 1))
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-
-  property("Test flatmap on unit value") {
+  property("Test flatmap on unit value") = {
     val a = mon.flatMap(mon.unit(List()))(x => mon.unit(List()))
     val actual = Par.run(executor)(a).get
     val expected = List()
-    actual should be (expected)
+    actual == expected
   }
 
   val f = (x: Par[String]) =>
@@ -121,22 +111,20 @@ class ParTest extends PropSpec with PropertyChecks with Matchers {
     //actual should be (expected)
  // }
  
- property("Test traverse") {
+ property("Test traverse") =
     forAll { xs: List[Int] =>
       val xss = xs.map(x => mon.unit(x.toString))
       val a = mon.traverse(xss)(f)
       val actual = Par.run(executor)(a).get
-      actual should be (xs)
+      actual == xs
     }
-  }
 
-  property("Test sequence for non-empty list. Sequence flattens the list by one level.") {
+  property("Test sequence for non-empty list. Sequence flattens the list by one level.") =
     forAll { l: List[Int] =>
       val ll = l.map(x => mon.unit(x))
       val a = mon.sequence(ll)
       val actual = Par.run(executor)(a).get
-      actual should be (l)
+      actual == l
     }
-  }
 }
 

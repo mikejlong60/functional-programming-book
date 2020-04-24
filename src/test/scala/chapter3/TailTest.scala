@@ -1,24 +1,24 @@
 package chapter3
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class TailTest extends PropSpec with PropertyChecks with Matchers {
+object TailTest extends Properties("List tail stuff") {
 
-  property("Test tail function for Ints") {
+  property("Test tail function for Ints") = {
     forAll { xs: Array[Int] =>
-      whenever(xs.size > 1) {
+      (xs.size > 1) ==> {
         val r = List.apply(xs: _*)
-        List.tail(r) should be(List.apply(xs.tail: _*))
+        List.tail(r) == (List.apply(xs.tail: _*))
       }
     }
   }
 
-  property("Test tail function for Strings") {
+  property("Test tail function for Strings") = {
     forAll { xs: Array[String] =>
-      whenever(xs.size > 1) {
+      (xs.size > 1) ==> {
         val r = List.apply(xs: _*)
-        List.tail(r) should be(List.apply(xs.tail: _*))
+        List.tail(r) == (List.apply(xs.tail: _*))
       }
     }
   }

@@ -1,27 +1,24 @@
 package chapter3
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.forAll
 
-class ConcatTest extends PropSpec with PropertyChecks with Matchers {
+object ConcatTest extends Properties("List Concat") {
 
-  property("Test flatten for Strings") {
+  property("Test flatten for Strings")  =
     forAll { (xs1: Array[String], xs2: Array[String], xs3: Array[String]) =>
       val raw = List(List(xs1: _*), List(xs2: _*), List(xs3: _*))
       val expected = List((xs1.toList ::: xs2.toList ::: xs3.toList).toArray: _*)
       val actual = List.concat(raw)
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test flatten for Ints") {
+  property("Test flatten for Ints")  =
     forAll { (xs1: Array[Int], xs2: Array[Int], xs3: Array[Int]) =>
       val raw = List(List(xs1: _*), List(xs2: _*), List(xs3: _*))
       val expected = List((xs1.toList ::: xs2.toList ::: xs3.toList).toArray: _*)
       val actual = List.concat(raw)
-      actual should be (expected)
+      actual == expected
+
     }
-  }
-
-
 }

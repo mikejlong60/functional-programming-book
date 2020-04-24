@@ -1,32 +1,28 @@
 package chapter3
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-class DropTest extends PropSpec with PropertyChecks with Matchers {
+object DropTest extends Properties("List Drop") {
 
-  property("Test drop function for Ints") {
+  property("Test drop function for Ints") =
     forAll { (xs: Array[Int], n: Short) =>
-      whenever(n < 100 && n >= 0) {
+      (n < 100 && n >= 0) ==> {
         val l = List.apply(xs: _*)
         val expected = List.apply(xs.drop(n): _*)
         val actual = List.drop(l, n)
-        actual should be (expected)
+        actual == expected
       }
     }
-  }
 
-  property("Test drop function for Strings") {
+  property("Test drop function for Strings") =
     forAll { (xs: Array[String], n: Short) =>
-      whenever(n < 100 && n >= 0) {
+      (n < 100 && n >= 0) ==> {
         val l = List.apply(xs: _*)
         val expected = List.apply(xs.drop(n): _*)
         val actual = List.drop(l, n)
-        actual should be (expected)
+        actual == expected
       }
     }
-  }
-
-
 }
 

@@ -1,190 +1,169 @@
 package chapter5
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
-import org.scalacheck.Gen
+import scala.{Option => _, None => _, Some => _,  Either => _, Right => _, Left => _}
+import org.scalacheck._
+import Prop.{forAll, propBoolean}
 
-case class ODriveDoc(name: String)
+object StreamTest extends Properties("Stream tests") {
+  case class ODriveDoc(name: String)
 
-class StreamTest extends PropSpec with PropertyChecks with Matchers {
-
-  property("Test drop function for Stream of ints") {
-    PropertyChecks.forAll { xs: Seq[Int] =>
-      val a = Stream.apply(xs:_*)
+  property("Test drop function for Stream of ints") =
+    forAll { xs: Seq[Int] =>
+      val a = Stream.apply(xs: _*)
 
       val actual = a.drop(1).toList
       val expected = xs.drop(1).toList
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test take with 1 function for Stream of ints") {
+  property("Test take with 1 function for Stream of ints") =
     forAll { xs: Seq[Int] =>
-      val a = Stream.apply(xs:_*)
+      val a = Stream.apply(xs: _*)
 
       val actual = a.take(1).toList
       val expected = xs.take(1).toList
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-    property("Test take with 3 function for Stream of ints") {
+  property("Test take with 3 function for Stream of ints") =
     forAll { xs: Seq[Int] =>
-      val a = Stream.apply(xs:_*)
+      val a = Stream.apply(xs: _*)
       val actual = a.take(3).toList
       val expected = xs.take(3).toList
-      actual should be (expected)
+      actual == expected
     }
-  }
 
   val p: Int => Boolean = x => x % 2 == 1
 
-  property("Test takewhile for Stream of ints") {
+  property("Test takewhile for Stream of ints") =
     forAll { xs: Seq[Int] =>
-     val actual = Stream.apply(xs:_*).takeWhile(p)
-     actual.toList should be (xs.takeWhile(p))
+      val actual = Stream.apply(xs: _*).takeWhile(p)
+      actual.toList == xs.takeWhile(p)
     }
-  }
 
-  property("Test toList function for Stream of Ints") {
+  property("Test toList function for Stream of Ints") =
     forAll { xs: Seq[Int] =>
-      val a = Stream.apply(xs:_*)
+      val a = Stream.apply(xs: _*)
       val actual = a.toList
-       actual should be (xs)
+      actual == xs
     }
-  }
 
-  property("Test exists function for Stream of Ints") {
+  property("Test exists function for Stream of Ints") =
     forAll { xs: Seq[Int] =>
-      val actual  = Stream.apply(xs:_*)
-       actual.exists(p) should be (xs.exists(p))
+      val actual = Stream.apply(xs: _*)
+      actual.exists(p) == xs.exists(p)
     }
-  }
 
-    property("Test forAll function for Stream of Ints") {
-    forAll (minSuccessful(8000), maxDiscarded(300)){ xs: Seq[Int] =>
-      val actual  = Stream.apply(xs:_*)
-       actual.forAll(p) should be (xs.forall(p))
-    }
-  }
-
-  val f: Int => Int = x =>  x 
-  property("Test map function for Stream of Ints") {
+  property("Test forAll function for Stream of Ints") =
     forAll { xs: Seq[Int] =>
-      val actual  = Stream.apply(xs:_*)
-       (actual.map(f).toList) should be (xs.map(f))
+      val actual = Stream.apply(xs: _*)
+      actual.forAll(p) == xs.forall(p)
     }
-  }
 
-    property("Test append function for Stream of Ints") {
-    forAll {(xs: Seq[Int], ys: Seq[Int]) =>
-      val a1  = Stream.apply(xs:_*)
-      val a2  = Stream.apply(ys:_*)
+  val f: Int => Int = x => x
+  property("Test map function for Stream of Ints") =
+    forAll { xs: Seq[Int] =>
+      val actual = Stream.apply(xs: _*)
+      actual.map(f).toList == xs.map(f)
+    }
+
+  property("Test append function for Stream of Ints") =
+    forAll { (xs: Seq[Int], ys: Seq[Int]) =>
+      val a1 = Stream.apply(xs: _*)
+      val a2 = Stream.apply(ys: _*)
       val expected = xs ++ ys
-       (a1.append(a2).toList) should be (expected)
+      a1.append(a2).toList == expected
     }
-  }
-
 
   val g: Int => Stream[Int] = x => Stream.cons(x, Stream.empty)
 
-  property("Test flatMap function for Stream of Ints") {
+  property("Test flatMap function for Stream of Ints") =
     forAll { xs: Seq[Int] =>
-      val actual  = Stream.apply(xs:_*)
+      val actual = Stream.apply(xs: _*)
       val mine = actual.flatMap(g).toList
       val theirs = xs.map(f).toList
-      (mine) should be (theirs)
+      mine == theirs
     }
-  }
 
-  property("Test filter function for Stream of Ints") {
+  property("Test filter function for Stream of Ints") = {
     val even: Int => Boolean = x => x % 2 == 0
     forAll { xs: Seq[Int] =>
-      val actual  = Stream.apply(xs:_*)
+      val actual = Stream.apply(xs: _*)
       val mine = actual.filter(even).toList
       val theirs = xs.filter(even).toList
-      (mine) should be (theirs)
+      mine == theirs
     }
   }
 
-  property("Test constant function for Int") {
+  property("Test constant function for Int") =
+    forAll { x: Int =>
+      val actual = Stream.constant(x).take(4).toList
+      val expected = List(x, x, x, x)
+      actual == expected
+    }
+
+  property("Test from function for Int") =
      forAll { x: Int =>
-       val actual  = Stream.constant(x).take(4).toList
-       val expected = List(x, x, x, x)
-      actual should be (expected)
+      val actual  = Stream.from(x).take(4).toList
+      val expected = List(x, x+1, x+2, x+3)
+      actual == expected
     }
-  }
 
-    property("Test from function for Int") {
-     forAll { x: Int =>
-       val actual  = Stream.from(x).take(4).toList
-       val expected = List(x, x+1, x+2, x+3)
-      actual should be (expected)
-    }
-  }
-
-  property("Test fib function take 1") {
+  property("Test fib function take 1") = {
      val actual = Stream.fib.take(1).toList
-     actual should be (List(0))
+     actual == List(0)
   }
 
-  property("Test fib function take 5") {
+  property("Test fib function take 5") = {
      val actual = Stream.fib.take(5).toList
-     actual should be (List(0, 1, 1, 2, 3))
+     actual  == List(0, 1, 1, 2, 3)
   }
 
-   property("Test fib function take 7") {
+   property("Test fib function take 7") = {
      val actual = Stream.fib.take(7).toList
-     actual should be (List(0, 1, 1, 2, 3, 5, 8))
+     actual == List(0, 1, 1, 2, 3, 5, 8)
   }
 
-  property("Test fibme function take 7") {//This is the beginning of unfold
+  property("Test fibme function take 7") = {
      val actual = Stream.fibme(Stream.empty[Int]).take(7).toList
-     actual should be (List(0, 1, 1, 2, 3, 5, 8))
+     actual == List(0, 1, 1, 2, 3, 5, 8)
   }
 
-  property("Test fibme function take 1") { //This is the beginning of unfold
+  property("Test fibme function take 1") = { //This is the beginning of unfold
      val actual = Stream.fibme(Stream.empty[Int]).take(1).toList
-     actual should be (List(0))
+     actual == List(0)
   }
 
   val giveMeAOnesForever: Stream[Int] => Option[(Int, Stream[Int])] = s => Some((1, Stream.cons(1,s)))
-  property("Test unfold to produce a stream of ones and take 1") {
+  property("Test unfold to produce a stream of ones and take 1") = {
     val actual = Stream.unfold(Stream.cons(1, Stream.empty))(giveMeAOnesForever).take(1).toList
-    actual should be (List(1))
+    actual == List(1)
   }
 
-  property("Test unfold to produce a stream of ones and take 12 starting from an empty stream") {
+  property("Test unfold to produce a stream of ones and take 12 starting from an empty stream") = {
     val actual = Stream.unfold(Stream.empty[Int])(giveMeAOnesForever).take(12).toList
-    actual should be (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+    actual == List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
   }
 
-  property("Test unfold to produce a stream of ones and take 12 starting from a stream of 1") {
+  property("Test unfold to produce a stream of ones and take 12 starting from a stream of 1") = {
     val actual = Stream.unfold(Stream.cons(1, Stream.empty))(giveMeAOnesForever).take(12).toList
-    actual should be (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+    actual == List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
   }
 
-  property("Test unfold with computation that stops when A is > 100") {
+  property("Test unfold with computation that stops when A is > 100") = {
     val actual = Stream.unfold(0)(nextPositiveIntLT100).take(12).toList
-    actual should be (List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
+    actual == List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
   }
 
-  property("Test unfold with computation that stopping computation") {
+  property("Test unfold with computation that stopping computation") = {
     val actual = Stream.unfold(99)(nextPositiveIntLT100).take(12).toList
-    actual should be (List(99))
+    actual == List(99)
   }
   var first100 = 0
 
-  property("Test a pipeline of functions fed by an unfold") {
-     val asssctual = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs).map(d => {
-        s"$d:dude" 
-    }).map(d => {
-      val f = s"$d:mama"
-      f
-    })//.take(300).toList
-    //actual should be (empty)
-      (1 to 6000).map(n =>{
-        val actual = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs)
+  property("Test a pipeline of functions fed by an unfold") = {
+      val actual = (1 to 6000).map(n =>{
+        val a = Stream.unfold(getNextDoc())(keepItRollingUntilNoMoreUnmigratedDocs)
           .map(d => {
               s"$d:dude"
           })
@@ -192,29 +171,29 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
               val f = s"$d:mama"
               f
             })
-        val drain = actual.take(3000).toList
-        drain should have size(3000)
+          a.take(3000).toList
       })
+    actual.size == 3000
   }
 
-  property("Test unfold with computation that will stop when you take it too far") {
+  property("Test unfold with computation that will stop when you take it too far") = {
     val actual = Stream.unfold(100)(nextPositiveIntLT100).take(12).toList
-    actual should be (empty)
+    actual.size == 0
   }
 
-  property("Test unfold with computation that will stop") {
+  property("Test unfold with computation that will stop") = {
     val actual = Stream.unfold(100)(nextPositiveIntLT100).toList
-    actual should be (empty)
+    actual.size == 0
   }
 
-  property("Test unfold to get whole list based upon computation") {
+  property("Test unfold to get whole list based upon computation") = {
     val actual = Stream.unfold(0)(nextPositiveIntLT100).toList
-    actual should be (0 to 99)
+    actual == (0 to 99)
   }
 
   val nextPositiveIntLT100: Int => Option[(Int, Int)] = s =>
      if (s < 100) Some(s, s + 1)
-     else None 
+     else None
 
   val keepItRollingUntilNoMoreUnmigratedDocs: Option[ODriveDoc] => Option[(ODriveDoc, Option[ODriveDoc])] = doc => doc match {
     case Some(d) => Some(d, getNextDoc())
@@ -235,40 +214,37 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     case _ => Some(s._1 + s._2, (s._2, s._1 + s._2))
   }
 
-  property("Use unfold with fib") {
+  property("Use unfold with fib") = {
     val actual = Stream.unfold((0,0))(fib).take(7).toList
-     actual should be (List(0, 1, 1, 2, 3, 5, 8))
+     actual == List(0, 1, 1, 2, 3, 5, 8)
   }
 
-  property("Get 43rd fib number using unfold") {
+  property("Get 43rd fib number using unfold") = {
      val fib43 =  433494437
      val actual = Stream.unfold((0,0))(fib).take(44).toList(43)
-     actual should be (fib43)
+     actual == fib43
   }
 
-  property("Make a stream of constants  using unfold") {
+  property("Make a stream of constants  using unfold") =
     forAll { x: Int =>
       val constant: Int => Option[(Int, Int)] = s => Some(s, s)
       val actual = Stream.unfold(x)(constant).take(44).toList(43)
-      actual should be (x)
+      actual == x
     }
-  }
 
-  property("Make a stream of ones using unfold") {
+  property("Make a stream of ones using unfold") =
     forAll {x: Int =>   // Start value does not matter
       val ones: Int => Option[(Int, Int)] = _  => Some(1, 1)
       val actual = Stream.unfold(x)(ones).take(44).toList(43)
-      actual should be (1)
+      actual == 1
     }
-  }
 
-  property("Make a stream from some start using unfold") {
-    forAll {x: Int =>  
+  property("Make a stream from some start using unfold") =
+    forAll {x: Int =>
       val from: Int => Option[(Int, Int)] = x  => Some(x, x + 1)
       val actual = Stream.unfold(x)(from).take(4).toList
-      actual should be (List(x, x+1, x+2, x + 3))
+      actual == List(x, x+1, x+2, x + 3)
     }
-  }
 
   def mapWunfold[A, B](xs: Stream[A])(f: A => B): Stream[B] = Stream.unfold(xs)(x => x match {
     case  Cons(h, t) => Some(f(h()), t())
@@ -276,14 +252,13 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     }
   )
 
-  property("Write map using unfold") {
-    forAll {xs: Seq[Int] =>  
+  property("Write map using unfold") =
+    forAll {xs: Seq[Int] =>
       val st  = Stream.apply(xs:_*)
-  
+
       val actual = mapWunfold(st)(f).toList
-      actual should be (xs.map(f))
+      actual == xs.map(f)
     }
-  }
 
   def takeWunfold[A](n: Int) (xs: Stream[A]): Stream[A] =
     Stream.unfold((n, xs))(nxs => nxs match {
@@ -291,52 +266,49 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
       case _ => None
     }
   )
-  
 
-  property("Write take using unfold fixed size") {
+
+  property("Write take using unfold fixed size") = {
       val xs = Seq(1,2,3,4,5)
       val st = Stream.apply(xs:_*)
       val actual = takeWunfold(2)(st).toList
       val expected = xs.take(2)
-      actual should be (expected)
+      actual == expected
   }
 
-  property("Write take using unfold") {
+  property("Write take using unfold") =
      forAll {(xs: Seq[Int], x: Int) =>
        val st = Stream.apply(xs:_*)
        val actual = takeWunfold(x)(st).toList
        val expected = xs.take(x)
-       actual should be (expected)
+       actual == expected
      }
-  }
 
   def takeWhileWunfold[A](xs: Stream[A])(p: A => Boolean): Stream[A] = Stream.unfold(xs)(xs => xs match {
     case Cons(h, t) if p(h()) => Some(h(), t())
     case _ => None
   })
 
-  property("Write takewhile using unfold for Stream of ints") {
+  property("Write takewhile using unfold for Stream of ints") =
     forAll { xs: Seq[Int] =>
      val st = Stream.apply(xs:_*)
      val actual = takeWhileWunfold(st)(p).toList
-     actual should be (xs.takeWhile(p))
+     actual == xs.takeWhile(p)
     }
-  }
 
   def zipWunfold[A](xs: Stream[A])(ys: Stream[A])(f: (A, A)=> A):Stream[A] = Stream.unfold((xs, ys))(pr => pr match {
     case (Cons(h1, t1), Cons(h2, t2)) => Some(f(h1(), h2()), (t1(), t2()))
     case _ => None
   })
 
-  property("Write zipwith using unfold for Stream of ints") {
+  property("Write zipwith using unfold for Stream of ints") =
     forAll { (xs: Array[Int], ys: Array[Int]) =>
       val expected = (xs, ys).zipped.toList.map(xy => xy._1 + xy._2)
       val xxs = Stream.apply(xs:_*)
       val xys = Stream.apply(ys:_*)
       val actual = zipWunfold(xxs)(xys)((x,y) => x + y).toList
-      actual should be (expected)
+      actual == expected
      }
-  }
 
   def zipAllWunfold[A, B](xs: Stream[A])(ys: Stream[B]):Stream[(Option[A], Option[B])] = Stream.unfold((xs, ys))(pr => pr match {
     case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
@@ -345,15 +317,14 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
     case _ => None
   })
 
-  property("Write zipAll using unfold for Stream of ints") {
+  property("Write zipAll using unfold for Stream of ints") =
     forAll { (xs: Seq[Int], ys: Seq[Int]) =>
       val expected = xs.map(x => Some(x)).zipAll(ys.map(y => Some(y)), None, None)
       val xxs = Stream.apply(xs:_*)
       val xys = Stream.apply(ys:_*)
       val actual = zipAllWunfold(xxs)(xys).toList
-      actual should be (expected)
-     }
-  }
+      actual == expected
+   }
 
   //This is the one I wrote before I read the directions fully. It passes the tests as well
   def hasSubsequenceNotAsGood[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
@@ -365,107 +336,97 @@ class StreamTest extends PropSpec with PropertyChecks with Matchers {
   }
 
   //This is the one I wrote after following the directions and writing tails and startsWith
-  def hasSubsequence[A](sup: Stream[A])(sub: Stream[A]): Boolean = Stream.tails(sup) exists (s =>  startsWith(s)(sub)) 
+  def hasSubsequence[A](sup: Stream[A])(sub: Stream[A]): Boolean = Stream.tails(sup) exists (s =>  startsWith(s)(sub))
 
   def startsWith[A](sup: Stream[A])(sub: Stream[A]):Boolean = (sup, sub) match {
     case (Cons(h1, t1), Cons(h2, t2)) => takeWhileWunfold(zipAllWunfold(sup)(sub))(x  => !x._2.isEmpty).forAll(x2 => x2._1 == x2._2)
     case _ => false
   }
 
-  property("Write tails for Stream of Strings") {
+  property("Write tails for Stream of Strings") =
     forAll { (xs: Seq[String]) =>
       val xss = Stream.apply(xs:_*)
       val actual = xss.tails.map((x => x.toList)).toList
-      actual should be (xs.tails.toList)
+      actual == xs.tails.toList
     }
-  }
 
-  property("Write startsWith false for Stream of Strings") {
+  property("Write startsWith false for Stream of Strings") =
     forAll { (xs1: Seq[String], xs2: Seq[String]) =>
-      whenever (xs2.size > xs1.size) {
+      (xs2.size > xs1.size) ==> {
         val sup = Stream.apply(xs1:_*)
         val sub = Stream.apply(xs2:_*)
-        (startsWith(sup)(sub)) should be (false)
+        (startsWith(sup)(sub)) == false
       }
     }
-  }
 
-  property("Write startsWith true for Stream of Strings") {
+  property("Write startsWith true for Stream of Strings") =
     forAll { (xs: Seq[String]) =>
-      whenever (xs.size > 200) {
+      (xs.size > 200) ==> {
         val sup = Stream.apply(xs:_*)
         val sub = Stream.apply(xs.take(100):_*)
-        (startsWith(sup)(sub)) should be (true)
+        startsWith(sup)(sub) == true
       }
     }
-  }
 
   val ff = hasSubsequence _
-  val gg  = hasSubsequenceNotAsGood _ 
+  val gg  = hasSubsequenceNotAsGood _
   val hh = for {
     i <- Gen.oneOf(ff, gg)
   } yield (i)
 
-  property("Write hasSubsequence false for Stream of Strings") {
+  property("Write hasSubsequence false for Stream of Strings") =
     forAll { (xs1: Seq[String], xs2: Seq[String]) =>
-      whenever (xs2.size > xs1.size) {
+      (xs2.size > xs1.size) ==> {
         val sup = Stream.apply(xs1:_*)
         val sub = Stream.apply(xs2:_*)
-       (hh.sample.get(sup)(sub)) should be (false)
+       (hh.sample.get(sup)(sub)) == false
       }
     }
-  }
 
-  property("Write hasSubsequence true for Stream of ints") {
+  property("Write hasSubsequence true for Stream of ints") =
     forAll { xs: Seq[Int] =>
-      whenever (xs.size >= 3) {
+      (xs.size >= 3) ==> {
         val sub = Stream.apply(xs.takeRight(3):_*)
         val sup = Stream.apply(xs:_*)
-        (hh.sample.get(sup)(sub)) should be (true)
+        hh.sample.get(sup)(sub) == true
       }
     }
-  }
 
-  property("Write hasSubsequence true for Stream of Strings") {
+  property("Write hasSubsequence true for Stream of Strings") =
     forAll { xs: Seq[String] =>
-      whenever (xs.size >= 3) {
+      (xs.size >= 3) ==> {
         val sub = Stream.apply(xs.take(3):_*)
         val sup = Stream.apply(xs:_*)
-        (hh.sample.get(sup)(sub)) should be (true)
+        hh.sample.get(sup)(sub) == true
       }
     }
-  }
 
-  property("Write scanRight for Stream of Ints") {
+  property("Write scanRight for Stream of Ints") =
     forAll { (xs: Seq[Int]) =>
       val xss = Stream.apply(xs:_*)
       val actual = Stream.scanRight(xss)(Stream.empty[String])((a, s) => Stream.cons(a.toString(), s)).map(l => l.toList).toList
       val expected = xs.scanRight(List.empty[String])((a, s) => a.toString +: s)
-      actual should be (expected)
+      actual == expected
     }
-  }
 
-  property("Test foldLeft") {
+  property("Test foldLeft") =
     forAll{ xs: Seq[Int] =>
       val xss = Stream(xs:_*)
       val actual = xss.foldLeft(List.empty[Int])((b, a) => a :: b).reverse
-      actual should be (xs)
+      actual == xs
     }
-  }
 
-    property("Test reverse") {
+  property("Test reverse") =
     forAll{ xs: Seq[Int] =>
       val xss = Stream(xs:_*)
       val actual = xss.reverse
-      actual.toList should be (xs.reverse)
+      actual.toList == xs.reverse
     }
-  }
 
-  property("Test foldRight") {
+  property("Test foldRight") =
     forAll{ xs: Seq[Int] =>
       val xss = Stream(xs:_*)
       val actual = xss.foldRight(List.empty[Int])((a, b) => a  :: b)
-      actual should be (xs)
+      actual == xs
     }
-  }
 }

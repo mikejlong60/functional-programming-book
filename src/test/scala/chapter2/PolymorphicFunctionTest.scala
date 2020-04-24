@@ -1,9 +1,9 @@
 package chapter2
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalacheck._
 
-class PolymorphicFunctionTest extends PropSpec with PropertyChecks with Matchers {
+class PolymorphicFunctionTest extends Properties("Polymorphic Functions") {
+  import Prop.forAll
 
   def isSorted[A](as: Array[A])(ordered: (A, A) => Boolean): Boolean = {
 
@@ -21,37 +21,35 @@ class PolymorphicFunctionTest extends PropSpec with PropertyChecks with Matchers
   def assertSorting[A](n: Array[A])(isOrdered: (A, A) => Boolean) = {
     val sorted = n.sortWith(isOrdered) //This uses an internal Scala library function
     val wasAlreadySorted = isSorted(n)(isOrdered) //This uses my polymorphic, tail-recursive function above.
-    if (wasAlreadySorted) sorted shouldBe (n)
-    else sorted shouldNot be(n)
+    if (wasAlreadySorted) sorted == (n)
+    else sorted != (n)
   }
 
-  property("Test polymorphic is-sorted function for an Int array") {
-    val isOrdered: (Int, Int) => Boolean = (x: Int, y: Int) => x <= y
+  property("Test polymorphic is-sorted function for an Int array") =
     forAll { n: Array[Int] =>
+      val isOrdered: (Int, Int) => Boolean = (x: Int, y: Int) => x <= y
       assertSorting(n)(isOrdered)
     }
-  }
 
-  property("Test polymorphic is-sorted function for a String array") {
-    val isOrdered: (String, String) => Boolean = (x: String, y: String) => x <= y
+
+  property("Test polymorphic is-sorted function for a String array")  =
     forAll { n: Array[String] =>
+      val isOrdered: (String, String) => Boolean = (x: String, y: String) => x <= y
       assertSorting(n)(isOrdered)
     }
-  }
 
-  property("Test polymorphic is-sorted function for a Long array") {
-    val isOrdered: (Long, Long) => Boolean = (x: Long, y: Long) => x <= y
+
+  property("Test polymorphic is-sorted function for a Long array") =
     forAll { n: Array[Long] =>
+      val isOrdered: (Long, Long) => Boolean = (x: Long, y: Long) => x <= y
       assertSorting(n)(isOrdered)
     }
-  }
 
-  property("Test polymorphic is-sorted function for a Float array") {
-    val isOrdered: (Float, Float) => Boolean = (x: Float, y: Float) => x <= y
+
+  property("Test polymorphic is-sorted function for a Float array") =
     forAll { n: Array[Float] =>
+      val isOrdered: (Float, Float) => Boolean = (x: Float, y: Float) => x <= y
       assertSorting(n)(isOrdered)
     }
-  }
-
 }
 

@@ -1,6 +1,5 @@
 package chapter12
 
-import chapter5.Stream
 import org.scalacheck._
 import Prop.{forAll, propBoolean}
 
